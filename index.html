@@ -1,0 +1,2518 @@
+<!DOCTYPE html><html lang="en"><head>
+
+
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colin &amp; Lydia · October 10, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;0,6..96,800;0,6..96,900;1,6..96,400;1,6..96,500&amp;family=Italiana&amp;family=Italianno&amp;family=Pinyon+Script&amp;family=Great+Vibes&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Light theme — unified warm ivory palette */
+    --midnight: #efe8d9;        /* warm cream — accent band (details/schedule/stay) */
+    --ink-blue: #f8f4ec;        /* primary ivory — hero/story/attire/rsvp/footer */
+    --royal: #efe8d9;           /* alias of --midnight for back-compat */
+    --sapphire: #1f3a8a;        /* brighter blue */
+    --dusty-blue: #6b7fa8;      /* muted blue */
+    --porcelain: #0f1a33;       /* near-black text (deep navy-ink) */
+    --cream: #f5f1e6;           /* warm highlight */
+    --silver: #5a6476;          /* secondary text */
+    --pearl: #2a3347;           /* body text */
+    --accent: #1e3a8a;          /* signature blue accent */
+    --accent-soft: #3b5bb8;     /* lighter blue for hover */
+    --line: rgba(30,58,138,0.22);
+    --line-soft: rgba(30,58,138,0.14);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink-blue);
+    color: var(--porcelain);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.6;
+    scroll-behavior: smooth;
+  }
+
+  /* Subtle paper grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.2 0 0 0 0 0.3 0 0 0 0.9 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    mix-blend-mode: multiply;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(30,58,138,0.06) 100%);
+  }
+
+  /* AIDA-style display face — Bodoni Moda is the closest free analog:
+     same high contrast, hairline serifs, small ball terminals. */
+  .aida {
+    font-family: 'Bodoni Moda', 'Didot', 'Bodoni 72', serif;
+    font-weight: 400;
+    font-variation-settings: "opsz" 96;
+    letter-spacing: -0.015em;
+  }
+  .aida-light {
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-weight: 400;
+    font-variation-settings: "opsz" 96;
+  }
+  .italiana {
+    font-family: 'Italiana', 'Bodoni Moda', serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  .script {
+    font-family: 'Italianno', cursive;
+    font-weight: 400;
+  }
+
+  .eyebrow {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* ===================== NAV ===================== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    padding: 22px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 56px;
+    background: linear-gradient(to bottom, rgba(10,18,40,0.55) 0%, rgba(10,18,40,0.18) 60%, transparent 100%);
+    transition: background 400ms ease;
+  }
+  nav.scrolled {
+    background: rgba(248,244,236,0.96);
+    border-bottom: 1px solid var(--line-soft);
+    backdrop-filter: blur(8px);
+  }
+  nav.scrolled a { color: var(--pearl); }
+  nav.scrolled .monogram { color: var(--porcelain); }
+  nav a {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.38em;
+    text-transform: uppercase;
+    color: #f8f4ec;
+    text-decoration: none;
+    opacity: 0.95;
+    transition: opacity 250ms, color 250ms;
+    cursor: pointer;
+  }
+  nav a:hover { opacity: 1; color: #cfd9ef; }
+  nav.scrolled a:hover { color: var(--accent); }
+  nav .monogram {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 400;
+    font-variation-settings: "opsz" 96;
+    font-size: 32px;
+    line-height: 1;
+    color: #f8f4ec;
+    padding: 0 12px;
+    letter-spacing: 0.05em;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  nav .monogram em {
+    font-style: italic;
+    font-weight: 400;
+    font-size: 0.65em;
+    vertical-align: 0.18em;
+    margin: 0 2px;
+    color: #a8c0f0;
+  }
+
+  /* ===================== HERO ===================== */
+  .hero {
+    position: relative;
+    height: 100vh;
+    min-height: 760px;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 8vh;
+    text-align: center;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('assets/hero-couple-4.jpg');
+    background-size: cover;
+    background-position: center 25%;
+    filter: brightness(0.82) saturate(0.9) contrast(1.02);
+    transform: scale(1.05);
+  }
+  .hero-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* Subtle vignette only — keeps white text legible against the photo.
+       No bottom fade; hero meets the next section with a clean edge. */
+    background:
+      radial-gradient(ellipse at center, rgba(10,18,40,0.08) 0%, rgba(10,18,40,0.32) 100%);
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    padding: 0 24px;
+    max-width: 1200px;
+    animation: fadeUp 1.6s ease-out;
+  }
+
+  .hero .date-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+  .hero .date-top span {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: #f8f4ec;
+    opacity: 0.95;
+  }
+  .hero .rule {
+    flex: 0 0 70px;
+    height: 1px;
+    background: rgba(248,244,236,0.7);
+  }
+
+  .hero h1 {
+    font-family: 'Pinyon Script', 'Italianno', cursive;
+    font-weight: 400;
+    font-size: clamp(44px, 9vw, 170px);
+    line-height: 0.95;
+    color: #f8f4ec;
+    letter-spacing: 0;
+    text-shadow: 0 2px 60px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.3);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    hyphens: none;
+    max-width: 100%;
+  }
+  .hero h1 .amp {
+    font-family: 'Italianno', cursive;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 0.7em;
+    vertical-align: 0.08em;
+    color: #cfd9ef;
+    margin: 0 0.02em;
+  }
+  .hero h1 .first-letter {
+    /* make the capitals feel AIDA-like: slightly extended and airy */
+    display: inline-block;
+  }
+
+  .hero .tagline {
+    margin-top: 28px;
+    font-family: 'Bodoni Moda', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+    color: #f5f1e6;
+    opacity: 0.92;
+  }
+
+  .hero .meta {
+    margin-top: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: #f8f4ec;
+  }
+  .hero .meta .dot {
+    width: 4px; height: 4px;
+    background: #cfd9ef;
+    border-radius: 50%;
+    opacity: 0.95;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.7;
+    animation: pulse 2.8s ease-in-out infinite;
+  }
+  .scroll-hint span {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: #f8f4ec;
+  }
+  .scroll-hint .line {
+    /* Thin line ending in a downward chevron — keeps the minimalist aesthetic
+       while communicating "scroll down" more clearly than a plain stroke. */
+    width: 1px;
+    height: 32px;
+    background: linear-gradient(to bottom, #f8f4ec, rgba(248,244,236,0.5));
+    position: relative;
+  }
+  .scroll-hint .line::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    width: 8px;
+    height: 8px;
+    border-right: 1px solid #f8f4ec;
+    border-bottom: 1px solid #f8f4ec;
+    transform: translateX(-50%) translateY(50%) rotate(45deg);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.9; }
+  }
+
+  /* ===================== SECTIONS ===================== */
+  section {
+    position: relative;
+    padding: 150px 48px;
+    overflow: hidden;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .section-eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    margin-bottom: 30px;
+  }
+  .section-eyebrow .rule { flex: 0 0 44px; height: 1px; background: var(--accent); opacity: 0.55; }
+  .section-eyebrow .label {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* AIDA-style section title — large Bodoni with italic swashy lowercase */
+  .section-title {
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 400;
+    font-size: clamp(64px, 9vw, 128px);
+    line-height: 0.95;
+    text-align: center;
+    color: var(--porcelain);
+    margin-bottom: 56px;
+    letter-spacing: -0.02em;
+  }
+  .section-title em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  /* ===================== STORY ===================== */
+  .story { background: var(--ink-blue); }
+  .story-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 88px;
+    align-items: center;
+  }
+  .story-photo {
+    position: relative;
+    aspect-ratio: 4/5;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgba(30,58,138,0.25);
+  }
+  .story-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.9) contrast(1.02);
+  }
+  .story-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(30,58,138,0.18) 100%);
+  }
+  .story-photo .frame-corner {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--accent);
+    opacity: 0.75;
+    z-index: 2;
+  }
+  .story-photo .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .story-photo .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  .story p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    line-height: 1.75;
+    color: var(--pearl);
+    opacity: 0.92;
+    margin-bottom: 22px;
+    font-weight: 300;
+  }
+  .story p.drop::first-letter {
+    font-family: 'Bodoni Moda', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 400;
+    font-size: 4.2em;
+    float: left;
+    line-height: 0.85;
+    padding: 10px 12px 0 0;
+    color: var(--accent);
+  }
+  .story .signature {
+    margin-top: 44px;
+    font-family: 'Italianno', cursive;
+    font-size: 56px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  /* ===================== DETAILS ===================== */
+  .details {
+    background: var(--ink-blue);
+    position: relative;
+  }
+  .details::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.15 0 0 0 0 0.3 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .details > * { position: relative; z-index: 1; }
+
+  .details-cta {
+    text-align: center;
+    margin-top: 72px;
+  }
+  .details-rsvp-btn {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 22px 64px;
+    background: var(--accent);
+    color: #f8f4ec;
+    text-decoration: none;
+    border: 1px solid var(--accent);
+    transition: all 300ms ease;
+    cursor: pointer;
+  }
+  .details-rsvp-btn:hover {
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -14px rgba(30,58,138,0.45);
+  }
+  .details-rsvp-btn .lbl {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+  }
+  .details-rsvp-btn .sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    opacity: 0.9;
+  }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 40px;
+  }
+  .detail-card {
+    background: var(--ink-blue);
+    padding: 60px 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    transition: background 400ms ease;
+  }
+  .detail-card .ornament {
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .detail-card:hover {
+    background: #e6ecf8;
+  }
+  .detail-card:hover .ornament {
+    transform: translateY(-2px);
+  }
+  .detail-card .ornament { color: var(--accent); margin-bottom: 6px; opacity: 0.9; }
+  .detail-card h3 {
+    font-family: 'Bodoni Moda', serif;
+    font-variation-settings: "opsz" 96;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 42px;
+    color: var(--porcelain);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .detail-card .big {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    color: var(--porcelain);
+    margin-top: 6px;
+  }
+  .detail-card .sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 17px;
+    color: var(--silver);
+    opacity: 0.82;
+    max-width: 240px;
+  }
+
+  /* ===================== ATTIRE ===================== */
+  .attire { background: var(--ink-blue); }
+  .attire-wrap { max-width: 980px; margin: 0 auto; text-align: center; }
+  .attire-chic {
+    font-family: 'Pinyon Script', 'Italianno', cursive;
+    font-weight: 400;
+    font-size: clamp(44px, 6vw, 80px);
+    line-height: 1;
+    color: var(--porcelain);
+    letter-spacing: 0;
+    margin: 8px auto 18px;
+  }
+  .attire-chic em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .attire-lead {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(19px, 2.2vw, 23px);
+    line-height: 1.65;
+    color: var(--pearl);
+    max-width: 620px;
+    margin: 0 auto 40px;
+  }
+  .attire-rule {
+    width: 48px; height: 1px;
+    background: var(--accent);
+    opacity: 0.45;
+    margin: 0 auto 40px;
+  }
+  .attire-gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 0 0 18px;
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .attire-photo {
+    margin: 0;
+    overflow: hidden;
+    aspect-ratio: 2 / 3;
+    background: var(--royal);
+    position: relative;
+  }
+  .attire-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
+    filter: saturate(0.92) contrast(0.96);
+    transition: transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .attire-photo:hover img { transform: scale(1.04); }
+  .attire-caption {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--silver);
+    margin-bottom: 56px;
+    letter-spacing: 0.01em;
+  }
+  .attire-note-block {
+    border-top: 1px solid rgba(30,58,138,0.14);
+    padding-top: 36px;
+    max-width: 580px;
+    margin: 0 auto;
+  }
+  .attire-note {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--silver);
+    margin: 0 0 24px;
+  }
+  .attire-note a { color: var(--accent); text-decoration: underline; text-underline-offset: 4px; }
+  .attire-lead {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--pearl);
+    margin-bottom: 22px;
+  }
+  .attire-note {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--silver);
+    line-height: 1.6;
+    margin-bottom: 40px;
+  }
+  .attire-note a { color: var(--accent); text-decoration: underline; text-underline-offset: 4px; }
+  .attire-cta {
+    display: inline-block;
+    padding: 18px 44px;
+    background: var(--accent);
+    color: #f8f4ec;
+    border: none;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .attire-cta,
+  .attire-cta.reveal,
+  .attire-cta.reveal.in {
+    transition: background 300ms ease, transform 300ms ease, box-shadow 300ms ease, opacity 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .attire-cta:hover {
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -14px rgba(30,58,138,0.45);
+  }
+
+  /* Stylist modal */
+  .stylist-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,18,40,0.55);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 32px 20px;
+  }
+  .stylist-overlay.open { display: flex; animation: fadeUp 400ms ease-out; }
+  .stylist-modal {
+    position: relative;
+    background: var(--ink-blue);
+    max-width: 540px;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 44px 40px 36px;
+    border: 1px solid var(--line);
+    box-shadow: 0 40px 80px -20px rgba(10,18,40,0.4);
+  }
+  .stylist-close {
+    position: sticky;
+    top: 12px;
+    float: right;
+    margin-right: -22px;
+    margin-top: -22px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(248,244,236,0.92);
+    border: 1px solid var(--line);
+    box-shadow: 0 4px 12px -4px rgba(10,18,40,0.25);
+    font-size: 22px; line-height: 1;
+    color: var(--silver); cursor: pointer;
+    transition: all 200ms ease;
+    backdrop-filter: blur(4px);
+  }
+  .stylist-close:hover { color: var(--accent); border-color: var(--accent); background: #fff; }
+  .stylist-header { text-align: center; margin-bottom: 28px; }
+  .stylist-header h3 {
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 400;
+    font-size: 56px;
+    color: var(--porcelain);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 10px 0 14px;
+  }
+  .stylist-header h3 em { font-style: italic; color: var(--accent); }
+  .stylist-header p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--silver);
+    line-height: 1.55;
+  }
+  .stylist-upload {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 44px 20px;
+    border: 1px dashed var(--line);
+    background: rgba(255,255,255,0.35);
+    cursor: pointer;
+    transition: all 250ms ease;
+  }
+  .stylist-upload:hover { border-color: var(--accent); background: rgba(255,255,255,0.6); }
+  .upload-plus {
+    font-family: 'Bodoni Moda', serif; font-weight: 400;
+    font-size: 48px; line-height: 1;
+    color: var(--accent); margin-bottom: 8px;
+  }
+  .upload-label {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--porcelain);
+  }
+  .upload-hint {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 14px;
+    color: var(--silver); margin-top: 6px;
+  }
+  .stylist-preview {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .stylist-preview img {
+    max-width: 100%; max-height: 280px;
+    object-fit: contain;
+    border: 1px solid var(--line);
+  }
+  .re-up {
+    background: none; border: none;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--accent); cursor: pointer;
+    text-decoration: underline; text-underline-offset: 4px;
+  }
+  .stylist-submit {
+    display: block; width: 100%; margin-top: 22px;
+    padding: 18px;
+    background: var(--accent); color: #f8f4ec;
+    border: none;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px; letter-spacing: 0.45em; text-transform: uppercase;
+    cursor: pointer; transition: all 300ms ease;
+  }
+  .stylist-submit:hover:not(:disabled) {
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -14px rgba(30,58,138,0.45);
+  }
+  .stylist-submit:disabled { opacity: 0.35; cursor: not-allowed; }
+  .stylist-response {
+    margin-top: 26px;
+    padding: 22px;
+    background: rgba(255,255,255,0.6);
+    border-left: 2px solid var(--accent);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; line-height: 1.6;
+    color: var(--pearl);
+    text-align: left;
+  }
+  .stylist-response .thinking {
+    font-style: italic; color: var(--silver);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .stylist-response .thinking::before {
+    content: ""; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--accent);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  /* OBSESSIVE VERDICT */
+  .verdict {
+    text-align: left;
+    padding: 24px 22px 20px;
+    margin: -22px -22px 0;
+    border-bottom: 1px solid var(--line-soft);
+    position: relative;
+    overflow: hidden;
+  }
+  .verdict.v-yes {
+    background: linear-gradient(180deg, #eef3ff 0%, #f8f4ec 100%);
+    color: var(--accent);
+  }
+  .verdict.v-no {
+    background: linear-gradient(180deg, #fbeeee 0%, #f8f4ec 100%);
+    color: #a13838;
+  }
+  .verdict.v-maybe {
+    background: linear-gradient(180deg, #fbf4e2 0%, #f8f4ec 100%);
+    color: #8a6a1e;
+  }
+  .verdict-glyph {
+    display: inline-block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 26px;
+    line-height: 1;
+    margin-right: 10px;
+    vertical-align: -2px;
+    opacity: 0.85;
+    animation: verdictPopGlyph 600ms cubic-bezier(0.34, 1.5, 0.64, 1) both;
+  }
+  .verdict-word {
+    display: inline-block;
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-variation-settings: "opsz" 96;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 34px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    margin: 0;
+    animation: verdictPop 700ms cubic-bezier(0.34, 1.5, 0.64, 1) both;
+    animation-delay: 80ms;
+  }
+  .verdict-rule {
+    width: 40px; height: 1px;
+    background: currentColor;
+    opacity: 0.45;
+    margin: 14px 0 12px;
+  }
+  .verdict-headline {
+    font-family: 'Bodoni Moda', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    color: var(--porcelain);
+    max-width: 420px;
+    margin: 0;
+    animation: fadeUp 500ms ease-out both;
+    animation-delay: 240ms;
+  }
+  .verdict-notes {
+    padding: 20px 4px 4px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--pearl);
+    text-align: left;
+    animation: fadeUp 500ms ease-out both;
+    animation-delay: 360ms;
+  }
+  @keyframes verdictPop {
+    from { opacity: 0; transform: scale(0.6); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes verdictPopGlyph {
+    from { opacity: 0; transform: scale(0.3) rotate(-20deg); }
+    to { opacity: 0.85; transform: scale(1) rotate(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 720px) {
+    .verdict { margin: -18px -20px 0; padding: 20px 18px 16px; }
+    .verdict-glyph { font-size: 22px; }
+    .verdict-word { font-size: 28px; }
+    .verdict-headline { font-size: 16px; }
+    .verdict-notes { font-size: 15px; padding: 16px 2px 2px; }
+  }
+
+  /* ===================== SCHEDULE ===================== */
+  .schedule {
+    background: var(--midnight);
+    position: relative;
+  }
+  .schedule-pending {
+    max-width: 680px;
+    margin: 20px auto 0;
+    text-align: center;
+  }
+  .schedule-lead {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--pearl);
+    margin-bottom: 22px;
+  }
+  .schedule-note {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--silver);
+    line-height: 1.7;
+  }
+  .schedule-note em {
+    font-family: 'Bodoni Moda', serif;
+    font-style: normal;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    padding: 0 4px;
+  }
+  .schedule-placeholder-old { display: none; }
+  .schedule-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('assets/bride-bouquet.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.08;
+    filter: blur(2px) saturate(0.4);
+  }
+  .schedule-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, var(--ink-blue) 0%, rgba(248,244,236,0.5) 50%, var(--ink-blue) 100%);
+  }
+  .schedule > * { position: relative; z-index: 1; }
+
+  .timeline {
+    max-width: 820px;
+    margin: 40px auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 56px;
+    padding: 36px 0;
+    border-bottom: 1px solid var(--line-soft);
+    align-items: baseline;
+  }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-time {
+    font-family: 'Bodoni Moda', serif;
+    font-variation-settings: "opsz" 96;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 40px;
+    color: var(--accent);
+    line-height: 1;
+    text-align: right;
+    letter-spacing: -0.01em;
+  }
+  .timeline-content h4 {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.35em;
+    color: var(--porcelain);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .timeline-content p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--silver);
+    opacity: 0.86;
+    font-weight: 300;
+  }
+
+  /* ===================== RSVP ===================== */
+  .rsvp {
+    background: var(--ink-blue);
+    position: relative;
+    color: var(--porcelain);
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .rsvp::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.15 0 0 0 0 0.2 0 0 0 0 0.35 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .rsvp::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(30,58,138,0.05) 0%, rgba(248,244,236,0) 100%);
+    pointer-events: none;
+  }
+  .rsvp > * { position: relative; z-index: 1; }
+
+  .rsvp-card {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .rsvp-intro {
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 21px;
+    color: var(--pearl);
+    opacity: 0.92;
+    margin-bottom: 64px;
+    line-height: 1.6;
+  }
+
+  .form-field { margin-bottom: 34px; }
+  .field-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(30, 58, 138, 0.04);
+    border-left: 1px solid rgba(30, 58, 138, 0.3);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--silver);
+  }
+  .field-hint em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .field-hint-ico {
+    flex: 0 0 auto;
+    color: var(--accent);
+    margin-top: 2px;
+    opacity: 0.8;
+  }
+  .form-field label {
+    display: block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .form-field input[type="text"],
+  .form-field input[type="email"] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(30,58,138,0.35);
+    padding: 10px 0;
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 400;
+    font-size: 22px;
+    color: var(--porcelain);
+    outline: none;
+    transition: border-color 250ms;
+    letter-spacing: -0.01em;
+  }
+  .form-field input::placeholder {
+    color: rgba(15,26,51,0.4);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+  }
+  .form-field input:focus { border-bottom-color: var(--accent); border-bottom-width: 2px; }
+
+  .attendance-choice {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .attendance-btn {
+    position: relative;
+    padding: 28px 20px 24px;
+    background: rgba(255,255,255,0.45);
+    border: 1px solid rgba(30,58,138,0.25);
+    color: var(--porcelain);
+    cursor: pointer;
+    transition: all 300ms ease;
+    text-align: center;
+  }
+  .attendance-btn .ico {
+    font-family: 'Bodoni Moda', serif;
+    font-variation-settings: "opsz" 96;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 38px;
+    line-height: 1;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+  .attendance-btn .title {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .attendance-btn .sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-style: italic;
+    opacity: 0.72;
+    display: block;
+  }
+  .attendance-btn:hover {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.75);
+  }
+  .attendance-btn.selected {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #f8f4ec;
+    box-shadow: 0 0 0 1px var(--accent), 0 14px 32px -14px rgba(30,58,138,0.35);
+  }
+  .attendance-btn.selected .ico { color: #f8f4ec; }
+  .attendance-btn.selected .sub { color: #f8f4ec; opacity: 0.9; }
+
+  .submit-btn {
+    display: block;
+    width: 100%;
+    margin-top: 44px;
+    padding: 22px;
+    background: var(--accent);
+    color: #f8f4ec;
+    border: none;
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 350ms ease;
+  }
+  .submit-btn:hover {
+    background: var(--accent-soft);
+    color: #ffffff;
+    letter-spacing: 0.6em;
+  }
+  .submit-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .form-note {
+    text-align: center;
+    margin-top: 22px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--pearl);
+    opacity: 0.65;
+  }
+
+  .rsvp-confirmed {
+    text-align: center;
+    padding: 40px 20px;
+    animation: fadeUp 800ms ease-out;
+  }
+  .rsvp-confirmed .seal {
+    font-family: 'Italianno', cursive;
+    font-size: 110px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .rsvp-confirmed h3 {
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 400;
+    font-size: 58px;
+    color: var(--porcelain);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 22px;
+  }
+  .rsvp-confirmed h3 em { font-style: italic; color: var(--accent); }
+  .rsvp-confirmed p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 19px;
+    color: var(--pearl);
+    max-width: 480px;
+    margin: 0 auto 16px;
+    line-height: 1.6;
+  }
+  .rsvp-confirmed .edit {
+    margin-top: 34px;
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 5px;
+  }
+
+  /* ===================== PLAYLIST ===================== */
+  .playlist {
+    background: var(--midnight);
+    position: relative;
+  }
+  .playlist-intro {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--pearl);
+    text-align: center;
+    max-width: 580px;
+    margin: -32px auto 48px;
+  }
+  .playlist-add {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr auto;
+    gap: 10px;
+    max-width: 680px;
+    margin: 0 auto 48px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--line);
+  }
+  .playlist-add input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(30,58,138,0.25);
+    padding: 8px 10px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    color: var(--porcelain);
+    outline: none;
+    transition: border-color 200ms ease;
+  }
+  .playlist-add input::placeholder { color: var(--silver); opacity: 0.6; font-style: italic; }
+  .playlist-add input:focus { border-bottom-color: var(--accent); }
+  .playlist-add button {
+    padding: 12px 24px;
+    background: var(--accent);
+    color: #f8f4ec;
+    border: none;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 250ms ease;
+  }
+  .playlist-add button:hover { background: var(--accent-soft); }
+
+  .playlist-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 760px;
+    counter-reset: song;
+  }
+  .song-row {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    align-items: center;
+    gap: 20px;
+    padding: 22px 24px;
+    background: rgba(255,255,255,0.4);
+    border-bottom: 1px solid var(--line-soft);
+    transition: background 250ms ease, transform 400ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    counter-increment: song;
+  }
+  .song-row:first-child { border-top: 1px solid var(--line-soft); }
+  .song-row:hover { background: rgba(255,255,255,0.7); }
+  .song-rank {
+    font-family: 'Bodoni Moda', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 400;
+    font-size: 32px;
+    color: var(--accent);
+    line-height: 1;
+    opacity: 0.85;
+    letter-spacing: -0.02em;
+  }
+  .song-rank::before { content: counter(song, decimal-leading-zero); }
+  .song-row:nth-child(1) .song-rank,
+  .song-row:nth-child(2) .song-rank,
+  .song-row:nth-child(3) .song-rank { opacity: 1; font-weight: 500; }
+  .song-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .song-title {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--porcelain);
+    line-height: 1.3;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .song-artist {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--silver);
+  }
+  .song-votes {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .vote-btn {
+    width: 34px; height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid rgba(30,58,138,0.18);
+    color: var(--silver);
+    cursor: pointer;
+    transition: all 200ms ease;
+    font-size: 14px;
+  }
+  .vote-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(30,58,138,0.06); }
+  .vote-btn.active { background: var(--accent); border-color: var(--accent); color: #f8f4ec; }
+  .vote-btn.active.down { background: #a13838; border-color: #a13838; }
+  .vote-count {
+    min-width: 36px;
+    text-align: center;
+    font-family: 'Bodoni Moda', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 500;
+    font-size: 20px;
+    color: var(--porcelain);
+    letter-spacing: -0.01em;
+  }
+  .vote-count.neg { color: #a13838; }
+  .vote-count.pos { color: var(--accent); }
+  .playlist-empty {
+    text-align: center;
+    padding: 50px 20px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--silver);
+  }
+
+  @media (max-width: 720px) {
+    .playlist-add { grid-template-columns: 1fr; padding: 12px; }
+    .playlist-add button { padding: 14px; width: 100%; }
+    .song-row { grid-template-columns: 32px 1fr auto; gap: 12px; padding: 16px 14px; }
+    .song-rank { font-size: 24px; }
+    .song-title { font-size: 16px; }
+    .song-artist { font-size: 13px; }
+    .vote-btn { width: 30px; height: 30px; }
+    .vote-count { min-width: 28px; font-size: 18px; }
+  }
+
+  /* ===================== ACCOMMODATIONS ===================== */
+  .stay {
+    background: var(--midnight);
+    color: var(--porcelain);
+  }
+  .stay-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 72px;
+    align-items: center;
+    margin-top: 40px;
+  }
+  .stay-copy h4 {
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-variation-settings: "opsz" 96;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 72px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 28px;
+    letter-spacing: -0.02em;
+  }
+  .stay-copy p {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 19px;
+    color: var(--pearl);
+    line-height: 1.7;
+    margin-bottom: 22px;
+    opacity: 0.92;
+  }
+  .info-box {
+    margin-top: 30px;
+    padding: 32px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--line);
+  }
+  .info-box .pending-label {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.38em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .info-box p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--pearl);
+    opacity: 0.9;
+    margin-bottom: 0;
+  }
+
+  .stay-photo {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+  }
+  .stay-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(0.9) contrast(1.02);
+  }
+  .stay-photo::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(135deg, rgba(10,18,40,0.18) 0%, transparent 45%, rgba(10,18,40,0.55) 100%);
+    pointer-events: none;
+  }
+  .stay-photo .overlay-text {
+    position: absolute;
+    bottom: 32px;
+    left: 32px;
+    right: 32px;
+    z-index: 3;
+    color: #f8f4ec;
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-variation-settings: "opsz" 96;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 40px;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.65);
+  }
+
+  /* ===================== FOOTER ===================== */
+  footer {
+    background: var(--ink-blue);
+    text-align: center;
+    padding: 110px 48px 64px;
+    position: relative;
+    border-top: 1px solid var(--line-soft);
+  }
+  footer .monogram-big {
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 400;
+    font-size: 160px;
+    color: var(--porcelain);
+    line-height: 0.9;
+    margin-bottom: 28px;
+    letter-spacing: -0.02em;
+  }
+  footer .monogram-big em {
+    font-style: italic;
+    font-size: 0.65em;
+    vertical-align: 0.15em;
+    color: var(--accent);
+    margin: 0 8px;
+  }
+  footer .final-date {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  footer .venue {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--pearl);
+    opacity: 0.72;
+  }
+  footer .tiny {
+    margin-top: 54px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--silver);
+    opacity: 0.48;
+  }
+
+  /* =====================================================
+     RESPONSIVE
+     ===================================================== */
+
+  /* Tablet + small laptop */
+  @media (max-width: 960px) {
+    section { padding: 120px 32px; }
+    .story-grid { grid-template-columns: 1fr; gap: 56px; }
+    .stay-grid { grid-template-columns: 1fr; gap: 56px; }
+    .details-grid { grid-template-columns: 1fr; }
+    .attire-gallery { grid-template-columns: repeat(2, 1fr); }
+    .timeline-item { grid-template-columns: 140px 1fr; gap: 36px; }
+  }
+
+  /* Phones */
+  @media (max-width: 720px) {
+    /* Prevent horizontal scroll from any stray overflow */
+    html, body { overflow-x: hidden; }
+
+    /* Nav (if ever re-enabled) */
+    nav { gap: 14px; padding: 14px 18px; flex-wrap: wrap; justify-content: center; }
+    nav a { font-size: 9px; letter-spacing: 0.22em; }
+    nav .monogram { font-size: 22px; }
+
+    /* Global section rhythm */
+    section { padding: 88px 22px; }
+
+    /* ---------- HERO ---------- */
+    .hero { min-height: 100svh; }
+    .hero-inner { padding: 0 22px; gap: 32px; }
+    .hero .eyebrow { font-size: 10px; letter-spacing: 0.45em; }
+    .hero .eyebrow .line { flex: 0 0 40px; }
+    .hero h1, .hero .names { font-size: clamp(50px, 14vw, 96px); line-height: 0.95; }
+    .hero .amp { font-size: 0.95em; }
+    .hero .date-badge { gap: 10px; }
+    .hero .date-badge .date-main { font-size: 14px; letter-spacing: 0.3em; }
+    .hero .meta { font-size: 10px; letter-spacing: 0.25em; flex-wrap: wrap; justify-content: center; gap: 10px; text-align: center; }
+    .hero .scroll-hint { bottom: 28px; font-size: 9px; letter-spacing: 0.3em; }
+
+    /* ---------- SECTION HEADERS ---------- */
+    .section-eyebrow { margin-bottom: 20px; }
+    .section-eyebrow .rule { flex: 0 0 30px; }
+    .section-eyebrow .label { font-size: 10px; letter-spacing: 0.28em; }
+    .section-title { font-size: clamp(44px, 12vw, 72px); margin-bottom: 40px; }
+
+    /* ---------- STORY ---------- */
+    .story-grid { gap: 40px; }
+    .story-photo { max-width: 100%; margin: 0 auto; }
+    .story-copy p { font-size: 17px; line-height: 1.7; }
+    .dropcap { font-size: 56px; padding: 6px 8px 0 0; }
+    .signature { font-size: 42px; margin-top: 20px; }
+
+    /* ---------- DETAILS ---------- */
+    .details-grid { border: none; background: transparent; gap: 14px; }
+    .detail-card { padding: 36px 24px; border: 1px solid var(--line); }
+    .detail-card .big { font-size: 32px; }
+    .detail-card h3 { font-size: 11px; letter-spacing: 0.3em; }
+    .detail-card .sub { font-size: 14px; }
+
+    /* ---------- ATTIRE ---------- */
+    .attire-wrap { padding: 0 4px; }
+    .attire-chic { font-size: clamp(48px, 14vw, 80px); margin-bottom: 14px; }
+    .attire-lead { font-size: 17px; line-height: 1.6; margin-bottom: 30px; padding: 0 4px; }
+    .attire-rule { margin-bottom: 30px; }
+    .attire-gallery { gap: 10px; margin-bottom: 14px; }
+    .attire-caption { font-size: 13px; margin-bottom: 40px; }
+    .attire-note-block { padding-top: 28px; }
+    .attire-note { font-size: 16px; line-height: 1.55; }
+    .attire-cta { padding: 16px 32px; font-size: 11px; letter-spacing: 0.35em; }
+    .attire-cta:hover { letter-spacing: 0.35em; }
+
+    /* Stylist modal */
+    .stylist-modal { padding: 36px 24px 28px; max-height: 90vh; }
+    .stylist-title { font-size: 40px; }
+    .stylist-subtitle { font-size: 15px; }
+
+    /* ---------- SCHEDULE ---------- */
+    .timeline-item {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .timeline-time { font-size: 26px; letter-spacing: -0.01em; }
+    .timeline-content h4 { font-size: 10px; letter-spacing: 0.3em; }
+    .timeline-content .desc { font-size: 16px; line-height: 1.55; }
+
+    /* ---------- RSVP ---------- */
+    .rsvp-card { padding: 0; }
+    .rsvp-intro { font-size: 17px; margin-bottom: 44px; padding: 0 4px; }
+    .form-field { margin-bottom: 28px; }
+    .form-field label { font-size: 10px; letter-spacing: 0.3em; }
+    .form-field input { font-size: 18px; padding: 10px 0; }
+    .attendance-choice { grid-template-columns: 1fr; gap: 12px; }
+    .attendance-btn { padding: 22px 18px 20px; }
+    .attendance-btn .title { font-size: 14px; letter-spacing: 0.25em; }
+    .attendance-btn .sub { font-size: 12px; }
+    .submit-btn { padding: 18px; font-size: 11px; letter-spacing: 0.4em; margin-top: 32px; }
+    .submit-btn:hover { letter-spacing: 0.4em; }
+    .field-hint { font-size: 14px; padding: 9px 12px; }
+    .rsvp-confirmed .check { font-size: 44px; }
+    .rsvp-confirmed h3 { font-size: 42px; }
+
+    /* ---------- STAY ---------- */
+    .stay-image { order: -1; max-width: 100%; }
+    .stay-copy p { font-size: 16px; }
+    .stay-info { padding: 24px; margin-top: 24px; }
+
+    /* ---------- FOOTER ---------- */
+    footer { padding: 80px 24px 48px; }
+    footer .monogram-big { font-size: 72px; line-height: 0.9; margin-bottom: 20px; }
+    footer .final-date { font-size: 10px; letter-spacing: 0.35em; }
+    footer .venue { font-size: 12px; }
+    footer .credit { font-size: 12px; margin-top: 40px; }
+  }
+
+  /* Very small phones */
+  @media (max-width: 380px) {
+    section { padding: 72px 18px; }
+    .hero h1, .hero .names { font-size: clamp(42px, 13vw, 78px); }
+    .section-title { font-size: clamp(38px, 13vw, 60px); }
+    .attire-chic { font-size: clamp(42px, 13vw, 68px); }
+    footer .monogram-big { font-size: 60px; }
+  }
+
+  /* ===================== SITE-WIDE ANIMATIONS ===================== */
+  /* Base reveal — fade + rise */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 1100ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 1100ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      filter 1100ms ease;
+    filter: blur(4px);
+    will-change: opacity, transform, filter;
+  }
+  .reveal.in { opacity: 1; transform: none; filter: blur(0); }
+
+  /* Directional variants */
+  .reveal-left  { transform: translateX(-40px); }
+  .reveal-right { transform: translateX(40px); }
+  .reveal-scale { transform: scale(0.94); }
+  .reveal-rise  { transform: translateY(44px); }
+  .reveal-left.in, .reveal-right.in, .reveal-scale.in, .reveal-rise.in {
+    transform: none;
+  }
+
+  /* Stagger — apply to container; children animate with offset */
+  .stagger > * {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 900ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .stagger.in > *           { opacity: 1; transform: none; }
+  .stagger.in > *:nth-child(1) { transition-delay: 0ms; }
+  .stagger.in > *:nth-child(2) { transition-delay: 120ms; }
+  .stagger.in > *:nth-child(3) { transition-delay: 240ms; }
+  .stagger.in > *:nth-child(4) { transition-delay: 360ms; }
+  .stagger.in > *:nth-child(5) { transition-delay: 480ms; }
+  .stagger.in > *:nth-child(6) { transition-delay: 600ms; }
+
+  /* Section-title elegant letter shimmer on enter */
+  .section-title.reveal em {
+    display: inline-block;
+    transition: transform 1400ms cubic-bezier(0.2, 0.7, 0.2, 1) 200ms;
+    transform-origin: left center;
+    transform: scaleX(0.92) translateY(8px);
+  }
+  .section-title.reveal.in em { transform: none; }
+
+  /* Hero entrance — cascading lines (runs on load) */
+  @keyframes heroRise {
+    from { opacity: 0; transform: translateY(40px); filter: blur(6px); }
+    to   { opacity: 1; transform: none; filter: blur(0); }
+  }
+  @keyframes fadeInSoft {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes kenBurns {
+    from { transform: scale(1.08); }
+    to   { transform: scale(1); }
+  }
+  @keyframes ornamentExpand {
+    from { transform: scaleX(0); opacity: 0; }
+    to   { transform: scaleX(1); opacity: 1; }
+  }
+
+  /* Nav fade-in on load */
+  .nav { animation: fadeInSoft 1200ms ease 400ms both; }
+
+  /* Hero cascading entrance */
+  .hero .date-top  { animation: heroRise 1200ms cubic-bezier(0.2, 0.7, 0.2, 1) 300ms both; }
+  .hero h1         { animation: heroRise 1400ms cubic-bezier(0.2, 0.7, 0.2, 1) 550ms both; }
+  .hero .tagline   { animation: heroRise 1100ms cubic-bezier(0.2, 0.7, 0.2, 1) 900ms both; }
+  .hero .meta      { animation: heroRise 1100ms cubic-bezier(0.2, 0.7, 0.2, 1) 1100ms both; }
+  .hero .scroll-hint { animation: fadeInSoft 1200ms ease 1600ms both, pulse 2.8s ease-in-out 2800ms infinite; }
+  .hero-bg         { animation: kenBurns 18000ms ease-out both; }
+
+  /* Soft ken-burns on any section background image (safe if absent) */
+  .bg-kenburns { animation: kenBurns 14000ms ease-out both; }
+
+  /* Horizontal rule flourish */
+  .section-eyebrow .rule {
+    transform-origin: center;
+    transform: scaleX(0);
+    transition: transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 200ms;
+  }
+  .section-eyebrow.reveal.in .rule { transform: scaleX(1); }
+
+  /* Parallax-ish float on hover for cards */
+  .stay-card, .song-row {
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1),
+                box-shadow 500ms ease,
+                background 250ms ease;
+  }
+  .stay-card:hover {
+    transform: translateY(-4px);
+  }
+
+  /* Subtle breathing on the hero monogram / seal elements */
+  @keyframes gentleBreathe {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.015); }
+  }
+  .hero-title, .seal { animation: gentleBreathe 8000ms ease-in-out infinite; }
+
+  /* Image reveal with a clip sweep */
+  .reveal-clip {
+    clip-path: inset(0 100% 0 0);
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: clip-path 1400ms cubic-bezier(0.7, 0, 0.2, 1);
+  }
+  .reveal-clip.in { clip-path: inset(0 0 0 0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-rise,
+    .stagger > *, .section-title.reveal em, .reveal-clip {
+      transition: opacity 300ms ease !important;
+      transform: none !important;
+      filter: none !important;
+      clip-path: none !important;
+    }
+    .nav, .hero-title, .seal, .bg-kenburns {
+      animation: none !important;
+    }
+  }
+  /* ---------- GUEST GARDEN ---------- */
+  .playlist-section {
+    position: relative;
+    padding: 140px 32px 120px;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(31,58,138,0.06), transparent 55%),
+      linear-gradient(180deg, var(--ivory) 0%, #f3ede0 60%, var(--ivory) 100%);
+    overflow: hidden;
+  }
+  .playlist-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(31,58,138,0.08) 0 1px, transparent 1px) 0 0 / 180px 180px,
+      radial-gradient(circle at 78% 62%, rgba(31,58,138,0.06) 0 1px, transparent 1px) 40px 80px / 220px 220px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .playlist-section .container { max-width: 880px; margin: 0 auto; position: relative; }
+  .playlist-intro {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 21px;
+    color: var(--pearl);
+    text-align: center;
+    max-width: 560px;
+    margin: 18px auto 56px;
+    line-height: 1.55;
+  }
+  .playlist {
+    list-style: none;
+    margin: 0;
+    padding: 14px 28px;
+    background: #fbf7ec;
+    border: 1px solid rgba(31,58,138,0.14);
+    box-shadow: 0 30px 60px -40px rgba(15,26,51,0.25), inset 0 0 0 1px rgba(255,255,255,0.5);
+  }
+  .playlist-row {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    padding: 22px 8px;
+    border-bottom: 1px solid rgba(31,58,138,0.12);
+    transition: background 200ms ease;
+  }
+  .playlist-row:last-child { border-bottom: none; }
+  .playlist-row:hover { background: rgba(31,58,138,0.05); }
+  .playlist-rank {
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-variation-settings: "opsz" 96;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 44px;
+    color: var(--accent);
+    line-height: 1;
+    text-align: center;
+    letter-spacing: -0.02em;
+  }
+  .playlist-meta { min-width: 0; }
+  .playlist-title {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--pearl);
+    line-height: 1.25;
+    margin: 0 0 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .playlist-artist {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--pearl);
+    margin: 0;
+  }
+  .playlist-by {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-top: 6px;
+  }
+  .playlist-by em {
+    font-family: 'Italianno', cursive;
+    font-size: 18px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--accent);
+    margin-left: 4px;
+    font-style: normal;
+  }
+  .playlist-votes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .playlist-score {
+    font-family: 'Bodoni Moda', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 500;
+    font-size: 26px;
+    color: var(--accent);
+    min-width: 38px;
+    text-align: center;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .vote-btn {
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(31,58,138,0.22);
+    background: rgba(255,255,255,0.6);
+    color: var(--accent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 200ms ease;
+    border-radius: 0;
+  }
+  .vote-btn:hover {
+    background: rgba(31,58,138,0.08);
+    border-color: var(--accent);
+  }
+  .vote-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #f8f4ec;
+  }
+  .vote-btn.down.active {
+    background: #a13838;
+    border-color: #a13838;
+  }
+  .vote-btn svg { display: block; width: 14px; height: 14px; }
+  .playlist-empty {
+    text-align: center;
+    padding: 60px 20px 40px;
+  }
+  .playlist-empty .script {
+    font-family: 'Italianno', cursive;
+    font-size: 64px;
+    color: var(--accent);
+    line-height: 1;
+    display: block;
+    margin-bottom: 22px;
+  }
+  .playlist-cta {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 14px 28px;
+    background: var(--accent);
+    color: #f8f4ec;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 300ms ease;
+  }
+  .playlist-cta:hover { background: var(--accent-soft, #2d4db3); letter-spacing: 0.6em; }
+  .playlist-foot {
+    margin-top: 48px;
+    text-align: center;
+  }
+  .playlist-foot .count {
+    font-family: 'Bodoni Moda', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 400;
+    font-size: 54px;
+    color: var(--accent);
+    line-height: 1;
+    display: inline-block;
+  }
+  .playlist-foot .count-lbl {
+    display: block;
+    margin-top: 10px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: var(--pearl);
+  }
+  .playlist-foot .add-more {
+    display: inline-block;
+    margin-top: 30px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(31,58,138,0.35);
+    padding-bottom: 3px;
+    transition: all 250ms ease;
+  }
+  .playlist-foot .add-more:hover {
+    color: var(--accent-soft, #2d4db3);
+    border-bottom-color: currentColor;
+  }
+  @media (max-width: 720px) {
+    .playlist-section { padding: 100px 20px 80px; }
+    .playlist-intro { font-size: 18px; margin-bottom: 40px; }
+    .playlist { padding: 6px 16px; }
+    .playlist-row { grid-template-columns: 44px 1fr auto; gap: 12px; padding: 18px 4px; }
+    .playlist-rank { font-size: 32px; }
+    .playlist-title { font-size: 18px; }
+    .playlist-artist { font-size: 14px; }
+    .vote-btn { width: 30px; height: 30px; }
+    .playlist-score { font-size: 20px; min-width: 30px; }
+    .playlist-foot .count { font-size: 44px; }
+  }
+  @media (max-width: 440px) {
+    .playlist-row { grid-template-columns: 36px 1fr auto; gap: 10px; }
+    .playlist-by { font-size: 9px; letter-spacing: 0.22em; }
+    .playlist-by em { font-size: 15px; }
+  }
+
+  /* ===== Narrow phones (<400px): tighter detail cards ===== */
+  @media (max-width: 400px) {
+    .detail-card { padding: 26px 16px; }
+    .detail-card .big { font-size: 22px; letter-spacing: -0.005em; }
+    .detail-card h3 { font-size: 9px; letter-spacing: 0.26em; }
+    .detail-card .sub { font-size: 12.5px; max-width: 200px; }
+  }
+
+</style>
+</head>
+<body data-cc-id="cc-14" style="background-color: rgb(248, 244, 236); cursor: crosshair;">
+
+<!-- NAV REMOVED -->
+
+<!-- HERO -->
+<section class="hero" id="hero" data-screen-label="Hero">
+  <div class="hero-bg" data-cc-id="cc-2"></div>
+  <div class="hero-inner">
+    <div class="date-top">
+      <div class="rule"></div>
+      <span style="font-size: 8px;">Ten · Ten</span>
+      <div class="rule"></div>
+    </div>
+    <h1 style="font-size: 48px; letter-spacing: 0px;">Colin <span class="amp"><em>&amp;</em></span> Lydia <br>are getting married</h1>
+    <div class="tagline">
+</div>
+    <div class="meta">
+      <span>Calamigos Ranch</span>
+      <span class="dot"></span>
+      <span>Malibu, California</span>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="line"></div>
+  </div>
+</section>
+
+<!-- DETAILS (moved under Hero) -->
+<section class="details" id="details" data-screen-label="Details" data-cc-id="cc-10">
+  <div class="container" data-cc-id="cc-8">
+    <div class="section-eyebrow reveal in" data-cc-id="cc-6">
+      <div class="rule"></div>
+      <span class="label">The Details</span>
+      <div class="rule"></div>
+    </div>
+    <h2 class="section-title reveal in" data-cc-id="cc-9">When &amp; <em>where</em></h2>
+
+    <div class="details-grid reveal in">
+      <div class="detail-card reveal reveal-rise in">
+        <div class="ornament">
+          <svg width="32" height="14" viewBox="0 0 32 14" fill="none"><path d="M1 7 C 7 0, 11 14, 16 7 C 21 0, 25 14, 31 7" stroke="currentColor" stroke-width="0.8" fill="none"></path></svg>
+        </div>
+        <h3>The Day</h3>
+        <div class="big">10 · 10 · 2026</div>
+        <div class="sub">Sunday evening, at the golden hour</div>
+      </div>
+      <div class="detail-card reveal reveal-rise in">
+        <div class="ornament">
+          <svg width="32" height="14" viewBox="0 0 32 14" fill="none"><path d="M1 7 C 7 0, 11 14, 16 7 C 21 0, 25 14, 31 7" stroke="currentColor" stroke-width="0.8" fill="none"></path></svg>
+        </div>
+        <h3>The Place</h3>
+        <div class="big">Calamigos Ranch</div>
+        <div class="sub">Malibu, California</div>
+      </div>
+      <div class="detail-card reveal reveal-rise in" data-cc-id="cc-5">
+        <div class="ornament">
+          <svg width="32" height="14" viewBox="0 0 32 14" fill="none"><path d="M1 7 C 7 0, 11 14, 16 7 C 21 0, 25 14, 31 7" stroke="currentColor" stroke-width="0.8" fill="none"></path></svg>
+        </div>
+        <h3 data-cc-id="cc-7">The Attire</h3>
+        <div class="big">Garden Formal</div>
+        <div class="sub" data-cc-id="cc-6">Soft, elegant, and forgiving of grass</div>
+      </div>
+    </div>
+
+    <div class="details-cta reveal in">
+      <a href="RSVP.html" class="details-rsvp-btn">
+        <span class="lbl">RSVP</span>
+        <span class="sub">Send your reply</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- RSVP moved to dedicated page (see RSVP.html) -->
+
+<!-- PLAYLIST removed -->
+
+<!-- STORY -->
+<section class="story" id="story" data-screen-label="Our Story" data-cc-id="cc-5">
+  <div class="container" data-cc-id="cc-3">
+    <div class="section-eyebrow reveal in" data-cc-id="cc-14">
+      <div class="rule"></div>
+      <span class="label">Our Story</span>
+      <div class="rule"></div>
+    </div>
+    <h2 class="section-title reveal in" data-cc-id="cc-13">A new <em data-cc-id="cc-12">Chapter</em></h2>
+
+    <div class="story-grid">
+      <div class="story-photo reveal reveal-clip" data-cc-id="cc-4">
+        <img src="assets/story-couple.jpg" alt="Colin and Lydia, winter light">
+        <div class="frame-corner tl"></div>
+        <div class="frame-corner br"></div>
+      </div>
+      <div class="reveal in">
+        <p class="drop">After years of small moments stitched into something enormous, we've decided to make it official. We've found in each other the kind of quiet, steady love that asks for nothing and gives everything — and we'd like to celebrate it with the people who shaped us.</p>
+        <p>On the tenth of October, beneath the sycamores and string lights of Calamigos Ranch, we'll say the words out loud. We hope you'll be there.</p>
+        <div class="signature" style="font-size: 32px;">Colin &amp; Lydia</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DETAILS MOVED UNDER HERO -->
+
+<!-- ATTIRE -->
+<section class="attire" id="attire" data-screen-label="Attire" data-cc-id="cc-8">
+  <div class="container" data-cc-id="cc-7">
+    <div class="section-eyebrow reveal in">
+      <div class="rule"></div>
+      <span class="label">What to Wear</span>
+      <div class="rule"></div>
+    </div>
+    <h2 class="section-title reveal in" data-cc-id="cc-13">The <em>attire</em></h2>
+
+    <div class="attire-wrap reveal in" data-cc-id="cc-10">
+      <p class="attire-chic reveal in" data-cc-id="cc-2">Please <em>dress up.</em></p>
+      <p class="attire-lead reveal in" data-cc-id="cc-12">Bring your most chic, most joyful self. The ceremony is outdoor, the reception is indoor, and the evening runs from golden hour into candlelight — dress for all three.</p>
+
+      <div class="attire-rule" aria-hidden="true"></div>
+
+      <div class="attire-gallery" data-cc-id="cc-3">
+        <figure class="attire-photo"><img src="assets/attire-1.png" alt="Garden cocktail attire" loading="lazy"></figure>
+        <figure class="attire-photo"><img src="assets/attire-2.png" alt="Black tie and florals" loading="lazy"></figure>
+        <figure class="attire-photo"><img src="assets/attire-5.jpg" alt="Backless summer dresses in butter yellow" loading="lazy"></figure>
+        <figure class="attire-photo"><img src="assets/attire-4.png" alt="Saturated silks and summer gardens" loading="lazy" data-cc-id="cc-4"></figure>
+      </div>
+      <div class="attire-caption">A loose mood board — colors, textures, energy. Not a uniform.</div>
+
+      <div class="attire-note-block">
+        <p class="attire-note" data-cc-id="cc-11">Second-guessing the outfit? Email Lydia at <a href="mailto:lydiahongp@gmail.com">lydiahongp@gmail.com</a>, or ask our little AI stylist for a quick read.</p>
+        <button type="button" class="attire-cta reveal in" id="open-stylist">Ask the Stylist</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Outfit Bot Modal -->
+<div class="stylist-overlay" id="stylist-overlay">
+  <div class="stylist-modal">
+    <button class="stylist-close" onclick="closeStylist()" aria-label="Close">×</button>
+    <div class="stylist-header">
+      <h3>Will it <em>work?</em></h3>
+      <p>Upload a photo of what you're thinking. A gentle AI will weigh in on how it fits a garden-formal wedding in October. </p>
+    </div>
+
+    <div class="stylist-body" id="stylist-body">
+      <label class="stylist-upload" id="stylist-upload">
+        <input type="file" id="outfit-file" accept="image/*" hidden="">
+        <div class="upload-plus">+</div>
+        <div class="upload-label">Choose an outfit photo</div>
+        <div class="upload-hint">JPG or PNG</div>
+      </label>
+      <div class="stylist-preview" id="stylist-preview" hidden="">
+        <img id="stylist-img" alt="Outfit">
+        <button class="re-up" onclick="document.getElementById('outfit-file').click()">Choose a different photo</button>
+      </div>
+      <button class="stylist-submit" id="stylist-submit" disabled="" onclick="askStylist()">Ask</button>
+
+      <div class="stylist-response" id="stylist-response" hidden=""></div>
+    </div>
+  </div>
+</div>
+
+<!-- RSVP MOVED UP TO AFTER HERO -->
+
+<!-- SCHEDULE REMOVED -->
+
+<!-- ACCOMMODATIONS REMOVED -->
+
+<!-- GUEST GARDEN -->
+<section class="playlist-section" id="playlist" data-screen-label="The Playlist">
+  <div class="container">
+    <div class="section-eyebrow reveal in">
+      <div class="rule"></div>
+      <span class="label">The Playlist</span>
+      <div class="rule"></div>
+    </div>
+    <h2 class="section-title reveal in">Top ten, <em>by vote</em></h2>
+    <p class="playlist-intro reveal in">Guests suggest, guests vote. Upvote what'll get you on the floor &mdash; the top of the list plays first.</p>
+
+    <ol class="playlist reveal in" id="playlist-list" role="list"></ol>
+
+    <div class="playlist-empty" id="playlist-empty" style="display: none;">
+      <span class="script">the request line is open&hellip;</span>
+      <a href="RSVP.html" class="playlist-cta">Request the first song</a>
+    </div>
+
+    <div class="playlist-foot reveal in" id="playlist-foot" style="display: none;">
+      <span class="count" id="playlist-count">0</span>
+      <span class="count-lbl">songs &amp; counting</span>
+      <br>
+      <a href="RSVP.html" class="add-more">add yours on the RSVP &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="monogram-big">C<em>&amp;</em>L</div>
+  <div class="final-date">CALAMIGOS, MALIBU, LOS ANGELES</div>
+  <div class="venue" style="color: rgb(42, 51, 71)">
+</div>
+  <div class="tiny">With love, forever yours</div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 80) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  });
+
+  function scrollTo2(id) {
+    const el = document.getElementById(id);
+    if (el) window.scrollTo({ top: el.offsetTop - 60, behavior: 'smooth' });
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+  // Base reveals
+  document.querySelectorAll('.reveal, .reveal-clip, .stagger').forEach(el => io.observe(el));
+
+  // Auto-tag common elements so the whole site animates without hand-editing markup
+  document.querySelectorAll(
+    '.detail-card, .stay-card, .song-row, .schedule-item, .attire-wrap > p, .story-grid > *, .section-eyebrow, .section-title, .rsvp-card, .playlist-intro, .playlist-list, .attire-cta'
+  ).forEach((el, i) => {
+    if (el.classList.contains('reveal') || el.classList.contains('stagger')) return;
+    el.classList.add('reveal');
+    // Light alternation between variants for rhythm
+    if (el.matches('.detail-card, .stay-card, .song-row')) el.classList.add('reveal-rise');
+    io.observe(el);
+  });
+
+  // Story photo: show immediately, no clip-sweep animation
+  document.querySelectorAll('.story-photo').forEach(el => {
+    el.classList.remove('reveal', 'reveal-clip');
+  });
+</script>
+
+<script>
+  // Stylist modal
+  const overlay = document.getElementById('stylist-overlay');
+  const openBtn = document.getElementById('open-stylist');
+  const fileInput = document.getElementById('outfit-file');
+  const uploadEl = document.getElementById('stylist-upload');
+  const previewEl = document.getElementById('stylist-preview');
+  const imgEl = document.getElementById('stylist-img');
+  const submitEl = document.getElementById('stylist-submit');
+  const responseEl = document.getElementById('stylist-response');
+  let outfitDataUrl = null;
+
+  openBtn && openBtn.addEventListener('click', () => {
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+  function closeStylist() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeStylist(); });
+
+  fileInput.addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      outfitDataUrl = ev.target.result;
+      imgEl.src = outfitDataUrl;
+      uploadEl.style.display = 'none';
+      previewEl.hidden = false;
+      submitEl.disabled = false;
+      responseEl.hidden = true;
+    };
+    reader.readAsDataURL(f);
+  });
+
+  // Downscale + re-encode an image data URL so the request fits under the
+  // model's size cap. Max 1024px on the longest edge, JPEG ~0.82 quality.
+  // The model doesn't need a 4MP photo to judge an outfit; this keeps the
+  // base64 payload well under ~500KB.
+  async function prepareForUpload(dataUrl) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1024;
+        let { naturalWidth: w, naturalHeight: h } = img;
+        if (!w || !h) return reject(new Error('Image failed to load.'));
+        if (w > MAX || h > MAX) {
+          const s = Math.min(MAX / w, MAX / h);
+          w = Math.round(w * s);
+          h = Math.round(h * s);
+        }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        // White backdrop in case the source has transparency — JPEG doesn't
+        // support alpha and would render black otherwise.
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        const out = c.toDataURL('image/jpeg', 0.82);
+        resolve(out);
+      };
+      img.onerror = () => reject(new Error('Image failed to load.'));
+      img.src = dataUrl;
+    });
+  }
+
+  async function askStylist() {
+    submitEl.disabled = true;
+    responseEl.hidden = false;
+    responseEl.innerHTML = '<div class="thinking">Having a look…</div>';
+
+    const basePrompt = 'You are a warm, tasteful wedding stylist with a kind but honest voice. A guest is attending a garden-formal wedding at Calamigos Ranch in Malibu on October 10th — outdoor ceremony on grass, reception in a barn, golden-hour to evening. They have uploaded a photo of an outfit they are considering. You MUST respond in exactly this format, no preamble:\n\nVERDICT: YES  (or NO — ONLY these two, never "maybe" or anything else. You must pick a side.)\nHEADLINE: <five to eight words, punchy, capturing the verdict — e.g. "Absolutely wear this." or "Let\'s try something lighter.">\nNOTES: <ONE short, warm sentence — max 20 words. Note the single most important thing about the outfit (color, formality, or fit for the setting). Be concise.>\n\nBe decisive, and err on the side of NO when in doubt. Say NO (kindly, never harsh) if the outfit is: too gothic or heavy/black-dominant, too casual (jeans, sneakers, t-shirts, sundress, athleisure), club-wear, overly revealing, white/ivory/cream (reserved for the bride), anything that reads costume or themed, or just generally not formal enough for a garden-formal wedding. YES means genuinely fully appropriate. Frame NO as encouragement ("this would be perfect for another night — for the wedding let\'s try…"). Never hedge.';
+
+    const render = (text) => {
+      const verdictMatch = text.match(/VERDICT:\s*(YES|NO)/i);
+      const headlineMatch = text.match(/HEADLINE:\s*(.+)/i);
+      const notesMatch = text.match(/NOTES:\s*([\s\S]+)/i);
+
+      if (!verdictMatch) {
+        // Couldn't parse structured output — show the raw reply so the guest
+        // at least gets something useful.
+        responseEl.innerHTML = `<div class="verdict-notes" style="padding:4px;">${text.replace(/\n+/g, '<br/>')}</div>`;
+        return;
+      }
+      const verdict = verdictMatch[1].toUpperCase();
+      const headline = headlineMatch ? headlineMatch[1].trim() : '';
+      const notes = notesMatch ? notesMatch[1].trim().replace(/\n+/g, ' ') : '';
+      const vClass = verdict === 'YES' ? 'v-yes' : 'v-no';
+      const vGlyph = verdict === 'YES' ? '✓' : '✕';
+      responseEl.innerHTML = `
+        <div class="verdict ${vClass}">
+          <div class="verdict-word">${verdict}</div>
+          <div class="verdict-headline">${headline}</div>
+        </div>
+        <div class="verdict-notes">${notes}</div>
+      `;
+    };
+
+    try {
+      let mediaType = 'image/jpeg';
+      let base64 = '';
+      try {
+        const shrunk = await prepareForUpload(outfitDataUrl);
+        mediaType = shrunk.match(/data:(.*?);/)[1];
+        base64 = shrunk.split(',')[1];
+      } catch(e) {
+        throw new Error('We couldn\'t read that image. Try a different photo — jpg or png works best.');
+      }
+
+      const text = await window.claude.complete({
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+            { type: 'text', text: basePrompt }
+          ]
+        }]
+      });
+
+      if (!text || !text.trim()) {
+        throw new Error('The stylist didn\'t have much to say about that one. Try a clearer full-body shot in good light.');
+      }
+      render(text);
+    } catch (err) {
+      const msg = (err && err.message) ? err.message : 'Something went wrong on our end.';
+      responseEl.innerHTML = `
+        <div class="verdict-notes" style="padding:4px 4px 0; text-align:left;">
+          <strong style="font-family:'Bodoni Moda',serif; font-style:italic; color:var(--porcelain);">Couldn't get a read on that one.</strong><br/>
+          <span style="color:var(--silver); font-size:15px;">${msg}</span><br/><br/>
+          A few things that usually help: use a clear, full-body photo, good lighting, jpg or png under ~4MB. If it keeps failing, email Lydia at <a href="mailto:lydiahongp@gmail.com" style="color:var(--accent)">lydiahongp@gmail.com</a>.
+        </div>
+      `;
+    }
+    submitEl.disabled = false;
+  }
+</script>
+
+<script>
+  // The Playlist — top 10 songs, voted by guests. All state lives in
+  // localStorage under the same keys the RSVP form writes to, so song
+  // submissions and votes share a single source of truth.
+  (function() {
+    const LIST_KEY   = 'cl_playlist_v1';          // { id, title, artist, by, submitterKey }[]
+    const VOTES_KEY  = 'cl_playlist_votes_v1';    // { [songId]: totalScore }
+    const MINE_KEY   = 'cl_playlist_my_votes_v1'; // { [songId]: +1 | -1 } — this device's votes
+
+    const listEl  = document.getElementById('playlist-list');
+    const emptyEl = document.getElementById('playlist-empty');
+    const footEl  = document.getElementById('playlist-foot');
+    const countEl = document.getElementById('playlist-count');
+
+    function loadJSON(key, fallback) {
+      try { return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback; }
+      catch { return fallback; }
+    }
+    function saveJSON(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+    }
+
+    // Simple romanized rank — using numerals keeps it clean; swap to roman
+    // if the couple would prefer something more ornate later.
+    function rankLabel(i) { return String(i + 1); }
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // SVG icons — hairline chevrons matching the wedding's fine-line aesthetic.
+    const UP_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"></polyline></svg>';
+    const DOWN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+
+    function render() {
+      const songs = loadJSON(LIST_KEY, []) || [];
+      const votes = loadJSON(VOTES_KEY, {}) || {};
+      const mine  = loadJSON(MINE_KEY, {})  || {};
+
+      // Rank: sort by score desc, then by submission recency (id contains timestamp)
+      const ranked = songs
+        .map(s => ({ ...s, score: Number(votes[s.id] ?? 1) }))
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          return String(b.id).localeCompare(String(a.id));
+        });
+
+      const top = ranked.slice(0, 10);
+
+      if (top.length === 0) {
+        listEl.innerHTML = '';
+        listEl.style.display = 'none';
+        emptyEl.style.display = '';
+        footEl.style.display = 'none';
+        return;
+      }
+
+      listEl.style.display = '';
+      emptyEl.style.display = 'none';
+      footEl.style.display  = '';
+      countEl.textContent = String(songs.length);
+
+      listEl.innerHTML = top.map((s, i) => {
+        const my = mine[s.id];
+        const upActive   = my === 1  ? ' active' : '';
+        const downActive = my === -1 ? ' active' : '';
+        const byHtml = s.by ? `<div class="playlist-by">suggested by <em>${escapeHtml(s.by)}</em></div>` : '';
+        const artistHtml = s.artist ? `<p class="playlist-artist">${escapeHtml(s.artist)}</p>` : '';
+        return `
+          <li class="playlist-row" data-id="${escapeHtml(s.id)}">
+            <div class="playlist-rank">${rankLabel(i)}</div>
+            <div class="playlist-meta">
+              <h3 class="playlist-title">${escapeHtml(s.title || 'Untitled')}</h3>
+              ${artistHtml}
+              ${byHtml}
+            </div>
+            <div class="playlist-votes">
+              <button type="button" class="vote-btn down${downActive}" data-vote="-1" aria-label="Downvote">${DOWN_SVG}</button>
+              <span class="playlist-score">${s.score}</span>
+              <button type="button" class="vote-btn up${upActive}" data-vote="1" aria-label="Upvote">${UP_SVG}</button>
+            </div>
+          </li>`;
+      }).join('');
+    }
+
+    function castVote(songId, dir) {
+      const votes = loadJSON(VOTES_KEY, {}) || {};
+      const mine  = loadJSON(MINE_KEY,  {}) || {};
+      const prev  = mine[songId] || 0;
+
+      // If clicking the same direction again, remove the vote (toggle off).
+      // Otherwise the net change is (new - prev).
+      const next = prev === dir ? 0 : dir;
+      const delta = next - prev;
+
+      votes[songId] = Number(votes[songId] ?? 1) + delta;
+      if (next === 0) delete mine[songId];
+      else mine[songId] = next;
+
+      saveJSON(VOTES_KEY, votes);
+      saveJSON(MINE_KEY,  mine);
+      render();
+    }
+
+    listEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.vote-btn');
+      if (!btn) return;
+      const row = btn.closest('.playlist-row');
+      if (!row) return;
+      const id = row.getAttribute('data-id');
+      const dir = Number(btn.getAttribute('data-vote'));
+      if (!id || !dir) return;
+      castVote(id, dir);
+    });
+
+    // Sync across tabs / after an RSVP submission in another tab
+    window.addEventListener('storage', (e) => {
+      if (e.key === LIST_KEY || e.key === VOTES_KEY || e.key === MINE_KEY) render();
+    });
+
+    render();
+  })();
+</script>
+
+
+
+</body></html>

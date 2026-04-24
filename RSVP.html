@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSVP · Colin &amp; Lydia · October 10, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #f8f4ec;
+    --cream: #efe8d9;
+    --paper: #fbf7ec;
+    --ink:   #0f1a33;
+    --pearl: #2a3347;
+    --silver:#5a6476;
+    --accent:#1e3a8a;
+    --accent-soft:#3b5bb8;
+    --line:  rgba(30,58,138,0.22);
+    --line-soft: rgba(30,58,138,0.14);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  a { color: inherit; }
+
+  /* paper grain */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  }
+
+  .page {
+    position: relative;
+    min-height: 100vh;
+    padding: 96px 32px 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .page::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse at 15% 10%, rgba(30,58,138,0.05), transparent 45%),
+      radial-gradient(ellipse at 85% 90%, rgba(30,58,138,0.04), transparent 50%);
+  }
+  .page > * { position: relative; z-index: 1; }
+
+  /* back link */
+  .back-link {
+    position: absolute; top: 32px; left: 32px; z-index: 10;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--silver); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: color 200ms ease, gap 200ms ease;
+  }
+  .back-link:hover { color: var(--accent); gap: 14px; }
+  .back-link .arr { font-size: 14px; }
+
+  /* header */
+  .page-head { text-align: center; margin: 40px 0 48px; max-width: 640px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 18px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px; letter-spacing: 0.55em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 22px;
+  }
+  .eyebrow .rule { width: 56px; height: 1px; background: var(--line); }
+  .page-head h1 {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 400;
+    font-size: clamp(48px, 7vw, 78px);
+    letter-spacing: -0.01em;
+    line-height: 1.0;
+    color: var(--ink);
+  }
+  .page-head h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+  .date-line {
+    margin-top: 22px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px; letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--silver);
+  }
+  .sub {
+    margin-top: 20px;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--pearl);
+    max-width: 480px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  /* card */
+  .card {
+    width: 100%;
+    max-width: 620px;
+    background: #ffffff;
+    border: 1px solid var(--line-soft);
+    border-radius: 2px;
+    padding: 56px 56px 52px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 2px 4px rgba(30,58,138,0.04),
+      0 24px 56px rgba(30,58,138,0.10);
+  }
+
+  /* form fields */
+  .form-field { margin-bottom: 28px; }
+  .form-field label.t {
+    display: block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .form-field input[type="text"],
+  .form-field input[type="email"],
+  .form-field select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    padding: 10px 0 12px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 180ms ease;
+  }
+  .form-field input:focus,
+  .form-field select:focus { border-color: var(--accent); }
+  .form-field input::placeholder { color: var(--silver); opacity: 0.55; font-style: italic; }
+
+  .select-wrap { position: relative; }
+  .select-wrap select { appearance: none; cursor: pointer; padding-right: 32px; }
+  .select-caret {
+    position: absolute; right: 6px; bottom: 16px;
+    pointer-events: none; font-size: 10px; color: var(--silver);
+  }
+
+  .field-hint {
+    margin-top: 8px;
+    font-size: 13px; font-style: italic;
+    color: var(--silver);
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .field-hint-ico { color: var(--accent); }
+
+  /* attendance */
+  .attendance-choice {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    margin: 8px 0 8px;
+  }
+  .attendance-btn {
+    background: #fdfaf3;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 22px 20px;
+    cursor: pointer;
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--ink);
+    text-align: center;
+    transition: all 220ms ease;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 1px 2px rgba(30,58,138,0.04);
+  }
+  .attendance-btn .title {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--silver);
+    transition: color 220ms ease;
+  }
+  .attendance-btn .sub {
+    margin-top: 4px;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--pearl);
+    max-width: none;
+  }
+  .attendance-btn:hover {
+    border-color: var(--accent-soft);
+    background: #f5eedb;
+  }
+  .attendance-btn.selected {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 0 0 1px var(--accent) inset, 0 4px 10px rgba(30,58,138,0.18);
+  }
+  .attendance-btn.selected .title { color: #ffffff; }
+  .attendance-btn.selected .sub { color: #ffffff; }
+
+  /* plus one */
+  .form-field.tight-below { margin-bottom: 10px; }
+  .plus-one {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 32px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .plus-one input { accent-color: var(--accent); width: 16px; height: 16px; }
+  .plus-one .t {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px; letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--pearl);
+    margin: 0;
+  }
+  .plus-one-name {
+    max-height: 0; overflow: hidden;
+    transition: max-height 260ms ease, margin 260ms ease;
+    margin-bottom: 0;
+  }
+  .plus-one.named + .plus-one-name {
+    max-height: 80px;
+    margin-bottom: 28px;
+  }
+
+  /* submit */
+  .submit-btn {
+    width: 100%;
+    margin-top: 18px;
+    background: var(--accent);
+    color: var(--ivory);
+    border: none;
+    padding: 20px 24px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px; letter-spacing: 0.4em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 200ms ease, transform 120ms ease;
+  }
+  .submit-btn:hover { background: var(--accent-soft); }
+  .submit-btn:active { transform: translateY(1px); }
+  .submit-btn.disabled { background: var(--silver); cursor: not-allowed; opacity: 0.6; }
+
+  .form-note {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 13px; font-style: italic;
+    color: var(--silver);
+  }
+
+  /* confirmed state */
+  .confirmed { text-align: center; padding: 20px 8px; }
+  .confirmed .orn {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 18px;
+  }
+  .confirmed h2 {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 400;
+    font-size: 40px;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .confirmed h2 em { font-style: italic; color: var(--accent); }
+  .confirmed p {
+    font-size: 18px;
+    color: var(--pearl);
+    max-width: 440px; margin: 0 auto 22px;
+    font-style: italic;
+  }
+  .confirmed .edit-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 12px 28px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--pearl);
+    cursor: pointer;
+    transition: all 200ms ease;
+  }
+  .confirmed .edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  @keyframes heroRise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .page-head, .card { animation: heroRise 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .card { animation-delay: 180ms; }
+
+  @media (max-width: 560px) {
+    .page { padding: 88px 20px 80px; }
+    .card { padding: 40px 28px 36px; }
+    .attendance-choice { grid-template-columns: 1fr; }
+    .back-link { top: 24px; left: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">
+  <span class="arr">&larr;</span>
+  <span>Back to invitation</span>
+</a>
+
+<div class="page">
+
+  <header class="page-head">
+    <div class="eyebrow">
+      <span class="rule"></span>
+      <span>Kindly Reply</span>
+      <span class="rule"></span>
+    </div>
+    <h1>Will you <em>join</em> us?</h1>
+    <div class="date-line">Please reply by &middot; September 10, 2026</div>
+    <p class="sub">We can&rsquo;t wait to celebrate with you. Fill in the details below and we&rsquo;ll take care of the rest.</p>
+  </header>
+
+  <section class="card" id="rsvp-card">
+
+    <form id="rsvp-form" novalidate>
+
+      <div class="form-field">
+        <label class="t" for="fullname">Your full name</label>
+        <input type="text" id="fullname" name="fullname" placeholder="First and last, as you&rsquo;d like it on the place card" autocomplete="name" required>
+      </div>
+
+      <div class="form-field">
+        <label class="t" for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="so we can send updates" autocomplete="email">
+      </div>
+
+      <div class="form-field tight-below">
+        <label class="t">Will you attend?</label>
+        <div class="attendance-choice">
+          <button type="button" class="attendance-btn" data-value="yes">
+            <span class="title">Joyfully</span>
+            <span class="sub">I&rsquo;ll be there</span>
+          </button>
+          <button type="button" class="attendance-btn" data-value="no">
+            <span class="title">Regretfully</span>
+            <span class="sub">I can&rsquo;t make it</span>
+          </button>
+        </div>
+      </div>
+
+      <label class="plus-one" id="plus-one">
+        <input type="checkbox" id="plus-one-check">
+        <span class="t">I&rsquo;m someone&rsquo;s plus one</span>
+      </label>
+      <div class="plus-one-name">
+        <div class="form-field" style="margin-bottom: 0;">
+          <label class="t" for="plus-one-input" style="margin-top: 4px;">Who invited you?</label>
+          <input type="text" id="plus-one-input" placeholder="Their full name &mdash; so we can seat you together">
+        </div>
+      </div>
+
+      <div class="form-field" style="margin: 2px 0px 28px">
+        <label class="t" for="transport">Getting there</label>
+        <div class="select-wrap">
+          <select id="transport">
+            <option value="">How will you arrive?</option>
+            <option value="shuttle">I&rsquo;ll take the shuttle from the hotel</option>
+            <option value="drive">Driving myself</option>
+            <option value="rideshare">Rideshare / taxi</option>
+            <option value="other">Other</option>
+          </select>
+          <span class="select-caret">&#9660;</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="t" for="song">First-song request</label>
+        <input type="text" id="song" placeholder="Song and artist &mdash; optional">
+        <div class="field-hint">
+          <span class="field-hint-ico">&#9834;</span>
+          <span>A track you&rsquo;d love to hear on the dance floor.</span>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">Send my reply</button>
+      <div class="form-note">Your reply is saved on this device &mdash; you can come back and edit any time.</div>
+
+    </form>
+
+  </section>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'cl-rsvp-v1';
+  const SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw_ESZNMQPMFxBAKWGixJvDOu4nEUaH4gtluwbVxGT1uvbUCs3DeUQa3aMQ1hhboaeLjQ/exec';
+
+  const form = document.getElementById('rsvp-form');
+  const card = document.getElementById('rsvp-card');
+  const nameEl = document.getElementById('fullname');
+  const emailEl = document.getElementById('email');
+  const songEl = document.getElementById('song');
+  const transportSel = document.getElementById('transport');
+  const plusOneChk = document.getElementById('plus-one-check');
+  const plusOneBox = document.getElementById('plus-one');
+  const plusOneName = document.getElementById('plus-one-input');
+  const attendBtns = document.querySelectorAll('.attendance-btn');
+
+  let attendChoice = null;
+
+  function selectAttend(btn) {
+    attendBtns.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    attendChoice = btn.getAttribute('data-value');
+  }
+  attendBtns.forEach(btn => {
+    btn.addEventListener('click', () => selectAttend(btn));
+  });
+
+  plusOneChk.addEventListener('change', () => {
+    plusOneBox.classList.toggle('named', plusOneChk.checked);
+    if (plusOneChk.checked) setTimeout(() => plusOneName.focus(), 200);
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function showConfirmed(data) {
+    const firstName = (data.fullname || 'friend').trim().split(/\s+/)[0];
+    const attendingYes = data.attending === 'yes';
+    card.innerHTML = `
+      <div class="confirmed">
+        <div class="orn">&mdash; thank you &mdash;</div>
+        <h2>${attendingYes
+          ? 'See <em>you</em> there, ' + escapeHtml(firstName)
+          : 'We&rsquo;ll <em>miss</em> you, ' + escapeHtml(firstName)}</h2>
+        <p>${attendingYes
+          ? 'We&rsquo;ll send a note with final details closer to the day. Safe travels to Hudson Valley.'
+          : 'Thank you for letting us know. We&rsquo;ll be thinking of you on October 10.'}</p>
+        <button type="button" class="edit-btn" id="edit-btn">Edit my reply</button>
+      </div>
+    `;
+  }
+
+  // Delegated click handler — survives innerHTML replacement
+  card.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('#edit-btn, .edit-btn');
+    if (!editBtn) return;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        delete saved.submittedAt;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      }
+    } catch (err) {}
+    location.reload();
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!nameEl.value.trim()) { nameEl.focus(); return; }
+    if (!attendChoice) {
+      document.querySelector('.attendance-choice').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    const data = {
+      fullname: nameEl.value.trim(),
+      email: emailEl.value.trim(),
+      attending: attendChoice,
+      plusOne: plusOneChk.checked ? (plusOneName.value.trim() || true) : false,
+      transport: transportSel.value,
+      song: songEl.value.trim(),
+      submittedAt: new Date().toISOString()
+    };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (err) {}
+    showConfirmed(data);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Send to Google Sheet (text/plain to avoid CORS preflight).
+    // Fire-and-forget: localStorage already holds the reply if this fails.
+    try {
+      fetch(SHEET_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
+      }).catch(() => {});
+    } catch (err) {}
+  });
+
+  // restore previous reply
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved.fullname) nameEl.value = saved.fullname;
+      if (saved.email) emailEl.value = saved.email;
+      if (saved.song) songEl.value = saved.song;
+      if (saved.transport) transportSel.value = saved.transport;
+      if (saved.plusOne) {
+        plusOneChk.checked = true;
+        plusOneBox.classList.add('named');
+        if (typeof saved.plusOne === 'string') plusOneName.value = saved.plusOne;
+      }
+      const btn = document.querySelector('.attendance-btn[data-value="' + saved.attending + '"]');
+      if (btn) selectAttend(btn);
+      if (saved.submittedAt) showConfirmed(saved);
+    }
+  } catch (err) {}
+</script>
+
+</body>
+</html>
