@@ -49,6 +49,9 @@ function doPost(e) {
         body.songTitle || '',
         body.songArtist || ''
       ]);
+      try { sendRsvpConfirmation_(body); } catch (mailErr) {
+        console.error('RSVP email failed:', mailErr);
+      }
       return jsonOut_({ ok: true });
     }
 
@@ -164,4 +167,224 @@ function jsonOut_(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* =============================================================
+   RSVP CONFIRMATION EMAIL
+   ============================================================= */
+
+const SITE_URL  = 'https://colin-and-lydia-wedding.vercel.app';
+const FROM_NAME = 'Colin & Lydia';
+
+/**
+ * Sends the confirmation email. Skips silently if no email address is given.
+ * Uses MailApp; the first time you re-deploy after adding this you will be
+ * prompted to grant Gmail send permission. Free Gmail = 100 sends/day.
+ */
+function sendRsvpConfirmation_(data) {
+  const to = String(data && data.email || '').trim();
+  if (!to || !/^\S+@\S+\.\S+$/.test(to)) return;
+
+  const ctx = {
+    fullname:    String(data.fullname || 'Friend').trim(),
+    firstName:   String(data.fullname || 'Friend').trim().split(/\s+/)[0],
+    attending:   String(data.attending || '').toLowerCase() === 'yes',
+    plusOne:     String(formatPlusOne_(data.plusOne) || '').trim(),
+    transport:   String(data.transport || '').trim(),
+    songTitle:   String(data.songTitle || '').trim(),
+    songArtist:  String(data.songArtist || '').trim()
+  };
+
+  const subject = ctx.attending
+    ? 'Your seat is saved \u2014 October 10'
+    : 'Thank you for letting us know';
+
+  const html = buildRsvpConfirmEmail_(ctx);
+  const textBody = buildRsvpConfirmText_(ctx);
+
+  MailApp.sendEmail({
+    to: to,
+    subject: subject,
+    htmlBody: html,
+    body: textBody,
+    name: FROM_NAME
+  });
+}
+
+function buildRsvpConfirmEmail_(c) {
+  const transportLabel = {
+    drive:    'Driving myself',
+    rideshare:'Rideshare / taxi',
+    other:    'Other'
+  }[c.transport] || (c.transport ? c.transport : '');
+
+  const plusOneLine = c.plusOne
+    ? row_('Plus one', escapeHtml_(c.plusOne === 'yes' ? 'Yes (name to follow)' : c.plusOne))
+    : '';
+  const transportLine = transportLabel
+    ? row_('Arriving by', escapeHtml_(transportLabel))
+    : '';
+  const songLine = c.songTitle
+    ? row_('Song request', escapeHtml_(c.songTitle) + (c.songArtist ? ' &mdash; <em style="font-style:italic;color:#5a6476;">' + escapeHtml_(c.songArtist) + '</em>' : ''))
+    : '';
+
+  const heroCopy = c.attending
+    ? 'It means everything that you\u2019ll be there. We\u2019ll send the final details closer to the day &mdash; until then, save the date and rest up for the dance floor.'
+    : 'Thank you for letting us know. We\u2019ll be thinking of you on the tenth, and we\u2019d love to celebrate with you whenever our paths cross next.';
+
+  const ctaLabel = c.attending ? 'Visit the wedding site' : 'See the details';
+
+  return [
+    '<!DOCTYPE html>',
+    '<html lang="en"><head><meta charset="UTF-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+    '<title>Your RSVP \u2014 Colin &amp; Lydia</title>',
+    '<style>',
+    '@import url("https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap");',
+    'body{margin:0;padding:0;background:#f8f4ec;-webkit-font-smoothing:antialiased;}',
+    'table{border-collapse:collapse;}',
+    'a{color:#1e3a8a;text-decoration:none;}',
+    '@media only screen and (max-width:620px){',
+    '  .container{width:100%!important;}',
+    '  .px{padding-left:24px!important;padding-right:24px!important;}',
+    '  .h1{font-size:38px!important;line-height:1.05!important;}',
+    '  .monogram{font-size:64px!important;}',
+    '  .label{font-size:9px!important;letter-spacing:.32em!important;}',
+    '  .lead{font-size:17px!important;}',
+    '  .reply-row td{padding:10px 0!important;font-size:15px!important;}',
+    '}',
+    '</style></head>',
+    '<body style="margin:0;padding:0;background:#f8f4ec;font-family:\'Cormorant Garamond\',Georgia,serif;color:#0f1a33;">',
+    '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">',
+    (c.attending
+      ? 'We\u2019ve saved your seat for October 10 at Calamigos Ranch.'
+      : 'We received your reply. Thank you for letting us know.'),
+    '</div>',
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8f4ec;">',
+    '<tr><td align="center" style="padding:40px 16px;">',
+    '<table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#fbf7ec;border:1px solid rgba(30,58,138,0.18);">',
+
+    '<tr><td class="px" style="padding:48px 56px 12px;text-align:center;">',
+    '<div class="label" style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:11px;letter-spacing:.5em;text-transform:uppercase;color:#1e3a8a;">Ten &middot; Ten &middot; 2026</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:8px 56px 0;text-align:center;">',
+    '<div class="monogram" style="font-family:\'Bodoni Moda\',\'Didot\',Georgia,serif;font-weight:400;font-size:96px;line-height:.9;letter-spacing:-0.02em;color:#0f1a33;">C<em style="font-style:italic;font-size:.62em;vertical-align:.18em;color:#1e3a8a;margin:0 6px;">&amp;</em>L</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:24px 56px 8px;text-align:center;">',
+    '<div style="height:1px;background:rgba(30,58,138,0.22);width:60px;margin:0 auto;"></div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:24px 56px 0;text-align:center;">',
+    '<h1 class="h1" style="margin:0;font-family:\'Bodoni Moda\',Georgia,serif;font-weight:400;font-size:46px;line-height:1.05;letter-spacing:-0.01em;color:#0f1a33;">',
+    (c.attending
+      ? 'Your seat is <em style="font-style:italic;color:#1e3a8a;">saved</em>, ' + escapeHtml_(c.firstName) + '.'
+      : 'Thank you, <em style="font-style:italic;color:#1e3a8a;">' + escapeHtml_(c.firstName) + '</em>.'),
+    '</h1>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:18px 56px 0;text-align:center;">',
+    '<p class="lead" style="margin:0;font-family:\'Cormorant Garamond\',Georgia,serif;font-size:18px;font-style:italic;line-height:1.65;color:#5a6476;">',
+    heroCopy,
+    '</p>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:36px 56px 0;">',
+    '<div style="border-top:1px solid rgba(30,58,138,0.18);padding-top:28px;">',
+    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;">Your Reply</div>',
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="reply-table">',
+    row_('Name', escapeHtml_(c.fullname)),
+    row_('Attending', c.attending
+      ? '<span style="color:#1e3a8a;font-weight:500;">Yes</span>'
+      : '<span style="color:#5a6476;">Sending love from afar</span>'),
+    plusOneLine,
+    transportLine,
+    songLine,
+    '</table>',
+    '</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:36px 56px 0;">',
+    '<div style="border-top:1px solid rgba(30,58,138,0.18);padding-top:28px;text-align:center;">',
+    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;">The Day</div>',
+    '<div style="font-family:\'Bodoni Moda\',\'Didot\',Georgia,serif;font-style:italic;font-size:38px;line-height:1.1;color:#0f1a33;letter-spacing:-0.01em;">Saturday, October 10</div>',
+    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:17px;color:#5a6476;margin-top:6px;">Calamigos Ranch &middot; Malibu, California</div>',
+    '</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:36px 56px 0;text-align:center;">',
+    '<a href="' + SITE_URL + '" style="display:inline-block;background:#1e3a8a;color:#f8f4ec;padding:16px 32px;font-family:\'Bodoni Moda\',Georgia,serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;text-decoration:none;">' + ctaLabel + '</a>',
+    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;font-size:14px;color:#5a6476;margin-top:14px;">Need to change your reply? Just visit the site again.</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:48px 56px 16px;text-align:center;">',
+    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-style:italic;font-size:24px;color:#0f1a33;line-height:1.4;">Colin &amp; Lydia &amp; Zoomie</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:8px 56px 48px;text-align:center;">',
+    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#5a6476;">10 &middot; 10 &middot; 2026</div>',
+    '</td></tr>',
+
+    '</table>',
+    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:12px;color:#8a93a3;margin-top:18px;font-style:italic;">You received this because you replied to Colin &amp; Lydia\u2019s wedding invitation.</div>',
+    '</td></tr>',
+    '</table></body></html>'
+  ].join('');
+}
+
+function row_(label, value) {
+  return [
+    '<tr class="reply-row"><td style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Bodoni Moda\',Georgia,serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#5a6476;width:130px;vertical-align:top;">',
+    label,
+    '</td><td style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Cormorant Garamond\',Georgia,serif;font-size:17px;color:#0f1a33;">',
+    value,
+    '</td></tr>'
+  ].join('');
+}
+
+function buildRsvpConfirmText_(c) {
+  const lines = [
+    'Colin & Lydia · October 10, 2026',
+    'Calamigos Ranch · Malibu, California',
+    '',
+    (c.attending
+      ? 'Your seat is saved, ' + c.firstName + '.'
+      : 'Thank you, ' + c.firstName + '.'),
+    '',
+    (c.attending
+      ? 'It means everything that you\u2019ll be there. We\u2019ll send the final details closer to the day.'
+      : 'Thank you for letting us know. We\u2019ll be thinking of you on the tenth.'),
+    '',
+    'YOUR REPLY',
+    '  Name: ' + c.fullname,
+    '  Attending: ' + (c.attending ? 'Yes' : 'No')
+  ];
+  if (c.plusOne)    lines.push('  Plus one: ' + c.plusOne);
+  if (c.transport)  lines.push('  Arriving by: ' + c.transport);
+  if (c.songTitle)  lines.push('  Song request: ' + c.songTitle + (c.songArtist ? ' — ' + c.songArtist : ''));
+  lines.push('', SITE_URL, '', 'With love,', 'Colin & Lydia & Zoomie');
+  return lines.join('\n');
+}
+
+function escapeHtml_(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/**
+ * Run from the Apps Script editor to send yourself a sample email.
+ * Replace YOUR_EMAIL with your address before running.
+ */
+function sendTestRsvpEmail() {
+  sendRsvpConfirmation_({
+    email: 'YOUR_EMAIL@example.com',
+    fullname: 'Sample Guest',
+    attending: 'yes',
+    plusOne: 'Alex Doe',
+    transport: 'drive',
+    songTitle: 'Love Story',
+    songArtist: 'Taylor Swift'
+  });
 }

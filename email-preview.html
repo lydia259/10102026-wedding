@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Preview &middot; Colin &amp; Lydia</title>
+<meta name="robots" content="noindex, nofollow">
+<script src="assets/gate.js"></script>
+<style>
+  body {
+    margin: 0;
+    background: #d8d4cb;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
+  .toolbar {
+    position: sticky;
+    top: 0;
+    background: #0f1a33;
+    color: #f8f4ec;
+    padding: 14px 20px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    z-index: 10;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  }
+  .toolbar strong {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-right: 12px;
+  }
+  .toolbar label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-right: 6px;
+  }
+  .toolbar select, .toolbar input {
+    background: #1c2745;
+    color: #f8f4ec;
+    border: 1px solid #2c3a5d;
+    padding: 7px 10px;
+    font: inherit;
+    font-size: 13px;
+  }
+  .toolbar .spacer { flex: 1; }
+  .toolbar .meta { font-size: 12px; opacity: 0.7; font-style: italic; }
+  .frame-wrap {
+    padding: 32px 16px 64px;
+    display: flex;
+    justify-content: center;
+  }
+  iframe {
+    width: 100%;
+    max-width: 720px;
+    min-height: 1100px;
+    border: none;
+    background: #fff;
+    box-shadow: 0 30px 80px -30px rgba(15,26,51,0.4);
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <strong>RSVP Confirmation Email</strong>
+
+  <label for="status">Reply</label>
+  <select id="status">
+    <option value="yes" selected>Attending: Yes</option>
+    <option value="no">Attending: No</option>
+  </select>
+
+  <label for="name">Name</label>
+  <input id="name" type="text" value="Lydia Hong" size="18">
+
+  <label for="plusone">Plus one</label>
+  <input id="plusone" type="text" value="Colin Stanford" size="14">
+
+  <label for="song">Song</label>
+  <input id="song" type="text" value="Love Story" size="14">
+
+  <label for="artist">Artist</label>
+  <input id="artist" type="text" value="Taylor Swift" size="12">
+
+  <div class="spacer"></div>
+  <span class="meta">Static preview &middot; matches the email Apps Script sends</span>
+</div>
+
+<div class="frame-wrap">
+  <iframe id="frame" srcdoc=""></iframe>
+</div>
+
+<script>
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function row(label, value) {
+  return [
+    '<tr class="reply-row"><td style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Bodoni Moda\',Georgia,serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#5a6476;width:130px;vertical-align:top;">',
+    label,
+    '</td><td style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Cormorant Garamond\',Georgia,serif;font-size:17px;color:#0f1a33;">',
+    value,
+    '</td></tr>'
+  ].join('');
+}
+
+const SITE_URL = 'https://colin-and-lydia-wedding.vercel.app';
+
+function buildEmail(c) {
+  const transportLabel = {
+    drive: 'Driving myself',
+    rideshare: 'Rideshare / taxi',
+    other: 'Other'
+  }[c.transport] || (c.transport ? c.transport : '');
+
+  const plusOneLine = c.plusOne
+    ? row('Plus one', escapeHtml(c.plusOne === 'yes' ? 'Yes (name to follow)' : c.plusOne))
+    : '';
+  const transportLine = transportLabel
+    ? row('Arriving by', escapeHtml(transportLabel))
+    : '';
+  const songLine = c.songTitle
+    ? row('Song request', escapeHtml(c.songTitle) + (c.songArtist ? ' &mdash; <em style="font-style:italic;color:#5a6476;">' + escapeHtml(c.songArtist) + '</em>' : ''))
+    : '';
+
+  const heroCopy = c.attending
+    ? 'It means everything that you\u2019ll be there. We\u2019ll send the final details closer to the day &mdash; until then, save the date and rest up for the dance floor.'
+    : 'Thank you for letting us know. We\u2019ll be thinking of you on the tenth, and we\u2019d love to celebrate with you whenever our paths cross next.';
+
+  const ctaLabel = c.attending ? 'Visit the wedding site' : 'See the details';
+
+  return [
+    '<!DOCTYPE html>',
+    '<html lang="en"><head><meta charset="UTF-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+    '<title>Your RSVP &mdash; Colin &amp; Lydia</title>',
+    '<style>',
+    '@import url("https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap");',
+    'body{margin:0;padding:0;background:#f8f4ec;-webkit-font-smoothing:antialiased;}',
+    'table{border-collapse:collapse;}',
+    'a{color:#1e3a8a;text-decoration:none;}',
+    '@media only screen and (max-width:620px){',
+    '  .container{width:100%!important;}',
+    '  .px{padding-left:24px!important;padding-right:24px!important;}',
+    '  .h1{font-size:38px!important;line-height:1.05!important;}',
+    '  .monogram{font-size:64px!important;}',
+    '  .label{font-size:9px!important;letter-spacing:.32em!important;}',
+    '  .lead{font-size:17px!important;}',
+    '  .reply-row td{padding:10px 0!important;font-size:15px!important;}',
+    '}',
+    '</style></head>',
+    '<body style="margin:0;padding:0;background:#f8f4ec;font-family:\'Cormorant Garamond\',Georgia,serif;color:#0f1a33;">',
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8f4ec;">',
+    '<tr><td align="center" style="padding:40px 16px;">',
+    '<table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#fbf7ec;border:1px solid rgba(30,58,138,0.18);">',
+
+    '<tr><td class="px" style="padding:48px 56px 12px;text-align:center;">',
+    '<div class="label" style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:11px;letter-spacing:.5em;text-transform:uppercase;color:#1e3a8a;">Ten &middot; Ten &middot; 2026</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:8px 56px 0;text-align:center;">',
+    '<div class="monogram" style="font-family:\'Bodoni Moda\',\'Didot\',Georgia,serif;font-weight:400;font-size:96px;line-height:.9;letter-spacing:-0.02em;color:#0f1a33;">C<em style="font-style:italic;font-size:.62em;vertical-align:.18em;color:#1e3a8a;margin:0 6px;">&amp;</em>L</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:24px 56px 8px;text-align:center;">',
+    '<div style="height:1px;background:rgba(30,58,138,0.22);width:60px;margin:0 auto;"></div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:24px 56px 0;text-align:center;">',
+    '<h1 class="h1" style="margin:0;font-family:\'Bodoni Moda\',Georgia,serif;font-weight:400;font-size:46px;line-height:1.05;letter-spacing:-0.01em;color:#0f1a33;">',
+    (c.attending
+      ? 'Your seat is <em style="font-style:italic;color:#1e3a8a;">saved</em>, ' + escapeHtml(c.firstName) + '.'
+      : 'Thank you, <em style="font-style:italic;color:#1e3a8a;">' + escapeHtml(c.firstName) + '</em>.'),
+    '</h1>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:18px 56px 0;text-align:center;">',
+    '<p class="lead" style="margin:0;font-family:\'Cormorant Garamond\',Georgia,serif;font-size:18px;font-style:italic;line-height:1.65;color:#5a6476;">',
+    heroCopy,
+    '</p>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:36px 56px 0;">',
+    '<div style="border-top:1px solid rgba(30,58,138,0.18);padding-top:28px;">',
+    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;">Your Reply</div>',
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="reply-table">',
+    row('Name', escapeHtml(c.fullname)),
+    row('Attending', c.attending
+      ? '<span style="color:#1e3a8a;font-weight:500;">Yes</span>'
+      : '<span style="color:#5a6476;">Sending love from afar</span>'),
+    plusOneLine,
+    transportLine,
+    songLine,
+    '</table>',
+    '</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:36px 56px 0;">',
+    '<div style="border-top:1px solid rgba(30,58,138,0.18);padding-top:28px;text-align:center;">',
+    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;">The Day</div>',
+    '<div style="font-family:\'Bodoni Moda\',\'Didot\',Georgia,serif;font-style:italic;font-size:38px;line-height:1.1;color:#0f1a33;letter-spacing:-0.01em;">Saturday, October 10</div>',
+    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:17px;color:#5a6476;margin-top:6px;">Calamigos Ranch &middot; Malibu, California</div>',
+    '</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:36px 56px 0;text-align:center;">',
+    '<a href="' + SITE_URL + '" style="display:inline-block;background:#1e3a8a;color:#f8f4ec;padding:16px 32px;font-family:\'Bodoni Moda\',Georgia,serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;text-decoration:none;">' + ctaLabel + '</a>',
+    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;font-size:14px;color:#5a6476;margin-top:14px;">Need to change your reply? Just visit the site again.</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:48px 56px 16px;text-align:center;">',
+    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-style:italic;font-size:24px;color:#0f1a33;line-height:1.4;">Colin &amp; Lydia &amp; Zoomie</div>',
+    '</td></tr>',
+
+    '<tr><td class="px" style="padding:8px 56px 48px;text-align:center;">',
+    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#5a6476;">10 &middot; 10 &middot; 2026</div>',
+    '</td></tr>',
+
+    '</table>',
+    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:12px;color:#8a93a3;margin-top:18px;font-style:italic;">You received this because you replied to Colin &amp; Lydia\u2019s wedding invitation.</div>',
+    '</td></tr>',
+    '</table></body></html>'
+  ].join('');
+}
+
+function render() {
+  const fullname = document.getElementById('name').value || 'Friend';
+  const ctx = {
+    fullname,
+    firstName: fullname.trim().split(/\s+/)[0],
+    attending: document.getElementById('status').value === 'yes',
+    plusOne: document.getElementById('plusone').value.trim(),
+    transport: 'drive',
+    songTitle: document.getElementById('song').value.trim(),
+    songArtist: document.getElementById('artist').value.trim()
+  };
+  document.getElementById('frame').srcdoc = buildEmail(ctx);
+}
+
+document.querySelectorAll('.toolbar input, .toolbar select')
+  .forEach(el => el.addEventListener('input', render));
+render();
+</script>
+
+</body>
+</html>
