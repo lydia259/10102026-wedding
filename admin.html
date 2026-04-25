@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Colin &amp; Lydia · October 10, 2026</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<script src="assets/wedding-config.js"></script>
+<style>
+  :root {
+    --ink: #0f1a33;
+    --pearl: #2a3347;
+    --silver: #5a6476;
+    --accent: #1e3a8a;
+    --accent-soft: #3b5bb8;
+    --ivory: #f8f4ec;
+    --paper: #fbf7ec;
+    --line: rgba(30,58,138,0.18);
+    --line-soft: rgba(30,58,138,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.55;
+    min-height: 100%;
+  }
+
+  .page { max-width: 1240px; margin: 0 auto; padding: 56px 32px 80px; }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .brand {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .brand strong { font-weight: 500; color: var(--ink); margin-left: 12px; letter-spacing: 0.45em; }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .btn:hover { background: var(--accent); color: var(--ivory); }
+  .btn.solid { background: var(--accent); color: var(--ivory); }
+  .btn.solid:hover { background: var(--accent-soft); border-color: var(--accent-soft); }
+  .btn.ghost { border-color: var(--line); color: var(--silver); }
+  .btn.ghost:hover { background: transparent; color: var(--accent); border-color: var(--accent); }
+
+  /* Login */
+  .login {
+    max-width: 420px;
+    margin: 80px auto 0;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 48px 40px;
+  }
+  .login h1 {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 400;
+    font-size: 36px;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .login h1 em { font-style: italic; color: var(--accent); }
+  .login p {
+    color: var(--silver);
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+  .login label {
+    display: block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .login input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    padding: 8px 0 10px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: var(--ink);
+    outline: none;
+    margin-bottom: 24px;
+  }
+  .login input:focus { border-bottom-color: var(--accent); }
+  .login .btn { width: 100%; padding: 16px; font-size: 12px; letter-spacing: 0.4em; }
+  .login .err {
+    margin-top: 14px;
+    font-size: 14px;
+    color: #b03a3a;
+    font-style: italic;
+    min-height: 20px;
+  }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 18px 20px;
+  }
+  .stat-card .label {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .stat-card .value {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 500;
+    font-size: 30px;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .stat-card .sub {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--silver);
+    margin-top: 4px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 24px;
+  }
+  .tab {
+    background: transparent;
+    border: none;
+    padding: 12px 18px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--silver);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 180ms ease, border-color 180ms ease;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .tab .count {
+    margin-left: 8px;
+    font-size: 10px;
+    color: var(--silver);
+  }
+
+  /* Tools */
+  .tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .tools input.search {
+    flex: 1;
+    min-width: 220px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 10px 14px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    color: var(--ink);
+    outline: none;
+  }
+  .tools input.search:focus { border-color: var(--accent); }
+
+  /* Tables */
+  .panel {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead th {
+    text-align: left;
+    background: rgba(30,58,138,0.05);
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line-soft);
+    color: var(--pearl);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(30,58,138,0.03); }
+  td.muted { color: var(--silver); font-style: italic; }
+  td .pill {
+    display: inline-block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--line);
+    color: var(--silver);
+    background: var(--ivory);
+  }
+  td .pill.yes { color: var(--accent); border-color: var(--accent); }
+  td .pill.no  { color: #b03a3a; border-color: rgba(176,58,58,0.5); }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--silver);
+    font-style: italic;
+  }
+
+  .err-banner {
+    background: #fff4f4;
+    border: 1px solid rgba(176,58,58,0.3);
+    color: #8a2a2a;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 720px) {
+    .page { padding: 32px 18px 60px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .tabs { overflow-x: auto; }
+    .tab { white-space: nowrap; }
+    table { font-size: 13px; }
+    thead th, tbody td { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page" id="login-screen">
+  <div class="login">
+    <h1>Admin <em>access</em></h1>
+    <p>Enter the admin token to view RSVPs and gift notes.</p>
+    <form id="login-form">
+      <label for="token">Admin token</label>
+      <input type="password" id="token" autocomplete="current-password" required>
+      <button type="submit" class="btn solid">Sign in</button>
+      <div class="err" id="login-err"></div>
+    </form>
+  </div>
+</div>
+
+<div class="page" id="dashboard" hidden>
+  <div class="topbar">
+    <div class="brand">Colin <strong>&amp; Lydia</strong></div>
+    <div class="topbar-actions">
+      <button class="btn ghost" id="refresh-btn">Refresh</button>
+      <button class="btn ghost" id="logout-btn">Sign out</button>
+    </div>
+  </div>
+
+  <div class="err-banner" id="err-banner" hidden></div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="rsvps">RSVPs <span class="count" id="count-rsvps">0</span></button>
+    <button class="tab" data-tab="gifts">Gifts <span class="count" id="count-gifts">0</span></button>
+    <button class="tab" data-tab="songs">Songs <span class="count" id="count-songs">0</span></button>
+  </div>
+
+  <div class="tools">
+    <input type="text" class="search" id="search" placeholder="Search by name, email, song&hellip;">
+    <button class="btn" id="export-btn">Export CSV</button>
+  </div>
+
+  <div class="panel" id="panel">
+    <div class="empty">Loading&hellip;</div>
+  </div>
+</div>
+
+<script>
+  const TOKEN_KEY = 'cl_admin_token_v1';
+  const ENDPOINT = (window.WEDDING_CONFIG && window.WEDDING_CONFIG.ENDPOINT) || '';
+
+  const loginScreen = document.getElementById('login-screen');
+  const dashboard   = document.getElementById('dashboard');
+  const loginForm   = document.getElementById('login-form');
+  const tokenInput  = document.getElementById('token');
+  const loginErr    = document.getElementById('login-err');
+  const refreshBtn  = document.getElementById('refresh-btn');
+  const logoutBtn   = document.getElementById('logout-btn');
+  const tabsEl      = document.getElementById('tabs');
+  const panelEl     = document.getElementById('panel');
+  const statsEl     = document.getElementById('stats');
+  const searchEl    = document.getElementById('search');
+  const exportBtn   = document.getElementById('export-btn');
+  const errBanner   = document.getElementById('err-banner');
+  const countEls = {
+    rsvps: document.getElementById('count-rsvps'),
+    gifts: document.getElementById('count-gifts'),
+    songs: document.getElementById('count-songs')
+  };
+
+  let activeTab = 'rsvps';
+  let cache = { rsvps: [], gifts: [], songs: [] };
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function fmtDate(s) {
+    if (!s) return '';
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return String(s);
+    return d.toLocaleString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: 'numeric', minute: '2-digit'
+    });
+  }
+  function fmtMoney(v) {
+    if (v == null || v === '') return '';
+    const n = Number(v);
+    if (!isFinite(n)) return String(v);
+    return '$' + n.toLocaleString();
+  }
+  function attendingPill(v) {
+    const norm = String(v || '').toLowerCase();
+    if (norm === 'yes') return '<span class="pill yes">Yes</span>';
+    if (norm === 'no')  return '<span class="pill no">No</span>';
+    return v ? '<span class="pill">' + escapeHtml(v) + '</span>' : '';
+  }
+  function plusOneDisplay(v) {
+    if (!v) return '';
+    if (v === true || v === 'yes' || v === 'true') return '<span class="pill">Yes</span>';
+    return escapeHtml(String(v));
+  }
+
+  function showLogin() {
+    loginScreen.hidden = false;
+    dashboard.hidden = true;
+  }
+  function showDashboard() {
+    loginScreen.hidden = true;
+    dashboard.hidden = false;
+  }
+
+  async function fetchAll(token) {
+    if (!ENDPOINT || ENDPOINT.includes('REPLACE_WITH_DEPLOYMENT_ID')) {
+      throw new Error('Backend not configured. Update assets/wedding-config.js with the Apps Script URL and admin token.');
+    }
+    const url = ENDPOINT + (ENDPOINT.includes('?') ? '&' : '?')
+      + 'action=all&token=' + encodeURIComponent(token);
+    const res = await fetch(url, { method: 'GET', cache: 'no-store' });
+    if (!res.ok) throw new Error('Request failed (' + res.status + ').');
+    const json = await res.json();
+    if (json.error === 'unauthorized') throw new Error('Wrong admin token.');
+    if (json.ok === false) throw new Error(json.error || 'Request failed.');
+    return json;
+  }
+
+  async function loadDashboard() {
+    const token = localStorage.getItem(TOKEN_KEY) || '';
+    if (!token) { showLogin(); return; }
+
+    showDashboard();
+    panelEl.innerHTML = '<div class="empty">Loading&hellip;</div>';
+    errBanner.hidden = true;
+
+    try {
+      const data = await fetchAll(token);
+      cache.rsvps = Array.isArray(data.rsvps) ? data.rsvps : [];
+      cache.gifts = Array.isArray(data.gifts) ? data.gifts : [];
+      cache.songs = Array.isArray(data.songs) ? data.songs : [];
+      renderStats();
+      renderCounts();
+      renderActiveTab();
+    } catch (err) {
+      if (/unauthorized|wrong/i.test(err.message)) {
+        localStorage.removeItem(TOKEN_KEY);
+        showLogin();
+        loginErr.textContent = 'That token was rejected.';
+      } else {
+        errBanner.textContent = err.message;
+        errBanner.hidden = false;
+        panelEl.innerHTML = '<div class="empty">Couldn&rsquo;t load data.</div>';
+      }
+    }
+  }
+
+  function renderStats() {
+    const rsvps = cache.rsvps;
+    const yes = rsvps.filter(r => String(r['Attending']).toLowerCase() === 'yes').length;
+    const no  = rsvps.filter(r => String(r['Attending']).toLowerCase() === 'no').length;
+    const plusOnes = rsvps.filter(r => r['Plus One']).length;
+    const giftTotal = cache.gifts.reduce((sum, g) => sum + (Number(g['Amount']) || 0), 0);
+
+    statsEl.innerHTML = `
+      <div class="stat-card">
+        <div class="label">RSVPs</div>
+        <div class="value">${rsvps.length}</div>
+        <div class="sub">${yes} yes · ${no} no</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Plus Ones</div>
+        <div class="value">${plusOnes}</div>
+        <div class="sub">named or pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Gift Notes</div>
+        <div class="value">${cache.gifts.length}</div>
+        <div class="sub">${giftTotal ? fmtMoney(giftTotal) + ' noted' : '—'}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Song Requests</div>
+        <div class="value">${cache.songs.length}</div>
+        <div class="sub">unique guests</div>
+      </div>
+    `;
+  }
+
+  function renderCounts() {
+    countEls.rsvps.textContent = cache.rsvps.length;
+    countEls.gifts.textContent = cache.gifts.length;
+    countEls.songs.textContent = cache.songs.length;
+  }
+
+  function filterRows(rows, q) {
+    if (!q) return rows;
+    const needle = q.toLowerCase();
+    return rows.filter(r => Object.values(r).some(v =>
+      String(v == null ? '' : v).toLowerCase().includes(needle)
+    ));
+  }
+
+  function renderActiveTab() {
+    const q = searchEl.value.trim();
+    if (activeTab === 'rsvps') {
+      const rows = filterRows(cache.rsvps, q);
+      if (!rows.length) { panelEl.innerHTML = '<div class="empty">No RSVPs yet.</div>'; return; }
+      panelEl.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Submitted</th><th>Name</th><th>Email</th><th>Attending</th>
+            <th>Plus One</th><th>Transport</th><th>Song</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td class="muted">${escapeHtml(fmtDate(r['Submitted At']))}</td>
+                <td>${escapeHtml(r['Name'] || '')}</td>
+                <td class="muted">${escapeHtml(r['Email'] || '')}</td>
+                <td>${attendingPill(r['Attending'])}</td>
+                <td>${plusOneDisplay(r['Plus One'])}</td>
+                <td>${escapeHtml(r['Transport'] || '')}</td>
+                <td>${r['Song Title'] ? escapeHtml(r['Song Title']) + (r['Song Artist'] ? ' <span class="muted">— ' + escapeHtml(r['Song Artist']) + '</span>' : '') : ''}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } else if (activeTab === 'gifts') {
+      const rows = filterRows(cache.gifts, q);
+      if (!rows.length) { panelEl.innerHTML = '<div class="empty">No gift notes yet.</div>'; return; }
+      panelEl.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Submitted</th><th>Name</th><th>Amount</th><th>Method</th><th>Note</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(g => `
+              <tr>
+                <td class="muted">${escapeHtml(fmtDate(g['Submitted At']))}</td>
+                <td>${escapeHtml(g['Name'] || '')}</td>
+                <td>${escapeHtml(fmtMoney(g['Amount']))}</td>
+                <td>${g['Method'] ? '<span class="pill">' + escapeHtml(g['Method']) + '</span>' : ''}</td>
+                <td>${escapeHtml(g['Note'] || '')}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } else if (activeTab === 'songs') {
+      const aggregated = aggregateSongs(cache.songs);
+      const rows = filterRows(aggregated.map(s => ({
+        Title: s.title,
+        Artist: s.artist,
+        Requests: s.count,
+        Submitters: s.submitters.join(', ')
+      })), q);
+      if (!rows.length) { panelEl.innerHTML = '<div class="empty">No song requests yet.</div>'; return; }
+      panelEl.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>#</th><th>Title</th><th>Artist</th><th>Requests</th><th>Submitters</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map((s, i) => `
+              <tr>
+                <td class="muted">${i + 1}</td>
+                <td>${escapeHtml(s.Title)}</td>
+                <td>${escapeHtml(s.Artist)}</td>
+                <td>${s.Requests}</td>
+                <td class="muted">${escapeHtml(s.Submitters)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+  }
+
+  function aggregateSongs(rows) {
+    const map = new Map();
+    rows.forEach(r => {
+      const title = String(r.songTitle || '').trim();
+      if (!title) return;
+      const artist = String(r.songArtist || '').trim();
+      const key = (title + '|' + artist).toLowerCase();
+      const cur = map.get(key) || { title, artist, count: 0, submitters: [] };
+      cur.count += 1;
+      const submitter = String(r.submitter || '').trim();
+      if (submitter && !cur.submitters.includes(submitter)) cur.submitters.push(submitter);
+      map.set(key, cur);
+    });
+    return Array.from(map.values()).sort((a, b) => b.count - a.count);
+  }
+
+  function toCsv(rows) {
+    if (!rows.length) return '';
+    const headers = Object.keys(rows[0]);
+    const escape = v => {
+      const s = v == null ? '' : String(v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    return [
+      headers.map(escape).join(','),
+      ...rows.map(r => headers.map(h => escape(r[h])).join(','))
+    ].join('\n');
+  }
+
+  function downloadCsv(filename, csv) {
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  exportBtn.addEventListener('click', () => {
+    let rows = [];
+    let filename = 'export.csv';
+    if (activeTab === 'rsvps') { rows = cache.rsvps; filename = 'rsvps.csv'; }
+    else if (activeTab === 'gifts') { rows = cache.gifts; filename = 'gifts.csv'; }
+    else if (activeTab === 'songs') {
+      rows = aggregateSongs(cache.songs).map(s => ({
+        Title: s.title, Artist: s.artist, Requests: s.count, Submitters: s.submitters.join(', ')
+      }));
+      filename = 'songs.csv';
+    }
+    if (!rows.length) return;
+    downloadCsv(filename, toCsv(rows));
+  });
+
+  tabsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    activeTab = btn.getAttribute('data-tab');
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+    renderActiveTab();
+  });
+
+  searchEl.addEventListener('input', renderActiveTab);
+
+  refreshBtn.addEventListener('click', () => loadDashboard());
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem(TOKEN_KEY);
+    showLogin();
+    tokenInput.value = '';
+  });
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = tokenInput.value.trim();
+    if (!token) return;
+    loginErr.textContent = '';
+    localStorage.setItem(TOKEN_KEY, token);
+    await loadDashboard();
+  });
+
+  loadDashboard();
+</script>
+
+</body>
+</html>

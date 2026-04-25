@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<script src="assets/wedding-config.js"></script>
 <style>
   :root {
     --ivory: #f8f4ec;
@@ -370,7 +371,6 @@
         <div class="select-wrap">
           <select id="transport">
             <option value="">How will you arrive?</option>
-            <option value="shuttle">I&rsquo;ll take the shuttle from the hotel</option>
             <option value="drive">Driving myself</option>
             <option value="rideshare">Rideshare / taxi</option>
             <option value="other">Other</option>
@@ -380,11 +380,12 @@
       </div>
 
       <div class="form-field">
-        <label class="t" for="song">First-song request</label>
-        <input type="text" id="song" placeholder="Song and artist &mdash; optional">
+        <label class="t" for="song-title">First-song request</label>
+        <input type="text" id="song-title" placeholder="Song title &mdash; optional">
+        <input type="text" id="song-artist" placeholder="Artist &mdash; optional" style="margin-top: 14px;">
         <div class="field-hint">
           <span class="field-hint-ico">&#9834;</span>
-          <span>A track you&rsquo;d love to hear on the dance floor.</span>
+          <span>Add both song and artist, or leave both blank.</span>
         </div>
       </div>
 
@@ -399,13 +400,15 @@
 
 <script>
   const STORAGE_KEY = 'cl-rsvp-v1';
-  const SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw_ESZNMQPMFxBAKWGixJvDOu4nEUaH4gtluwbVxGT1uvbUCs3DeUQa3aMQ1hhboaeLjQ/exec';
+  const PLAYLIST_REQUESTS_KEY = 'cl_playlist_requests_v1';
+  const SHEET_ENDPOINT = (window.WEDDING_CONFIG && window.WEDDING_CONFIG.ENDPOINT) || '';
 
   const form = document.getElementById('rsvp-form');
   const card = document.getElementById('rsvp-card');
   const nameEl = document.getElementById('fullname');
   const emailEl = document.getElementById('email');
-  const songEl = document.getElementById('song');
+  const songTitleEl = document.getElementById('song-title');
+  const songArtistEl = document.getElementById('song-artist');
   const transportSel = document.getElementById('transport');
   const plusOneChk = document.getElementById('plus-one-check');
   const plusOneBox = document.getElementById('plus-one');
@@ -430,6 +433,29 @@
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function normalizePlaylistKey(s) {
+    return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+
+  function savePlaylistRequest(data) {
+    if (!data.songTitle || !data.songArtist) return;
+    try {
+      const submitter = (data.fullname || '').trim();
+      const existing = JSON.parse(localStorage.getItem(PLAYLIST_REQUESTS_KEY) || '[]');
+      const filtered = submitter
+        ? existing.filter(r => normalizePlaylistKey(r.submitter) !== normalizePlaylistKey(submitter))
+        : existing;
+      filtered.push({
+        songTitle: data.songTitle,
+        songArtist: data.songArtist,
+        song: data.song,
+        submitter,
+        submittedAt: data.submittedAt
+      });
+      localStorage.setItem(PLAYLIST_REQUESTS_KEY, JSON.stringify(filtered));
+    } catch (err) {}
   }
 
   function showConfirmed(data) {
@@ -471,29 +497,45 @@
       document.querySelector('.attendance-choice').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
+    const songTitle = songTitleEl.value.trim();
+    const songArtist = songArtistEl.value.trim();
+    songTitleEl.setCustomValidity('');
+    songArtistEl.setCustomValidity('');
+    if ((songTitle || songArtist) && (!songTitle || !songArtist)) {
+      const missingEl = songTitle ? songArtistEl : songTitleEl;
+      missingEl.setCustomValidity('Please add both song and artist, or leave both blank.');
+      missingEl.reportValidity();
+      missingEl.focus();
+      return;
+    }
     const data = {
       fullname: nameEl.value.trim(),
       email: emailEl.value.trim(),
       attending: attendChoice,
       plusOne: plusOneChk.checked ? (plusOneName.value.trim() || true) : false,
       transport: transportSel.value,
-      song: songEl.value.trim(),
+      songTitle,
+      songArtist,
+      song: songTitle && songArtist ? `${songTitle} - ${songArtist}` : '',
       submittedAt: new Date().toISOString()
     };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (err) {}
+    savePlaylistRequest(data);
     showConfirmed(data);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Send to Google Sheet (text/plain to avoid CORS preflight).
+    // Send to Apps Script (text/plain to avoid CORS preflight).
     // Fire-and-forget: localStorage already holds the reply if this fails.
-    try {
-      fetch(SHEET_ENDPOINT, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(data)
-      }).catch(() => {});
-    } catch (err) {}
+    if (SHEET_ENDPOINT) {
+      try {
+        fetch(SHEET_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ type: 'rsvp', ...data })
+        }).catch(() => {});
+      } catch (err) {}
+    }
   });
 
   // restore previous reply
@@ -503,7 +545,17 @@
       const saved = JSON.parse(raw);
       if (saved.fullname) nameEl.value = saved.fullname;
       if (saved.email) emailEl.value = saved.email;
-      if (saved.song) songEl.value = saved.song;
+      if (saved.songTitle) songTitleEl.value = saved.songTitle;
+      if (saved.songArtist) songArtistEl.value = saved.songArtist;
+      if (saved.song && !saved.songTitle && !saved.songArtist) {
+        const parts = String(saved.song).split(/\s+(?:-|–|—|by)\s+/i);
+        if (parts.length >= 2) {
+          songTitleEl.value = parts.shift().trim();
+          songArtistEl.value = parts.join(' - ').trim();
+        } else {
+          songTitleEl.value = saved.song;
+        }
+      }
       if (saved.transport) transportSel.value = saved.transport;
       if (saved.plusOne) {
         plusOneChk.checked = true;

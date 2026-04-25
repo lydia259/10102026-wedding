@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;0,6..96,800;0,6..96,900;1,6..96,400;1,6..96,500&amp;family=Italiana&amp;family=Italianno&amp;family=Pinyon+Script&amp;family=Great+Vibes&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&amp;display=swap" rel="stylesheet">
+<script src="assets/wedding-config.js"></script>
 <style>
   :root {
     /* Light theme — unified warm ivory palette */
@@ -1999,6 +2000,348 @@
     .detail-card .sub { font-size: 12.5px; max-width: 200px; }
   }
 
+  /* ===================== REGISTRY ===================== */
+  .registry { background: var(--ink-blue); padding: 140px 32px 120px; }
+  .registry .container { max-width: 760px; margin: 0 auto; text-align: center; }
+  .registry-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    line-height: 1.7;
+    color: var(--pearl);
+    max-width: 620px;
+    margin: 0 auto 22px;
+  }
+  .registry-body em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .registry-rule {
+    width: 56px; height: 1px;
+    background: var(--line);
+    margin: 40px auto 36px;
+  }
+  .registry-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    width: 100%;
+    max-width: 520px;
+    padding: 22px 32px;
+    background: var(--accent);
+    color: #f8f4ec;
+    border: none;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 250ms ease, transform 200ms ease, box-shadow 250ms ease;
+  }
+  .registry-cta:hover {
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -14px rgba(30,58,138,0.45);
+  }
+  .registry-cta .arrow { font-family: 'Bodoni Moda', serif; font-size: 18px; letter-spacing: 0; }
+  .registry-thanks {
+    margin-top: 28px;
+    font-family: 'Italianno', cursive;
+    font-size: 32px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  /* Gift modal */
+  .gift-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,18,40,0.55);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 32px 20px;
+  }
+  .gift-overlay.open { display: flex; animation: fadeUp 400ms ease-out; }
+  .gift-modal {
+    position: relative;
+    background: var(--ink-blue);
+    max-width: 560px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 44px 40px 36px;
+    border: 1px solid var(--line);
+    box-shadow: 0 40px 80px -20px rgba(10,18,40,0.4);
+  }
+  .gift-close {
+    position: sticky;
+    top: 12px;
+    float: right;
+    margin-right: -22px;
+    margin-top: -22px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(248,244,236,0.92);
+    border: 1px solid var(--line);
+    box-shadow: 0 4px 12px -4px rgba(10,18,40,0.25);
+    font-size: 22px; line-height: 1;
+    color: var(--silver); cursor: pointer;
+    transition: all 200ms ease;
+  }
+  .gift-close:hover { color: var(--accent); border-color: var(--accent); background: #fff; }
+
+  .gift-eyebrow {
+    display: inline-flex; align-items: center; gap: 18px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px; letter-spacing: 0.55em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .gift-header { text-align: center; margin-bottom: 28px; }
+  .gift-header h3 {
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 400;
+    font-size: 52px;
+    color: var(--porcelain);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 6px 0 14px;
+  }
+  .gift-header h3 em { font-style: italic; color: var(--accent); }
+  .gift-header p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    color: var(--silver);
+    line-height: 1.55;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  .gift-options { display: flex; flex-direction: column; gap: 14px; }
+  .gift-option {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 22px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--line);
+    text-align: left;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: background 250ms ease, border-color 250ms ease, transform 200ms ease;
+    width: 100%;
+    font: inherit;
+  }
+  .gift-option:hover {
+    background: rgba(255,255,255,0.85);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .gift-option .gift-icon {
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    color: #ffffff;
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 600;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .gift-option .gift-icon.venmo { background: #3D95CE; }
+  .gift-option .gift-icon.zelle { background: #6D1ED4; }
+  .gift-option .gift-icon.contributed { background: var(--accent); font-size: 24px; }
+  .gift-option .gift-meta { flex: 1; min-width: 0; }
+  .gift-option .gift-name {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--porcelain);
+  }
+  .gift-option .gift-handle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--silver);
+    margin-top: 2px;
+  }
+  .gift-option .gift-arrow {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 18px;
+    color: var(--accent);
+  }
+  .gift-copy {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .gift-copy:hover { background: var(--accent); color: #f8f4ec; }
+  .gift-copy.copied { background: var(--accent); color: #f8f4ec; }
+
+  .gift-or {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+    margin: 18px 0 4px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--silver);
+  }
+  .gift-or::before, .gift-or::after { content: ''; height: 1px; background: var(--line); }
+
+  /* Thanks form */
+  .gift-back {
+    background: none; border: none;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--silver);
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 0; margin-bottom: 10px;
+    transition: color 200ms ease, gap 200ms ease;
+  }
+  .gift-back:hover { color: var(--accent); gap: 14px; }
+  .gift-form .form-field { margin-bottom: 24px; text-align: left; }
+  .gift-form .gift-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+  }
+  .gift-form .gift-row .form-field { margin-bottom: 24px; }
+  @media (max-width: 520px) {
+    .gift-form .gift-row { grid-template-columns: 1fr; gap: 0; }
+  }
+  .gift-form .form-field label {
+    display: block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .gift-form .form-field input,
+  .gift-form .form-field textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    padding: 8px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: var(--porcelain);
+    outline: none;
+    transition: border-color 180ms ease;
+  }
+  .gift-form .form-field input:focus,
+  .gift-form .form-field textarea:focus { border-bottom-color: var(--accent); }
+  .gift-form .form-field textarea { resize: vertical; min-height: 60px; font-style: italic; }
+  .gift-form .form-field input::placeholder,
+  .gift-form .form-field textarea::placeholder { color: var(--silver); opacity: 0.55; font-style: italic; }
+  .gift-amount-wrap { position: relative; }
+  .gift-amount-wrap::before {
+    content: '$';
+    position: absolute; left: 0; top: 8px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; color: var(--silver);
+  }
+  .gift-amount-wrap input { padding-left: 18px; }
+  .gift-method {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .gift-method-btn {
+    background: rgba(255,255,255,0.4);
+    border: 1px solid var(--line);
+    padding: 14px 10px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--porcelain);
+    cursor: pointer;
+    transition: all 200ms ease;
+  }
+  .gift-method-btn:hover { border-color: var(--accent); }
+  .gift-method-btn.selected {
+    background: var(--accent);
+    color: #f8f4ec;
+    border-color: var(--accent);
+  }
+  .gift-submit {
+    width: 100%;
+    margin-top: 12px;
+    background: var(--accent);
+    color: #f8f4ec;
+    border: none;
+    padding: 18px 24px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 200ms ease;
+  }
+  .gift-submit:hover { background: var(--accent-soft); }
+
+  .gift-confirmed {
+    text-align: center;
+    padding: 24px 8px;
+  }
+  .gift-confirmed .orn {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 18px;
+  }
+  .gift-confirmed h3 {
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 400;
+    font-size: 48px;
+    color: var(--porcelain);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .gift-confirmed h3 em { font-style: italic; color: var(--accent); }
+  .gift-confirmed p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    color: var(--silver);
+    line-height: 1.55;
+  }
+
+  @media (max-width: 720px) {
+    .registry { padding: 100px 20px 80px; }
+    .registry-body { font-size: 17px; }
+    .registry-cta { padding: 18px 22px; font-size: 11px; letter-spacing: 0.35em; gap: 16px; }
+    .gift-modal { padding: 36px 24px 28px; max-height: 92vh; }
+    .gift-header h3 { font-size: 40px; }
+    .gift-option { padding: 16px 18px; gap: 14px; }
+    .gift-option .gift-icon { width: 42px; height: 42px; font-size: 18px; }
+    .gift-option .gift-name { font-size: 16px; }
+    .gift-confirmed h3 { font-size: 36px; }
+  }
+
 </style>
 </head>
 <body data-cc-id="cc-14" style="background-color: rgb(248, 244, 236); cursor: crosshair;">
@@ -2096,9 +2439,9 @@
         <div class="frame-corner br"></div>
       </div>
       <div class="reveal in">
-        <p class="drop">After years of small moments stitched into something enormous, we've decided to make it official. We've found in each other the kind of quiet, steady love that asks for nothing and gives everything — and we'd like to celebrate it with the people who shaped us.</p>
-        <p>On the tenth of October, beneath the sycamores and string lights of Calamigos Ranch, we'll say the words out loud. We hope you'll be there.</p>
-        <div class="signature" style="font-size: 32px;">Colin &amp; Lydia</div>
+        <p class="drop">We met in undergrad and have been building a life together ever since &mdash; from Los Angeles to San Francisco, and now New York, with our cat Zoomie along for the ride. After all these years, we&rsquo;re ready to make it official.</p>
+        <p>On the tenth of October, we&rsquo;re returning to LA, where the story started, to make our promises. We can&rsquo;t wait to celebrate with the people who&rsquo;ve shaped us along the way.</p>
+        <div class="signature" style="font-size: 32px;">Colin &amp; Lydia &amp; Zoomie</div>
       </div>
     </div>
   </div>
@@ -2171,6 +2514,123 @@
 
 <!-- ACCOMMODATIONS REMOVED -->
 
+<!-- REGISTRY -->
+<section class="registry" id="registry" data-screen-label="A Note on Gifts">
+  <div class="container">
+    <div class="section-eyebrow reveal in">
+      <div class="rule"></div>
+      <span class="label">With Gratitude</span>
+      <div class="rule"></div>
+    </div>
+    <h2 class="section-title reveal in">A note on <em>gifts</em></h2>
+
+    <p class="registry-body reveal in">We are so grateful to everyone who has agreed to join us in celebration of the beginning of our new chapter together. To celebrate our love with our closest family and friends is more than either of us could ever ask for.</p>
+
+    <p class="registry-body reveal in">If you are, however, feeling <em>particularly generous,</em> we have set up a few cash funds for those who would like to contribute in support of this journey.</p>
+
+    <div class="registry-rule" aria-hidden="true"></div>
+
+    <button type="button" class="registry-cta reveal in" id="open-gift">
+      <span>Contribute</span>
+      <span class="arrow">&rarr;</span>
+    </button>
+
+    <div class="registry-thanks reveal in">thank you</div>
+  </div>
+</section>
+
+<!-- Gift Modal -->
+<div class="gift-overlay" id="gift-overlay">
+  <div class="gift-modal" id="gift-modal">
+    <button class="gift-close" onclick="closeGift()" aria-label="Close">&times;</button>
+
+    <div id="gift-step-options">
+      <div class="gift-header" style="margin-top: 6px;">
+        <h3>However <em>you&rsquo;d like</em></h3>
+        <p>Choose whichever feels easiest. There&rsquo;s no expectation &mdash; only thanks.</p>
+      </div>
+
+      <div class="gift-options">
+        <a class="gift-option" href="https://venmo.com/lydia-hong-3" target="_blank" rel="noopener">
+          <div class="gift-icon venmo">V</div>
+          <div class="gift-meta">
+            <div class="gift-name">Venmo</div>
+            <div class="gift-handle">@lydia-hong-3</div>
+          </div>
+          <span class="gift-arrow">&rarr;</span>
+        </a>
+
+        <div class="gift-option" id="gift-zelle" tabindex="0">
+          <div class="gift-icon zelle">Z</div>
+          <div class="gift-meta">
+            <div class="gift-name">Zelle</div>
+            <div class="gift-handle">lydiahongp@gmail.com</div>
+          </div>
+          <button type="button" class="gift-copy" id="gift-copy-btn" data-copy="lydiahongp@gmail.com">Copy</button>
+        </div>
+
+        <div class="gift-or"><span>or</span></div>
+
+        <button type="button" class="gift-option" id="gift-already">
+          <div class="gift-icon contributed">&#10003;</div>
+          <div class="gift-meta">
+            <div class="gift-name">I already contributed</div>
+            <div class="gift-handle">Leave us a note so we know it&rsquo;s you</div>
+          </div>
+          <span class="gift-arrow">&rarr;</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="gift-step-thanks" hidden>
+      <button type="button" class="gift-back" id="gift-back">&larr; Back</button>
+      <div class="gift-header">
+        <h3>Let us <em>thank you</em></h3>
+      </div>
+
+      <form class="gift-form" id="gift-form" novalidate>
+        <div class="gift-row">
+          <div class="form-field">
+            <label for="gift-name">Your name</label>
+            <input type="text" id="gift-name" name="name" autocomplete="name" required>
+          </div>
+
+          <div class="form-field">
+            <label for="gift-amount">Amount</label>
+            <div class="gift-amount-wrap">
+              <input type="number" id="gift-amount" name="amount" min="0" step="1" placeholder="0" inputmode="numeric">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Method</label>
+          <div class="gift-method" role="group" aria-label="Method">
+            <button type="button" class="gift-method-btn" data-value="venmo">Venmo</button>
+            <button type="button" class="gift-method-btn" data-value="zelle">Zelle</button>
+            <button type="button" class="gift-method-btn" data-value="other">Other</button>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="gift-note">Note to the couple (optional)</label>
+          <textarea id="gift-note" name="note" placeholder="A few words, a song lyric, anything"></textarea>
+        </div>
+
+        <button type="submit" class="gift-submit">Send our thanks</button>
+      </form>
+    </div>
+
+    <div id="gift-step-confirmed" hidden>
+      <div class="gift-confirmed">
+        <div class="orn">&mdash; thank you &mdash;</div>
+        <h3>You&rsquo;re too <em>kind</em></h3>
+        <p id="gift-confirmed-msg">We&rsquo;ve noted it &mdash; a proper thank-you is on its way.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- GUEST GARDEN -->
 <section class="playlist-section" id="playlist" data-screen-label="The Playlist">
   <div class="container">
@@ -2179,8 +2639,8 @@
       <span class="label">The Playlist</span>
       <div class="rule"></div>
     </div>
-    <h2 class="section-title reveal in">Top ten, <em>by vote</em></h2>
-    <p class="playlist-intro reveal in">Guests suggest, guests vote. Upvote what'll get you on the floor &mdash; the top of the list plays first.</p>
+    <h2 class="section-title reveal in">Top ten, <em>by request</em></h2>
+    <p class="playlist-intro reveal in">Guests add a song when they RSVP. The most-requested tracks rise to the top for everyone to see.</p>
 
     <ol class="playlist reveal in" id="playlist-list" role="list"></ol>
 
@@ -2191,7 +2651,7 @@
 
     <div class="playlist-foot reveal in" id="playlist-foot" style="display: none;">
       <span class="count" id="playlist-count">0</span>
-      <span class="count-lbl">songs &amp; counting</span>
+      <span class="count-lbl">song requests &amp; counting</span>
       <br>
       <a href="RSVP.html" class="add-more">add yours on the RSVP &rarr;</a>
     </div>
@@ -2388,13 +2848,15 @@
 </script>
 
 <script>
-  // The Playlist — top 10 songs, voted by guests. All state lives in
-  // localStorage under the same keys the RSVP form writes to, so song
-  // submissions and votes share a single source of truth.
+  // The Playlist — top 10 songs requested through the shared RSVP endpoint.
   (function() {
-    const LIST_KEY   = 'cl_playlist_v1';          // { id, title, artist, by, submitterKey }[]
-    const VOTES_KEY  = 'cl_playlist_votes_v1';    // { [songId]: totalScore }
-    const MINE_KEY   = 'cl_playlist_my_votes_v1'; // { [songId]: +1 | -1 } — this device's votes
+    const SHEET_ENDPOINT = (window.WEDDING_CONFIG && window.WEDDING_CONFIG.ENDPOINT) || '';
+    const LOCAL_REQUESTS_KEY = 'cl_playlist_requests_v1';
+    const VOTES_KEY  = 'cl_playlist_votes_v1';
+    const MINE_KEY   = 'cl_playlist_my_votes_v1';
+
+    const UP_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"></polyline></svg>';
+    const DOWN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
 
     const listEl  = document.getElementById('playlist-list');
     const emptyEl = document.getElementById('playlist-empty');
@@ -2409,8 +2871,6 @@
       try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
     }
 
-    // Simple romanized rank — using numerals keeps it clean; swap to roman
-    // if the couple would prefer something more ornate later.
     function rankLabel(i) { return String(i + 1); }
 
     function escapeHtml(s) {
@@ -2419,23 +2879,107 @@
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    // SVG icons — hairline chevrons matching the wedding's fine-line aesthetic.
-    const UP_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"></polyline></svg>';
-    const DOWN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+    function normalize(s) {
+      return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    }
 
-    function render() {
-      const songs = loadJSON(LIST_KEY, []) || [];
+    function parseSongRequest(raw) {
+      const entry = typeof raw === 'string' ? { song: raw } : (raw || {});
+      let title = String(entry.title || entry.songTitle || entry.song || entry.request || '').trim();
+      let artist = String(entry.artist || entry.songArtist || '').trim();
+      const submittedAt = String(entry.submittedAt || entry.timestamp || entry.createdAt || '');
+      const submitter = String(entry.submitter || entry.fullname || entry.by || '').trim();
+
+      if (title && !artist) {
+        const parts = title.split(/\s+(?:-|–|—|by)\s+/i);
+        if (parts.length >= 2) {
+          title = parts.shift().trim();
+          artist = parts.join(' - ').trim();
+        }
+      }
+
+      return title ? { title, artist, submittedAt, submitter } : null;
+    }
+
+    function firstName(fullname) {
+      return String(fullname || '').trim().split(/\s+/)[0];
+    }
+
+    function formatSubmitters(names) {
+      const firsts = names.map(firstName).filter(Boolean);
+      if (firsts.length === 0) return '';
+      if (firsts.length === 1) return `submitted by <em>${escapeHtml(firsts[0])}</em>`;
+      if (firsts.length === 2) return `submitted by <em>${escapeHtml(firsts[0])}</em> and <em>${escapeHtml(firsts[1])}</em>`;
+      if (firsts.length === 3) return `submitted by <em>${escapeHtml(firsts[0])}</em>, <em>${escapeHtml(firsts[1])}</em> and <em>${escapeHtml(firsts[2])}</em>`;
+      const shown = firsts.slice(0, 2);
+      const others = firsts.length - shown.length;
+      const tail = others === 1 ? '1 other' : `${others} others`;
+      return `submitted by <em>${escapeHtml(shown[0])}</em>, <em>${escapeHtml(shown[1])}</em> and ${tail}`;
+    }
+
+    function extractSongRows(payload) {
+      if (Array.isArray(payload)) return payload;
+      if (payload && Array.isArray(payload.songs)) return payload.songs;
+      if (payload && Array.isArray(payload.rsvps)) return payload.rsvps;
+      if (payload && Array.isArray(payload.rows)) return payload.rows;
+      return [];
+    }
+
+    function getLocalSongRows() {
+      try {
+        return JSON.parse(localStorage.getItem(LOCAL_REQUESTS_KEY) || '[]');
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function aggregateSongs(rows) {
+      const songs = new Map();
+      extractSongRows(rows).forEach(raw => {
+        const parsed = parseSongRequest(raw);
+        if (!parsed) return;
+
+        const key = normalize(parsed.title) + '|' + normalize(parsed.artist);
+        const current = songs.get(key) || {
+          key,
+          title: parsed.title,
+          artist: parsed.artist,
+          count: 0,
+          submitters: [],
+          submitterKeys: new Set(),
+          latestSubmittedAt: ''
+        };
+
+        current.count += 1;
+        if (parsed.submitter) {
+          const submitterKey = normalize(parsed.submitter);
+          if (!current.submitterKeys.has(submitterKey)) {
+            current.submitterKeys.add(submitterKey);
+            current.submitters.push(parsed.submitter);
+          }
+        }
+        if (parsed.submittedAt && parsed.submittedAt > current.latestSubmittedAt) {
+          current.latestSubmittedAt = parsed.submittedAt;
+        }
+        songs.set(key, current);
+      });
+
       const votes = loadJSON(VOTES_KEY, {}) || {};
-      const mine  = loadJSON(MINE_KEY, {})  || {};
-
-      // Rank: sort by score desc, then by submission recency (id contains timestamp)
-      const ranked = songs
-        .map(s => ({ ...s, score: Number(votes[s.id] ?? 1) }))
+      return Array.from(songs.values())
+        .map(s => ({ ...s, voteScore: Number(votes[s.key] || 0) }))
+        .map(s => ({ ...s, score: s.count + s.voteScore }))
         .sort((a, b) => {
           if (b.score !== a.score) return b.score - a.score;
-          return String(b.id).localeCompare(String(a.id));
+          if (b.count !== a.count) return b.count - a.count;
+          return String(b.latestSubmittedAt).localeCompare(String(a.latestSubmittedAt));
         });
+    }
 
+    let currentSongs = [];
+
+    function render(songs) {
+      currentSongs = songs;
+      const ranked = aggregateSongs(songs);
       const top = ranked.slice(0, 10);
 
       if (top.length === 0) {
@@ -2449,48 +2993,51 @@
       listEl.style.display = '';
       emptyEl.style.display = 'none';
       footEl.style.display  = '';
-      countEl.textContent = String(songs.length);
+      countEl.textContent = String(ranked.reduce((total, song) => total + song.count, 0));
+
+      const mine = loadJSON(MINE_KEY, {}) || {};
 
       listEl.innerHTML = top.map((s, i) => {
-        const my = mine[s.id];
+        const artistHtml = s.artist ? `<p class="playlist-artist">${escapeHtml(s.artist)}</p>` : '';
+        const submittersHtml = s.submitters.length
+          ? `<div class="playlist-by">${formatSubmitters(s.submitters)}</div>`
+          : '';
+        const my = mine[s.key];
         const upActive   = my === 1  ? ' active' : '';
         const downActive = my === -1 ? ' active' : '';
-        const byHtml = s.by ? `<div class="playlist-by">suggested by <em>${escapeHtml(s.by)}</em></div>` : '';
-        const artistHtml = s.artist ? `<p class="playlist-artist">${escapeHtml(s.artist)}</p>` : '';
         return `
-          <li class="playlist-row" data-id="${escapeHtml(s.id)}">
+          <li class="playlist-row" data-key="${escapeHtml(s.key)}">
             <div class="playlist-rank">${rankLabel(i)}</div>
             <div class="playlist-meta">
               <h3 class="playlist-title">${escapeHtml(s.title || 'Untitled')}</h3>
               ${artistHtml}
-              ${byHtml}
+              ${submittersHtml}
             </div>
             <div class="playlist-votes">
               <button type="button" class="vote-btn down${downActive}" data-vote="-1" aria-label="Downvote">${DOWN_SVG}</button>
-              <span class="playlist-score">${s.score}</span>
+              <span class="playlist-score" aria-label="Score">${s.score}</span>
               <button type="button" class="vote-btn up${upActive}" data-vote="1" aria-label="Upvote">${UP_SVG}</button>
             </div>
           </li>`;
       }).join('');
     }
 
-    function castVote(songId, dir) {
+    function castVote(songKey, dir) {
       const votes = loadJSON(VOTES_KEY, {}) || {};
       const mine  = loadJSON(MINE_KEY,  {}) || {};
-      const prev  = mine[songId] || 0;
+      const prev  = mine[songKey] || 0;
 
-      // If clicking the same direction again, remove the vote (toggle off).
-      // Otherwise the net change is (new - prev).
       const next = prev === dir ? 0 : dir;
       const delta = next - prev;
+      if (delta === 0) return;
 
-      votes[songId] = Number(votes[songId] ?? 1) + delta;
-      if (next === 0) delete mine[songId];
-      else mine[songId] = next;
+      votes[songKey] = Number(votes[songKey] || 0) + delta;
+      if (next === 0) delete mine[songKey];
+      else mine[songKey] = next;
 
       saveJSON(VOTES_KEY, votes);
       saveJSON(MINE_KEY,  mine);
-      render();
+      render(currentSongs);
     }
 
     listEl.addEventListener('click', (e) => {
@@ -2498,21 +3045,152 @@
       if (!btn) return;
       const row = btn.closest('.playlist-row');
       if (!row) return;
-      const id = row.getAttribute('data-id');
+      const key = row.getAttribute('data-key');
       const dir = Number(btn.getAttribute('data-vote'));
-      if (!id || !dir) return;
-      castVote(id, dir);
+      if (!key || !dir) return;
+      castVote(key, dir);
     });
 
-    // Sync across tabs / after an RSVP submission in another tab
+    async function fetchSongs() {
+      if (!SHEET_ENDPOINT) {
+        render(getLocalSongRows());
+        return;
+      }
+      try {
+        const url = SHEET_ENDPOINT + (SHEET_ENDPOINT.includes('?') ? '&' : '?') + 'action=songs';
+        const res = await fetch(url, { method: 'GET', cache: 'no-store' });
+        if (!res.ok) throw new Error('Playlist endpoint failed.');
+        const data = await res.json();
+        render(data);
+      } catch (err) {
+        render(getLocalSongRows());
+      }
+    }
     window.addEventListener('storage', (e) => {
-      if (e.key === LIST_KEY || e.key === VOTES_KEY || e.key === MINE_KEY) render();
+      if (e.key === LOCAL_REQUESTS_KEY) render(getLocalSongRows());
+      if (e.key === VOTES_KEY || e.key === MINE_KEY) render(currentSongs);
     });
-
-    render();
+    fetchSongs();
   })();
 </script>
 
+<script>
+  // Gift modal — Venmo / Zelle / "I already contributed" thank-you note.
+  (function() {
+    const overlay     = document.getElementById('gift-overlay');
+    const openBtn     = document.getElementById('open-gift');
+    const stepOptions = document.getElementById('gift-step-options');
+    const stepThanks  = document.getElementById('gift-step-thanks');
+    const stepConfirm = document.getElementById('gift-step-confirmed');
+    const backBtn     = document.getElementById('gift-back');
+    const alreadyBtn  = document.getElementById('gift-already');
+    const copyBtn     = document.getElementById('gift-copy-btn');
+    const giftForm    = document.getElementById('gift-form');
+    const giftName    = document.getElementById('gift-name');
+    const giftAmount  = document.getElementById('gift-amount');
+    const giftNote    = document.getElementById('gift-note');
+    const methodBtns  = document.querySelectorAll('.gift-method-btn');
+    const confirmMsg  = document.getElementById('gift-confirmed-msg');
+    const STORAGE_KEY = 'cl_gift_thanks_v1';
+    let chosenMethod = null;
+
+    function showStep(which) {
+      stepOptions.hidden = which !== 'options';
+      stepThanks.hidden  = which !== 'thanks';
+      stepConfirm.hidden = which !== 'confirmed';
+    }
+
+    function openGift() {
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      showStep('options');
+    }
+    function closeGift() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    window.closeGift = closeGift;
+
+    openBtn && openBtn.addEventListener('click', openGift);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeGift(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeGift();
+    });
+
+    backBtn.addEventListener('click', () => showStep('options'));
+    alreadyBtn.addEventListener('click', () => {
+      showStep('thanks');
+      setTimeout(() => giftName.focus(), 150);
+    });
+
+    copyBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const value = copyBtn.getAttribute('data-copy') || '';
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch (err) {
+        const ta = document.createElement('textarea');
+        ta.value = value;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (err2) {}
+        document.body.removeChild(ta);
+      }
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = original;
+        copyBtn.classList.remove('copied');
+      }, 1800);
+    });
+
+    methodBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        methodBtns.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        chosenMethod = btn.getAttribute('data-value');
+      });
+    });
+
+    giftForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = giftName.value.trim();
+      if (!name) { giftName.focus(); return; }
+      const data = {
+        name,
+        amount: giftAmount.value ? Number(giftAmount.value) : null,
+        method: chosenMethod || '',
+        note: giftNote.value.trim(),
+        submittedAt: new Date().toISOString()
+      };
+      try {
+        const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        existing.push(data);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+      } catch (err) {}
+
+      const ENDPOINT = (window.WEDDING_CONFIG && window.WEDDING_CONFIG.ENDPOINT) || '';
+      if (ENDPOINT) {
+        try {
+          fetch(ENDPOINT, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ type: 'gift', ...data })
+          }).catch(() => {});
+        } catch (err) {}
+      }
+
+      const firstName = name.split(/\s+/)[0].replace(/[<>&]/g, '');
+      confirmMsg.innerHTML = `We&rsquo;ve noted it, ${firstName} &mdash; a proper thank-you is on its way.`;
+      showStep('confirmed');
+    });
+  })();
+</script>
 
 
 </body></html>
