@@ -746,12 +746,16 @@
     color: var(--silver); margin-top: 6px;
   }
   .stylist-preview {
-    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
   }
   .stylist-preview img {
-    max-width: 100%; max-height: 280px;
+    width: 100%;
+    max-width: 100%;
+    max-height: min(520px, 56vh);
     object-fit: contain;
     border: 1px solid var(--line);
+    background: #fff;
+    box-shadow: 0 18px 40px -24px rgba(15,26,51,0.35);
   }
   .re-up {
     background: none; border: none;
@@ -2782,8 +2786,6 @@
     responseEl.hidden = false;
     responseEl.innerHTML = '<div class="thinking">Having a look…</div>';
 
-    const basePrompt = 'You are a warm, tasteful wedding stylist with a kind but honest voice. A guest is attending a garden-formal wedding at Calamigos Ranch in Malibu on October 10th — outdoor ceremony on grass, reception in a barn, golden-hour to evening. They have uploaded a photo of an outfit they are considering. You MUST respond in exactly this format, no preamble:\n\nVERDICT: YES  (or NO — ONLY these two, never "maybe" or anything else. You must pick a side.)\nHEADLINE: <five to eight words, punchy, capturing the verdict — e.g. "Absolutely wear this." or "Let\'s try something lighter.">\nNOTES: <ONE short, warm sentence — max 20 words. Note the single most important thing about the outfit (color, formality, or fit for the setting). Be concise.>\n\nBe decisive, and err on the side of NO when in doubt. Say NO (kindly, never harsh) if the outfit is: too gothic or heavy/black-dominant, too casual (jeans, sneakers, t-shirts, sundress, athleisure), club-wear, overly revealing, white/ivory/cream (reserved for the bride), anything that reads costume or themed, or just generally not formal enough for a garden-formal wedding. YES means genuinely fully appropriate. Frame NO as encouragement ("this would be perfect for another night — for the wedding let\'s try…"). Never hedge.';
-
     const render = (text) => {
       const verdictMatch = text.match(/VERDICT:\s*(YES|NO)/i);
       const headlineMatch = text.match(/HEADLINE:\s*(.+)/i);
@@ -2820,17 +2822,25 @@
         throw new Error('We couldn\'t read that image. Try a different photo — jpg or png works best.');
       }
 
-      const text = await window.claude.complete({
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
-            { type: 'text', text: basePrompt }
-          ]
-        }]
-      });
+      const ENDPOINT = (window.WEDDING_CONFIG && window.WEDDING_CONFIG.ENDPOINT) || '';
+      if (!ENDPOINT) {
+        throw new Error('The stylist isn\'t configured. Email Lydia and we\'ll take a look.');
+      }
 
-      if (!text || !text.trim()) {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ type: 'stylist', mediaType, base64 })
+      });
+      if (!res.ok) {
+        throw new Error('The stylist isn\'t available right now. Try again in a moment.');
+      }
+      const data = await res.json();
+      if (!data.ok) {
+        throw new Error(data.error || 'The stylist isn\'t available right now.');
+      }
+      const text = data.text || '';
+      if (!text.trim()) {
         throw new Error('The stylist didn\'t have much to say about that one. Try a clearer full-body shot in good light.');
       }
       render(text);

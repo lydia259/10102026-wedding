@@ -38,6 +38,10 @@ function doPost(e) {
     const type = String(body.type || '').toLowerCase();
     const submittedAt = body.submittedAt ? new Date(body.submittedAt) : new Date();
 
+    if (type === 'stylist') {
+      return jsonOut_(askStylist_(body));
+    }
+
     if (type === 'rsvp') {
       appendRow_(SHEETS.rsvp, [
         submittedAt,
@@ -371,6 +375,89 @@ function escapeHtml_(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* =============================================================
+   ANTHROPIC STYLIST PROXY
+   Frontend posts { type:'stylist', mediaType, base64 } and gets back
+   { ok:true, text:'...VERDICT/HEADLINE/NOTES...' }.
+   Requires Script Property: ANTHROPIC_API_KEY
+   ============================================================= */
+
+const STYLIST_MODEL  = 'claude-sonnet-4-5';
+const STYLIST_PROMPT =
+  'You are a warm, tasteful wedding stylist with a kind but honest voice. ' +
+  'A guest is attending a garden-formal wedding at Calamigos Ranch in Malibu on October 10th \u2014 ' +
+  'outdoor ceremony on grass, reception in a barn, golden-hour to evening. They have uploaded a photo ' +
+  'of an outfit they are considering. You MUST respond in exactly this format, no preamble:\n\n' +
+  'VERDICT: YES  (or NO \u2014 ONLY these two, never "maybe" or anything else. You must pick a side.)\n' +
+  'HEADLINE: <five to eight words, punchy, capturing the verdict \u2014 e.g. "Absolutely wear this." ' +
+  'or "Let\'s try something lighter.">\n' +
+  'NOTES: <ONE short, warm sentence \u2014 max 20 words. Note the single most important thing about ' +
+  'the outfit (color, formality, or fit for the setting). Be concise.>\n\n' +
+  'Be decisive, and err on the side of NO when in doubt. Say NO (kindly, never harsh) if the outfit is: ' +
+  'too gothic or heavy/black-dominant, too casual (jeans, sneakers, t-shirts, sundress, athleisure), ' +
+  'club-wear, overly revealing, white/ivory/cream (reserved for the bride), anything that reads costume ' +
+  'or themed, or just generally not formal enough for a garden-formal wedding. YES means genuinely fully ' +
+  'appropriate. Frame NO as encouragement ("this would be perfect for another night \u2014 for the ' +
+  'wedding let\'s try\u2026"). Never hedge.';
+
+function askStylist_(body) {
+  const apiKey = PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
+  if (!apiKey) {
+    return { ok: false, error: 'Stylist is not configured yet. Email Lydia and we\'ll take a look.' };
+  }
+
+  const mediaType = String(body.mediaType || 'image/jpeg');
+  const base64    = String(body.base64 || '');
+  if (!base64) {
+    return { ok: false, error: 'We couldn\'t read that image. Try a different photo.' };
+  }
+  if (!/^image\/(jpeg|png|gif|webp)$/.test(mediaType)) {
+    return { ok: false, error: 'Please upload a jpg, png, gif, or webp.' };
+  }
+  if (base64.length > 6 * 1024 * 1024) {
+    return { ok: false, error: 'That photo is a bit too large \u2014 try one under ~5MB.' };
+  }
+
+  const payload = {
+    model: STYLIST_MODEL,
+    max_tokens: 300,
+    messages: [{
+      role: 'user',
+      content: [
+        { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+        { type: 'text',  text: STYLIST_PROMPT }
+      ]
+    }]
+  };
+
+  const res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  const status = res.getResponseCode();
+  let parsed;
+  try { parsed = JSON.parse(res.getContentText()); } catch (e) { parsed = null; }
+
+  if (status < 200 || status >= 300) {
+    const apiMsg = parsed && parsed.error && parsed.error.message;
+    console.error('Anthropic stylist failed:', status, apiMsg || res.getContentText());
+    return { ok: false, error: 'The stylist isn\'t available right now. Try again in a moment.' };
+  }
+
+  const text = parsed && parsed.content && parsed.content[0] && parsed.content[0].text || '';
+  if (!text.trim()) {
+    return { ok: false, error: 'The stylist didn\'t have much to say about that one. Try a clearer full-body shot in good light.' };
+  }
+  return { ok: true, text: text };
 }
 
 /**
