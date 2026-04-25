@@ -249,7 +249,8 @@ function buildRsvpConfirmEmail_(c) {
     'table{border-collapse:collapse;}',
     'a{color:#1e3a8a;text-decoration:none;}',
     '@media only screen and (max-width:620px){',
-    '  .container{width:100%!important;}',
+    '  .outer-pad{padding:0!important;}',
+    '  .container{width:100%!important;border:none!important;}',
     '  .px{padding-left:22px!important;padding-right:22px!important;}',
     '  .px-tight{padding-left:22px!important;padding-right:22px!important;padding-top:32px!important;padding-bottom:8px!important;}',
     '  .h1{font-size:28px!important;line-height:1.15!important;}',
@@ -276,7 +277,7 @@ function buildRsvpConfirmEmail_(c) {
       : 'We received your reply. Thank you for letting us know.'),
     '</div>',
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8f4ec;">',
-    '<tr><td align="center" style="padding:40px 16px;">',
+    '<tr><td align="center" class="outer-pad" style="padding:40px 16px;">',
     '<table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border:1px solid rgba(30,58,138,0.18);">',
 
     '<tr><td class="px" style="padding:48px 56px 12px;text-align:center;">',
