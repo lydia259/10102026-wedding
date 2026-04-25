@@ -264,7 +264,7 @@ function buildRsvpConfirmEmail_(c) {
     '  .day-venue{font-size:13px!important;}',
     '  .cta-btn{display:block!important;font-size:10px!important;letter-spacing:.28em!important;padding:14px 12px!important;}',
     '  .cta-helper{font-size:12px!important;}',
-    '  .signature{font-size:20px!important;}',
+    '  .signature{font-size:14px!important;}',
     '  .footer-date{font-size:8px!important;letter-spacing:.32em!important;}',
     '  .footer-disclaimer{font-size:11px!important;padding:0 12px!important;}',
     '}',
@@ -334,7 +334,7 @@ function buildRsvpConfirmEmail_(c) {
     '</td></tr>',
 
     '<tr><td class="px" style="padding:48px 56px 16px;text-align:center;">',
-    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-style:italic;font-weight:400;font-size:24px;color:#0f1a33;line-height:1.4;" class="signature">Colin &amp; Lydia &amp; Zoomie</div>',
+    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-style:italic;font-weight:400;font-size:16px;color:#0f1a33;line-height:1.4;" class="signature">Colin &amp; Lydia &amp; Zoomie</div>',
     '</td></tr>',
 
     '<tr><td class="px" style="padding:8px 56px 48px;text-align:center;">',
