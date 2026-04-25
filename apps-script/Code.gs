@@ -277,7 +277,7 @@ function buildRsvpConfirmEmail_(c) {
     '</div>',
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8f4ec;">',
     '<tr><td align="center" style="padding:40px 16px;">',
-    '<table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#fefcf6;border:1px solid rgba(30,58,138,0.18);">',
+    '<table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border:1px solid rgba(30,58,138,0.18);">',
 
     '<tr><td class="px" style="padding:48px 56px 12px;text-align:center;">',
     '<div class="label" style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:11px;letter-spacing:.5em;text-transform:uppercase;color:#1e3a8a;">Ten &middot; Ten &middot; 2026</div>',
