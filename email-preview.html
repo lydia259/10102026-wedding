@@ -100,9 +100,9 @@ function escapeHtml(s) {
 
 function row(label, value) {
   return [
-    '<tr class="reply-row"><td style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5a6476;width:130px;vertical-align:top;">',
+    '<tr class="reply-row"><td class="reply-label" style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5a6476;width:130px;vertical-align:top;">',
     label,
-    '</td><td style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:15px;font-weight:400;color:#0f1a33;">',
+    '</td><td class="reply-value" style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:15px;font-weight:400;color:#0f1a33;">',
     value,
     '</td></tr>'
   ].join('');
@@ -145,12 +145,23 @@ function buildEmail(c) {
     'a{color:#1e3a8a;text-decoration:none;}',
     '@media only screen and (max-width:620px){',
     '  .container{width:100%!important;}',
-    '  .px{padding-left:24px!important;padding-right:24px!important;}',
-    '  .h1{font-size:38px!important;line-height:1.05!important;}',
-    '  .monogram{font-size:64px!important;}',
-    '  .label{font-size:9px!important;letter-spacing:.32em!important;}',
-    '  .lead{font-size:16px!important;}',
-    '  .reply-row td{padding:10px 0!important;font-size:14px!important;}',
+    '  .px{padding-left:22px!important;padding-right:22px!important;}',
+    '  .px-tight{padding-left:22px!important;padding-right:22px!important;padding-top:32px!important;padding-bottom:8px!important;}',
+    '  .h1{font-size:28px!important;line-height:1.15!important;}',
+    '  .monogram{font-size:60px!important;}',
+    '  .label{font-size:9px!important;letter-spacing:.3em!important;}',
+    '  .lead{font-size:15px!important;line-height:1.6!important;}',
+    '  .section-label{font-size:10px!important;letter-spacing:.2em!important;}',
+    '  .reply-row td{display:block!important;width:100%!important;border-bottom:none!important;padding:0!important;}',
+    '  .reply-row td.reply-label{padding:14px 0 4px!important;font-size:10px!important;letter-spacing:.2em!important;width:auto!important;}',
+    '  .reply-row td.reply-value{padding:0 0 14px!important;font-size:15px!important;border-bottom:1px solid rgba(30,58,138,0.10)!important;}',
+    '  .day-display{font-size:28px!important;line-height:1.15!important;}',
+    '  .day-venue{font-size:13px!important;}',
+    '  .cta-btn{display:block!important;font-size:10px!important;letter-spacing:.28em!important;padding:14px 12px!important;}',
+    '  .cta-helper{font-size:12px!important;}',
+    '  .signature{font-size:16px!important;}',
+    '  .footer-date{font-size:8px!important;letter-spacing:.32em!important;}',
+    '  .footer-disclaimer{font-size:11px!important;padding:0 12px!important;}',
     '}',
     '</style></head>',
     '<body style="margin:0;padding:0;background:#f8f4ec;font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;color:#0f1a33;">',
@@ -186,7 +197,7 @@ function buildEmail(c) {
 
     '<tr><td class="px" style="padding:36px 56px 0;">',
     '<div style="border-top:1px solid rgba(30,58,138,0.18);padding-top:28px;">',
-    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;">Your Reply</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;" class="section-label">Your Reply</div>',
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="reply-table">',
     row('Name', escapeHtml(c.fullname)),
     row('Attending', c.attending
@@ -201,27 +212,27 @@ function buildEmail(c) {
 
     '<tr><td class="px" style="padding:36px 56px 0;">',
     '<div style="border-top:1px solid rgba(30,58,138,0.18);padding-top:28px;text-align:center;">',
-    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;">The Day</div>',
-    '<div style="font-family:\'Bodoni Moda\',\'Didot\',Georgia,serif;font-style:italic;font-size:38px;line-height:1.1;color:#0f1a33;letter-spacing:-0.01em;">Saturday, October 10</div>',
-    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:14px;color:#5a6476;margin-top:6px;">Calamigos Ranch &middot; Malibu, California</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;" class="section-label">The Day</div>',
+    '<div style="font-family:\'Bodoni Moda\',\'Didot\',Georgia,serif;font-style:italic;font-size:38px;line-height:1.1;color:#0f1a33;letter-spacing:-0.01em;" class="day-display">Saturday, October 10</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:14px;color:#5a6476;margin-top:6px;" class="day-venue">Calamigos Ranch &middot; Malibu, California</div>',
     '</div>',
     '</td></tr>',
 
     '<tr><td class="px" style="padding:36px 56px 0;text-align:center;">',
-    '<a href="' + SITE_URL + '" style="display:inline-block;background:#1e3a8a;color:#f8f4ec;padding:16px 32px;font-family:\'Bodoni Moda\',Georgia,serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;text-decoration:none;">' + ctaLabel + '</a>',
-    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:13px;color:#5a6476;margin-top:14px;">Need to change your reply? Just visit the site again.</div>',
+    '<a href="' + SITE_URL + '" style="display:inline-block;background:#1e3a8a;color:#f8f4ec;padding:16px 32px;font-family:\'Bodoni Moda\',Georgia,serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;text-decoration:none;" class="cta-btn">' + ctaLabel + '</a>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:13px;color:#5a6476;margin-top:14px;" class="cta-helper">Need to change your reply? Just visit the site again.</div>',
     '</td></tr>',
 
     '<tr><td class="px" style="padding:48px 56px 16px;text-align:center;">',
-    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-weight:400;font-size:18px;color:#0f1a33;line-height:1.4;letter-spacing:.01em;">Colin &amp; Lydia &amp; Zoomie</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-weight:400;font-size:18px;color:#0f1a33;line-height:1.4;letter-spacing:.01em;" class="signature">Colin &amp; Lydia &amp; Zoomie</div>',
     '</td></tr>',
 
     '<tr><td class="px" style="padding:8px 56px 48px;text-align:center;">',
-    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#5a6476;">10 &middot; 10 &middot; 2026</div>',
+    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#5a6476;" class="footer-date">10 &middot; 10 &middot; 2026</div>',
     '</td></tr>',
 
     '</table>',
-    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:12px;color:#8a93a3;margin-top:18px;">You received this because you replied to Colin &amp; Lydia\u2019s wedding invitation.</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:12px;color:#8a93a3;margin-top:18px;" class="footer-disclaimer">You received this because you replied to Colin &amp; Lydia\u2019s wedding invitation.</div>',
     '</td></tr>',
     '</table></body></html>'
   ].join('');
