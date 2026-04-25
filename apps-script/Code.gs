@@ -244,7 +244,7 @@ function buildRsvpConfirmEmail_(c) {
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
     '<title>Your RSVP \u2014 Colin &amp; Lydia</title>',
     '<style>',
-    '@import url("https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap");',
+    '@import url("https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@400;500;600&display=swap");',
     'body{margin:0;padding:0;background:#f8f4ec;-webkit-font-smoothing:antialiased;}',
     'table{border-collapse:collapse;}',
     'a{color:#1e3a8a;text-decoration:none;}',
@@ -254,11 +254,11 @@ function buildRsvpConfirmEmail_(c) {
     '  .h1{font-size:38px!important;line-height:1.05!important;}',
     '  .monogram{font-size:64px!important;}',
     '  .label{font-size:9px!important;letter-spacing:.32em!important;}',
-    '  .lead{font-size:17px!important;}',
-    '  .reply-row td{padding:10px 0!important;font-size:15px!important;}',
+    '  .lead{font-size:16px!important;}',
+    '  .reply-row td{padding:10px 0!important;font-size:14px!important;}',
     '}',
     '</style></head>',
-    '<body style="margin:0;padding:0;background:#f8f4ec;font-family:\'Cormorant Garamond\',Georgia,serif;color:#0f1a33;">',
+    '<body style="margin:0;padding:0;background:#f8f4ec;font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;color:#0f1a33;">',
     '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">',
     (c.attending
       ? 'We\u2019ve saved your seat for October 10 at Calamigos Ranch.'
@@ -281,7 +281,7 @@ function buildRsvpConfirmEmail_(c) {
     '</td></tr>',
 
     '<tr><td class="px" style="padding:24px 56px 0;text-align:center;">',
-    '<h1 class="h1" style="margin:0;font-family:\'Bodoni Moda\',Georgia,serif;font-weight:400;font-size:46px;line-height:1.05;letter-spacing:-0.01em;color:#0f1a33;">',
+    '<h1 class="h1" style="margin:0;font-family:\'Bodoni Moda\',Georgia,serif;font-weight:500;font-size:46px;line-height:1.05;letter-spacing:-0.01em;color:#0f1a33;">',
     (c.attending
       ? 'Your seat is <em style="font-style:italic;color:#1e3a8a;">saved</em>, ' + escapeHtml_(c.firstName) + '.'
       : 'Thank you, <em style="font-style:italic;color:#1e3a8a;">' + escapeHtml_(c.firstName) + '</em>.'),
@@ -289,14 +289,14 @@ function buildRsvpConfirmEmail_(c) {
     '</td></tr>',
 
     '<tr><td class="px" style="padding:18px 56px 0;text-align:center;">',
-    '<p class="lead" style="margin:0;font-family:\'Cormorant Garamond\',Georgia,serif;font-size:18px;font-style:italic;line-height:1.65;color:#5a6476;">',
+    '<p class="lead" style="margin:0;font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:16px;font-weight:400;line-height:1.65;color:#5a6476;">',
     heroCopy,
     '</p>',
     '</td></tr>',
 
     '<tr><td class="px" style="padding:36px 56px 0;">',
     '<div style="border-top:1px solid rgba(30,58,138,0.18);padding-top:28px;">',
-    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;">Your Reply</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;">Your Reply</div>',
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="reply-table">',
     row_('Name', escapeHtml_(c.fullname)),
     row_('Attending', c.attending
@@ -311,19 +311,19 @@ function buildRsvpConfirmEmail_(c) {
 
     '<tr><td class="px" style="padding:36px 56px 0;">',
     '<div style="border-top:1px solid rgba(30,58,138,0.18);padding-top:28px;text-align:center;">',
-    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;">The Day</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#1e3a8a;margin-bottom:14px;">The Day</div>',
     '<div style="font-family:\'Bodoni Moda\',\'Didot\',Georgia,serif;font-style:italic;font-size:38px;line-height:1.1;color:#0f1a33;letter-spacing:-0.01em;">Saturday, October 10</div>',
-    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:17px;color:#5a6476;margin-top:6px;">Calamigos Ranch &middot; Malibu, California</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:14px;color:#5a6476;margin-top:6px;">Calamigos Ranch &middot; Malibu, California</div>',
     '</div>',
     '</td></tr>',
 
     '<tr><td class="px" style="padding:36px 56px 0;text-align:center;">',
     '<a href="' + SITE_URL + '" style="display:inline-block;background:#1e3a8a;color:#f8f4ec;padding:16px 32px;font-family:\'Bodoni Moda\',Georgia,serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;text-decoration:none;">' + ctaLabel + '</a>',
-    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;font-size:14px;color:#5a6476;margin-top:14px;">Need to change your reply? Just visit the site again.</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:13px;color:#5a6476;margin-top:14px;">Need to change your reply? Just visit the site again.</div>',
     '</td></tr>',
 
     '<tr><td class="px" style="padding:48px 56px 16px;text-align:center;">',
-    '<div style="font-family:\'Bodoni Moda\',Georgia,serif;font-style:italic;font-size:24px;color:#0f1a33;line-height:1.4;">Colin &amp; Lydia &amp; Zoomie</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-weight:400;font-size:18px;color:#0f1a33;line-height:1.4;letter-spacing:.01em;">Colin &amp; Lydia &amp; Zoomie</div>',
     '</td></tr>',
 
     '<tr><td class="px" style="padding:8px 56px 48px;text-align:center;">',
@@ -331,7 +331,7 @@ function buildRsvpConfirmEmail_(c) {
     '</td></tr>',
 
     '</table>',
-    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:12px;color:#8a93a3;margin-top:18px;font-style:italic;">You received this because you replied to Colin &amp; Lydia\u2019s wedding invitation.</div>',
+    '<div style="font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:12px;color:#8a93a3;margin-top:18px;">You received this because you replied to Colin &amp; Lydia\u2019s wedding invitation.</div>',
     '</td></tr>',
     '</table></body></html>'
   ].join('');
@@ -339,9 +339,9 @@ function buildRsvpConfirmEmail_(c) {
 
 function row_(label, value) {
   return [
-    '<tr class="reply-row"><td style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Bodoni Moda\',Georgia,serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#5a6476;width:130px;vertical-align:top;">',
+    '<tr class="reply-row"><td style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5a6476;width:130px;vertical-align:top;">',
     label,
-    '</td><td style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Cormorant Garamond\',Georgia,serif;font-size:17px;color:#0f1a33;">',
+    '</td><td style="padding:12px 0;border-bottom:1px solid rgba(30,58,138,0.10);font-family:\'Inter\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;font-size:15px;font-weight:400;color:#0f1a33;">',
     value,
     '</td></tr>'
   ].join('');
@@ -388,19 +388,30 @@ const STYLIST_MODEL  = 'claude-sonnet-4-5';
 const STYLIST_PROMPT =
   'You are a warm, tasteful wedding stylist with a kind but honest voice. ' +
   'A guest is attending a garden-formal wedding at Calamigos Ranch in Malibu on October 10th \u2014 ' +
-  'outdoor ceremony on grass, reception in a barn, golden-hour to evening. They have uploaded a photo ' +
-  'of an outfit they are considering. You MUST respond in exactly this format, no preamble:\n\n' +
-  'VERDICT: YES  (or NO \u2014 ONLY these two, never "maybe" or anything else. You must pick a side.)\n' +
-  'HEADLINE: <five to eight words, punchy, capturing the verdict \u2014 e.g. "Absolutely wear this." ' +
-  'or "Let\'s try something lighter.">\n' +
-  'NOTES: <ONE short, warm sentence \u2014 max 20 words. Note the single most important thing about ' +
-  'the outfit (color, formality, or fit for the setting). Be concise.>\n\n' +
-  'Be decisive, and err on the side of NO when in doubt. Say NO (kindly, never harsh) if the outfit is: ' +
-  'too gothic or heavy/black-dominant, too casual (jeans, sneakers, t-shirts, sundress, athleisure), ' +
-  'club-wear, overly revealing, white/ivory/cream (reserved for the bride), anything that reads costume ' +
-  'or themed, or just generally not formal enough for a garden-formal wedding. YES means genuinely fully ' +
-  'appropriate. Frame NO as encouragement ("this would be perfect for another night \u2014 for the ' +
-  'wedding let\'s try\u2026"). Never hedge.';
+  'outdoor ceremony on grass, reception in a barn, golden-hour into evening. The dress code is ' +
+  'garden-formal / cocktail-to-formal: midi and floor-length dresses, jumpsuits, suits, and elevated ' +
+  'separates are all welcome. A wide range of colors, prints, and silhouettes is encouraged \u2014 ' +
+  'jewel tones, pastels, florals, metallics, yellows, golds, lace, and chiffon all work beautifully.\n\n' +
+  'They have uploaded a photo of an outfit they are considering. Default to YES. Most thoughtful, ' +
+  'formal-leaning outfits are appropriate \u2014 only say NO when something is clearly inappropriate.\n\n' +
+  'You MUST respond in exactly this format, no preamble:\n\n' +
+  'VERDICT: YES  (or NO \u2014 ONLY these two, never "maybe". Pick a side.)\n' +
+  'HEADLINE: <five to eight words, punchy and warm \u2014 e.g. "Absolutely wear this." ' +
+  'or "Let\'s try something a touch dressier.">\n' +
+  'NOTES: <ONE short, warm sentence \u2014 max 20 words. Highlight what works (for YES) or the single ' +
+  'specific reason it doesn\'t (for NO). Be concise and never harsh.>\n\n' +
+  'Only say NO if the outfit is one of these:\n' +
+  '  \u2022 White, ivory, cream, or champagne as the dominant color (reserved for the bride). Yellow, ' +
+  'gold, beige, blush, and pastels are NOT bridal \u2014 those are YES.\n' +
+  '  \u2022 Clearly casual: jeans, denim, sneakers, t-shirts, hoodies, athleisure, beachwear, sundress ' +
+  'in casual cotton.\n' +
+  '  \u2022 Club-wear: very short bodycon mini, extreme cutouts, lingerie-like.\n' +
+  '  \u2022 Costume or themed (Halloween, cosplay, novelty prints).\n' +
+  '  \u2022 All-black head-to-toe in a way that reads funereal or gothic (a chic black cocktail dress ' +
+  'is FINE \u2014 that\'s a YES).\n\n' +
+  'Everything else is YES. Lace, sheer panels, backless, halter, slip dresses, jumpsuits, suits, bold ' +
+  'colors, florals, sequins, and metallics are all welcome at this wedding. When in doubt, lean YES ' +
+  'and offer one warm styling thought in NOTES.';
 
 function askStylist_(body) {
   const apiKey = PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
@@ -458,6 +469,25 @@ function askStylist_(body) {
     return { ok: false, error: 'The stylist didn\'t have much to say about that one. Try a clearer full-body shot in good light.' };
   }
   return { ok: true, text: text };
+}
+
+/**
+ * Run this ONCE from the Apps Script editor (Run button) to grant the
+ * permissions this script needs:
+ *   - Spreadsheet access (RSVPs, Gifts, Songs)
+ *   - Send email (RSVP confirmations)
+ *   - Connect to external service (Anthropic, for the stylist)
+ *   - Read script properties (ANTHROPIC_API_KEY, ADMIN_TOKEN)
+ *
+ * After granting permission, redeploy:
+ *   Deploy -> Manage deployments -> pencil icon -> Version: New version -> Deploy
+ */
+function authorizeAll() {
+  SpreadsheetApp.getActiveSpreadsheet();
+  PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
+  MailApp.getRemainingDailyQuota();
+  UrlFetchApp.fetch('https://www.google.com/generate_204', { muteHttpExceptions: true });
+  console.log('All permissions granted. Now redeploy from Deploy -> Manage deployments.');
 }
 
 /**

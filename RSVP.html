@@ -6,7 +6,7 @@
 <title>RSVP · Colin &amp; Lydia · October 10, 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="assets/gate.js"></script>
 <script src="assets/wedding-config.js"></script>
 <style>
@@ -21,6 +21,7 @@
     --accent-soft:#3b5bb8;
     --line:  rgba(30,58,138,0.22);
     --line-soft: rgba(30,58,138,0.14);
+    --form-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -81,7 +82,7 @@
   .eyebrow .rule { width: 56px; height: 1px; background: var(--line); }
   .page-head h1 {
     font-family: 'Bodoni Moda', serif;
-    font-weight: 400;
+    font-weight: 500;
     font-size: clamp(48px, 7vw, 78px);
     letter-spacing: -0.01em;
     line-height: 1.0;
@@ -89,7 +90,7 @@
   }
   .page-head h1 em {
     font-style: italic;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--accent);
   }
   .date-line {
@@ -125,9 +126,10 @@
   .form-field { margin-bottom: 28px; }
   .form-field label.t {
     display: block;
-    font-family: 'Bodoni Moda', serif;
-    font-size: 10px;
-    letter-spacing: 0.35em;
+    font-family: var(--form-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--accent);
     margin-bottom: 10px;
@@ -140,8 +142,8 @@
     border: none;
     border-bottom: 1px solid var(--line);
     padding: 10px 0 12px;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px;
+    font-family: var(--form-sans);
+    font-size: 16px;
     font-weight: 400;
     color: var(--ink);
     outline: none;
@@ -149,7 +151,7 @@
   }
   .form-field input:focus,
   .form-field select:focus { border-color: var(--accent); }
-  .form-field input::placeholder { color: var(--silver); opacity: 0.55; font-style: italic; }
+  .form-field input::placeholder { color: var(--silver); opacity: 0.7; font-style: normal; }
 
   .select-wrap { position: relative; }
   .select-wrap select { appearance: none; cursor: pointer; padding-right: 32px; }
@@ -160,7 +162,8 @@
 
   .field-hint {
     margin-top: 8px;
-    font-size: 13px; font-style: italic;
+    font-family: var(--form-sans);
+    font-size: 12px;
     color: var(--silver);
     display: flex; gap: 8px; align-items: flex-start;
   }
@@ -177,7 +180,7 @@
     border-radius: 2px;
     padding: 22px 20px;
     cursor: pointer;
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--form-sans);
     color: var(--ink);
     text-align: center;
     transition: all 220ms ease;
@@ -185,15 +188,16 @@
     box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 1px 2px rgba(30,58,138,0.04);
   }
   .attendance-btn .title {
-    font-family: 'Bodoni Moda', serif;
-    font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase;
+    font-family: var(--form-sans);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
     color: var(--silver);
     transition: color 220ms ease;
   }
   .attendance-btn .sub {
     margin-top: 4px;
-    font-size: 18px;
-    font-style: italic;
+    font-family: var(--form-sans);
+    font-size: 14px;
+    font-style: normal;
     color: var(--pearl);
     max-width: none;
   }
@@ -220,8 +224,8 @@
   }
   .plus-one input { accent-color: var(--accent); width: 16px; height: 16px; }
   .plus-one .t {
-    font-family: 'Bodoni Moda', serif;
-    font-size: 11px; letter-spacing: 0.35em; text-transform: uppercase;
+    font-family: var(--form-sans);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
     color: var(--pearl);
     margin: 0;
   }
@@ -255,7 +259,8 @@
   .form-note {
     margin-top: 16px;
     text-align: center;
-    font-size: 13px; font-style: italic;
+    font-family: var(--form-sans);
+    font-size: 12px;
     color: var(--silver);
   }
 
@@ -268,7 +273,7 @@
   }
   .confirmed h2 {
     font-family: 'Bodoni Moda', serif;
-    font-weight: 400;
+    font-weight: 500;
     font-size: 40px;
     line-height: 1.1;
     color: var(--ink);
@@ -469,7 +474,7 @@
           ? 'See <em>you</em> there, ' + escapeHtml(firstName)
           : 'We&rsquo;ll <em>miss</em> you, ' + escapeHtml(firstName)}</h2>
         <p>${attendingYes
-          ? 'We&rsquo;ll send a note with final details closer to the day. Safe travels to Malibu.'
+          ? 'We&rsquo;ll send a note with final details closer to the day.<br>Safe travels to Malibu.'
           : 'Thank you for letting us know. We&rsquo;ll be thinking of you on October 10.'}</p>
         <button type="button" class="edit-btn" id="edit-btn">Edit my reply</button>
       </div>
