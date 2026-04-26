@@ -29,6 +29,10 @@ const SHEETS = {
   gift: {
     name: 'Gifts',
     headers: ['Submitted At', 'Name', 'Amount', 'Method', 'Note']
+  },
+  vote: {
+    name: 'Votes',
+    headers: ['Submitted At', 'Voter ID', 'Song Key', 'Direction']
   }
 };
 
@@ -70,6 +74,17 @@ function doPost(e) {
       return jsonOut_({ ok: true });
     }
 
+    if (type === 'vote') {
+      const voterId  = String(body.voterId || '').trim();
+      const songKey  = String(body.songKey || '').trim();
+      const direction = Number(body.direction);
+      if (!voterId || !songKey || ![-1, 0, 1].includes(direction)) {
+        return jsonOut_({ ok: false, error: 'invalid vote' });
+      }
+      upsertVote_(voterId, songKey, direction, submittedAt);
+      return jsonOut_({ ok: true });
+    }
+
     if (type === 'admin-delete') {
       const expected = getAdminToken_();
       if (!expected || String(body.token || '') !== expected) {
@@ -95,7 +110,7 @@ function doGet(e) {
     const action = String((e && e.parameter && e.parameter.action) || 'songs').toLowerCase();
 
     if (action === 'songs') {
-      return jsonOut_({ songs: getSongs_() });
+      return jsonOut_({ songs: getSongs_(), votes: getVotes_() });
     }
 
     if (action === 'all') {
@@ -108,7 +123,8 @@ function doGet(e) {
         ok: true,
         rsvps: readSheet_(SHEETS.rsvp.name),
         gifts: readSheet_(SHEETS.gift.name),
-        songs: getSongs_()
+        songs: getSongs_(),
+        votes: getVotes_()
       });
     }
 
@@ -198,6 +214,58 @@ function upsertRsvpRow_(values, body) {
 
   sheet.appendRow(values);
   return { updated: false };
+}
+
+/**
+ * Records or updates a vote. One row per (voterId, songKey). Direction can be
+ * -1 (down), 1 (up), or 0 (clear). Direction 0 deletes the row so the vote
+ * has no further effect on totals.
+ */
+function upsertVote_(voterId, songKey, direction, submittedAt) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const config = SHEETS.vote;
+  const sheet = ss.getSheetByName(config.name) || ss.insertSheet(config.name);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(config.headers);
+    sheet.setFrozenRows(1);
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow >= 2) {
+    const data = sheet.getRange(2, 1, lastRow - 1, config.headers.length).getValues();
+    // 0 Submitted At · 1 Voter ID · 2 Song Key · 3 Direction
+    for (let i = data.length - 1; i >= 0; i--) {
+      const rowVoter = String(data[i][1] || '');
+      const rowKey   = String(data[i][2] || '');
+      if (rowVoter === voterId && rowKey === songKey) {
+        if (direction === 0) {
+          sheet.deleteRow(i + 2);
+        } else {
+          sheet.getRange(i + 2, 1, 1, 4).setValues([[submittedAt, voterId, songKey, direction]]);
+        }
+        return;
+      }
+    }
+  }
+
+  if (direction !== 0) {
+    sheet.appendRow([submittedAt, voterId, songKey, direction]);
+  }
+}
+
+/**
+ * Aggregates global vote tallies as { songKey: totalScore }.
+ */
+function getVotes_() {
+  const rows = readSheet_(SHEETS.vote.name);
+  const map = {};
+  rows.forEach(r => {
+    const key = String(r['Song Key'] || '');
+    if (!key) return;
+    const dir = Number(r['Direction']) || 0;
+    map[key] = (map[key] || 0) + dir;
+  });
+  return map;
 }
 
 /**

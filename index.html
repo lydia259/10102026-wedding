@@ -2885,8 +2885,20 @@
   (function() {
     const SHEET_ENDPOINT = (window.WEDDING_CONFIG && window.WEDDING_CONFIG.ENDPOINT) || '';
     const LOCAL_REQUESTS_KEY = 'cl_playlist_requests_v1';
-    const VOTES_KEY  = 'cl_playlist_votes_v1';
     const MINE_KEY   = 'cl_playlist_my_votes_v1';
+    const VOTER_KEY  = 'cl_voter_id_v1';
+
+    function getVoterId() {
+      let v = '';
+      try { v = localStorage.getItem(VOTER_KEY) || ''; } catch (_) {}
+      if (!v) {
+        v = 'v_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        try { localStorage.setItem(VOTER_KEY, v); } catch (_) {}
+      }
+      return v;
+    }
+
+    let globalVotes = {};
 
     const UP_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"></polyline></svg>';
     const DOWN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
@@ -2997,9 +3009,8 @@
         songs.set(key, current);
       });
 
-      const votes = loadJSON(VOTES_KEY, {}) || {};
       return Array.from(songs.values())
-        .map(s => ({ ...s, voteScore: Number(votes[s.key] || 0) }))
+        .map(s => ({ ...s, voteScore: Number(globalVotes[s.key] || 0) }))
         .map(s => ({ ...s, score: s.count + s.voteScore }))
         .sort((a, b) => {
           if (b.score !== a.score) return b.score - a.score;
@@ -3056,21 +3067,34 @@
     }
 
     function castVote(songKey, dir) {
-      const votes = loadJSON(VOTES_KEY, {}) || {};
-      const mine  = loadJSON(MINE_KEY,  {}) || {};
+      const mine  = loadJSON(MINE_KEY, {}) || {};
       const prev  = mine[songKey] || 0;
 
       const next = prev === dir ? 0 : dir;
       const delta = next - prev;
       if (delta === 0) return;
 
-      votes[songKey] = Number(votes[songKey] || 0) + delta;
+      // Optimistic local update so the UI feels instant.
+      globalVotes[songKey] = Number(globalVotes[songKey] || 0) + delta;
       if (next === 0) delete mine[songKey];
       else mine[songKey] = next;
-
-      saveJSON(VOTES_KEY, votes);
-      saveJSON(MINE_KEY,  mine);
+      saveJSON(MINE_KEY, mine);
       render(currentSongs);
+
+      if (!SHEET_ENDPOINT) return;
+      try {
+        fetch(SHEET_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            type: 'vote',
+            voterId: getVoterId(),
+            songKey: songKey,
+            direction: next
+          })
+        }).catch(() => {});
+      } catch (err) {}
     }
 
     listEl.addEventListener('click', (e) => {
@@ -3094,6 +3118,7 @@
         const res = await fetch(url, { method: 'GET', cache: 'no-store' });
         if (!res.ok) throw new Error('Playlist endpoint failed.');
         const data = await res.json();
+        globalVotes = (data && typeof data.votes === 'object' && data.votes) ? data.votes : {};
         render(data);
       } catch (err) {
         render(getLocalSongRows());
@@ -3101,7 +3126,7 @@
     }
     window.addEventListener('storage', (e) => {
       if (e.key === LOCAL_REQUESTS_KEY) render(getLocalSongRows());
-      if (e.key === VOTES_KEY || e.key === MINE_KEY) render(currentSongs);
+      if (e.key === MINE_KEY) render(currentSongs);
     });
     fetchSongs();
   })();
