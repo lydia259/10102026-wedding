@@ -120,7 +120,7 @@
   /* Stats */
   .stats {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
     margin-bottom: 32px;
   }
@@ -529,12 +529,6 @@
     const rsvps = cache.rsvps;
     const yes = rsvps.filter(r => String(r['Attending']).toLowerCase() === 'yes').length;
     const no  = rsvps.filter(r => String(r['Attending']).toLowerCase() === 'no').length;
-    const plusOnes = rsvps.filter(r => r['Plus One']).length;
-    const headcount = rsvps.reduce((sum, r) => {
-      if (String(r['Attending']).toLowerCase() !== 'yes') return sum;
-      const p = String(r['Plus One'] || '').trim().toLowerCase();
-      return sum + (p === '' ? 1 : 2);
-    }, 0);
     const giftTotal = cache.gifts.reduce((sum, g) => sum + (Number(g['Amount']) || 0), 0);
 
     statsEl.innerHTML = `
@@ -542,11 +536,6 @@
         <div class="label">RSVPs</div>
         <div class="value">${rsvps.length}</div>
         <div class="sub">${yes} yes · ${no} no</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Headcount</div>
-        <div class="value">${headcount}</div>
-        <div class="sub">${plusOnes} with plus-ones</div>
       </div>
       <div class="stat-card">
         <div class="label">Gift Notes</div>
