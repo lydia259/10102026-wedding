@@ -277,6 +277,24 @@
     border: 1px solid var(--accent);
     padding: 2px 8px;
   }
+  td.row-actions { text-align: right; white-space: nowrap; }
+  .delete-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--silver);
+    width: 28px;
+    height: 28px;
+    line-height: 1;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+  }
+  .delete-btn:hover {
+    color: #b03a3a;
+    border-color: rgba(176,58,58,0.5);
+    background: #fff4f4;
+  }
+  .delete-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
   .empty {
     text-align: center;
@@ -384,6 +402,43 @@
     if (!v) return false;
     const s = String(v).trim().toLowerCase();
     return s !== '' && s !== 'yes' && s !== 'true';
+  }
+
+  function deleteBtnHtml(sheet, submittedAt, label) {
+    const at = submittedAt == null ? '' : String(submittedAt);
+    if (!at) return '';
+    return '<button type="button" class="delete-btn" title="Delete entry"' +
+      ' data-delete-sheet="' + escapeHtml(sheet) + '"' +
+      ' data-delete-at="' + escapeHtml(at) + '"' +
+      ' data-delete-label="' + escapeHtml(label || '') + '">&times;</button>';
+  }
+
+  async function deleteEntry(sheet, submittedAt, label) {
+    const niceLabel = label ? ' for ' + label : '';
+    const kind = sheet === 'gift' ? 'gift note' : 'RSVP';
+    if (!confirm(`Delete this ${kind}${niceLabel}? This cannot be undone.`)) return;
+    const token = localStorage.getItem(TOKEN_KEY) || '';
+    if (!token) { showLogin(); return; }
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ type: 'admin-delete', token, sheet, submittedAt })
+      });
+      const json = await res.json();
+      if (json.error === 'unauthorized') {
+        localStorage.removeItem(TOKEN_KEY);
+        showLogin();
+        loginErr.textContent = 'Session expired. Sign in again.';
+        return;
+      }
+      if (json.ok === false || json.deleted === false) {
+        throw new Error(json.error || 'Entry not found.');
+      }
+      await loadDashboard();
+    } catch (err) {
+      alert('Delete failed: ' + err.message);
+    }
   }
 
   function escapeHtml(s) {
@@ -524,15 +579,27 @@
     const q = searchEl.value.trim();
     couplesToggleWrap.hidden = activeTab !== 'rsvps';
     if (activeTab === 'rsvps') {
-      const rows = filterRows(cache.rsvps, q);
-      if (!rows.length) { panelEl.innerHTML = '<div class="empty">No RSVPs yet.</div>'; return; }
       const couplesView = !!couplesToggle.checked;
+      let baseRows = cache.rsvps;
+      if (couplesView) {
+        baseRows = baseRows.filter(r =>
+          isPlusOneNamed(r['Plus One']) ||
+          String(r['Plus One']).toLowerCase() === 'yes'
+        );
+      }
+      const rows = filterRows(baseRows, q);
+      if (!rows.length) {
+        panelEl.innerHTML = '<div class="empty">' +
+          (couplesView ? 'No RSVPs with a plus-one yet.' : 'No RSVPs yet.') +
+          '</div>';
+        return;
+      }
       if (couplesView) {
         panelEl.innerHTML = `
           <table>
             <thead><tr>
               <th>Submitted</th><th>Party</th><th>Size</th><th>Email</th><th>Attending</th>
-              <th>Transport</th><th>Song</th>
+              <th>Transport</th><th>Song</th><th></th>
             </tr></thead>
             <tbody>
               ${rows.map(r => {
@@ -555,6 +622,7 @@
                     <td>${attendingPill(r['Attending'])}</td>
                     <td>${escapeHtml(r['Transport'] || '')}</td>
                     <td>${r['Song Title'] ? escapeHtml(r['Song Title']) + (r['Song Artist'] ? ' <span class="muted">— ' + escapeHtml(r['Song Artist']) + '</span>' : '') : ''}</td>
+                    <td class="row-actions">${deleteBtnHtml('rsvp', r['Submitted At'], r['Name'])}</td>
                   </tr>`;
               }).join('')}
             </tbody>
@@ -564,7 +632,7 @@
           <table>
             <thead><tr>
               <th>Submitted</th><th>Name</th><th>Email</th><th>Attending</th>
-              <th>Plus One</th><th>Transport</th><th>Song</th>
+              <th>Plus One</th><th>Transport</th><th>Song</th><th></th>
             </tr></thead>
             <tbody>
               ${rows.map(r => `
@@ -576,6 +644,7 @@
                   <td>${plusOneDisplay(r['Plus One'])}</td>
                   <td>${escapeHtml(r['Transport'] || '')}</td>
                   <td>${r['Song Title'] ? escapeHtml(r['Song Title']) + (r['Song Artist'] ? ' <span class="muted">— ' + escapeHtml(r['Song Artist']) + '</span>' : '') : ''}</td>
+                  <td class="row-actions">${deleteBtnHtml('rsvp', r['Submitted At'], r['Name'])}</td>
                 </tr>`).join('')}
             </tbody>
           </table>`;
@@ -586,7 +655,7 @@
       panelEl.innerHTML = `
         <table>
           <thead><tr>
-            <th>Submitted</th><th>Name</th><th>Amount</th><th>Method</th><th>Note</th>
+            <th>Submitted</th><th>Name</th><th>Amount</th><th>Method</th><th>Note</th><th></th>
           </tr></thead>
           <tbody>
             ${rows.map(g => `
@@ -596,6 +665,7 @@
                 <td>${escapeHtml(fmtMoney(g['Amount']))}</td>
                 <td>${g['Method'] ? '<span class="pill">' + escapeHtml(g['Method']) + '</span>' : ''}</td>
                 <td>${escapeHtml(g['Note'] || '')}</td>
+                <td class="row-actions">${deleteBtnHtml('gift', g['Submitted At'], g['Name'])}</td>
               </tr>`).join('')}
           </tbody>
         </table>`;
@@ -694,6 +764,17 @@
   couplesToggle.addEventListener('change', () => {
     localStorage.setItem('cl_admin_couples_v1', couplesToggle.checked ? '1' : '0');
     renderActiveTab();
+  });
+
+  panelEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.delete-btn');
+    if (!btn) return;
+    const sheet = btn.getAttribute('data-delete-sheet');
+    const at    = btn.getAttribute('data-delete-at');
+    const label = btn.getAttribute('data-delete-label');
+    if (!sheet || !at) return;
+    btn.disabled = true;
+    deleteEntry(sheet, at, label);
   });
 
   refreshBtn.addEventListener('click', () => loadDashboard());

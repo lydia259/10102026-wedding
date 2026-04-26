@@ -70,6 +70,20 @@ function doPost(e) {
       return jsonOut_({ ok: true });
     }
 
+    if (type === 'admin-delete') {
+      const expected = getAdminToken_();
+      if (!expected || String(body.token || '') !== expected) {
+        return jsonOut_({ ok: false, error: 'unauthorized' });
+      }
+      const sheetKey = String(body.sheet || '').toLowerCase();
+      const sheetName = sheetKey === 'rsvp' ? SHEETS.rsvp.name
+                      : sheetKey === 'gift' ? SHEETS.gift.name
+                      : '';
+      if (!sheetName) return jsonOut_({ ok: false, error: 'unknown sheet' });
+      const deleted = deleteRowBySubmittedAt_(sheetName, String(body.submittedAt || ''));
+      return jsonOut_({ ok: deleted, deleted: deleted });
+    }
+
     return jsonOut_({ ok: false, error: 'unknown type' });
   } catch (err) {
     return jsonOut_({ ok: false, error: String(err) });
@@ -184,6 +198,29 @@ function upsertRsvpRow_(values, body) {
 
   sheet.appendRow(values);
   return { updated: false };
+}
+
+/**
+ * Deletes a row from the given sheet by matching its "Submitted At" timestamp
+ * (column A, ISO string). Returns true if a row was deleted. Submitted-at
+ * timestamps are effectively unique because they're created server-side.
+ */
+function deleteRowBySubmittedAt_(sheetName, submittedAtIso) {
+  if (!submittedAtIso) return false;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet || sheet.getLastRow() < 2) return false;
+  const lastRow = sheet.getLastRow();
+  const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  for (let i = data.length - 1; i >= 0; i--) {
+    const v = data[i][0];
+    const iso = v instanceof Date ? v.toISOString() : String(v);
+    if (iso === submittedAtIso) {
+      sheet.deleteRow(i + 2);
+      return true;
+    }
+  }
+  return false;
 }
 
 function readSheet_(sheetName) {
