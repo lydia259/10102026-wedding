@@ -43,7 +43,7 @@ function doPost(e) {
     }
 
     if (type === 'rsvp') {
-      appendRow_(SHEETS.rsvp, [
+      const result = upsertRsvpRow_([
         submittedAt,
         body.fullname || '',
         body.email || '',
@@ -52,11 +52,11 @@ function doPost(e) {
         body.transport || '',
         body.songTitle || '',
         body.songArtist || ''
-      ]);
+      ], body);
       try { sendRsvpConfirmation_(body); } catch (mailErr) {
         console.error('RSVP email failed:', mailErr);
       }
-      return jsonOut_({ ok: true });
+      return jsonOut_({ ok: true, updated: !!result.updated });
     }
 
     if (type === 'gift') {
@@ -141,6 +141,49 @@ function appendRow_(config, values) {
     sheet.setFrozenRows(1);
   }
   sheet.appendRow(values);
+}
+
+/**
+ * Insert or update an RSVP row.
+ * Matches existing rows by email (case-insensitive) when available, otherwise
+ * falls back to a case-insensitive name match. Updates the most recent
+ * matching row in place so a guest editing their reply doesn't create
+ * duplicate records.
+ */
+function upsertRsvpRow_(values, body) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const config = SHEETS.rsvp;
+  const sheet = ss.getSheetByName(config.name) || ss.insertSheet(config.name);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(config.headers);
+    sheet.setFrozenRows(1);
+  }
+
+  const matchEmail = String((body && body.email) || '').trim().toLowerCase();
+  const matchName  = String((body && body.fullname) || '').trim().toLowerCase();
+  const lastRow = sheet.getLastRow();
+
+  if (lastRow >= 2 && (matchEmail || matchName)) {
+    const data = sheet.getRange(2, 1, lastRow - 1, config.headers.length).getValues();
+    // Column order matches SHEETS.rsvp.headers:
+    // 0 Submitted At · 1 Name · 2 Email · 3 Attending · 4 Plus One · 5 Transport · 6 Song Title · 7 Song Artist
+    const NAME_COL = 1, EMAIL_COL = 2;
+
+    for (let i = data.length - 1; i >= 0; i--) {
+      const rowEmail = String(data[i][EMAIL_COL] || '').trim().toLowerCase();
+      const rowName  = String(data[i][NAME_COL]  || '').trim().toLowerCase();
+      const matched  = matchEmail
+        ? (rowEmail && rowEmail === matchEmail)
+        : (matchName && rowName === matchName);
+      if (matched) {
+        sheet.getRange(i + 2, 1, 1, values.length).setValues([values]);
+        return { updated: true, row: i + 2 };
+      }
+    }
+  }
+
+  sheet.appendRow(values);
+  return { updated: false };
 }
 
 function readSheet_(sheetName) {

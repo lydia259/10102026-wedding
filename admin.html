@@ -204,6 +204,21 @@
     outline: none;
   }
   .tools input.search:focus { border-color: var(--accent); }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--silver);
+    cursor: pointer;
+    user-select: none;
+    padding: 0 4px;
+  }
+  .toggle input { margin: 0; cursor: pointer; accent-color: var(--accent); width: 14px; height: 14px; }
+  .toggle:has(input:checked) { color: var(--accent); }
 
   /* Tables */
   .panel {
@@ -251,6 +266,17 @@
   }
   td .pill.yes { color: var(--accent); border-color: var(--accent); }
   td .pill.no  { color: #b03a3a; border-color: rgba(176,58,58,0.5); }
+  td.party .primary { color: var(--ink); }
+  td.party .plus { display: block; color: var(--silver); font-style: italic; font-size: 13px; margin-top: 2px; }
+  td .party-size {
+    display: inline-block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 2px 8px;
+  }
 
   .empty {
     text-align: center;
@@ -314,6 +340,10 @@
 
   <div class="tools">
     <input type="text" class="search" id="search" placeholder="Search by name, email, song&hellip;">
+    <label class="toggle" id="couples-toggle-wrap" hidden>
+      <input type="checkbox" id="couples-toggle">
+      <span>Couples</span>
+    </label>
     <button class="btn" id="export-btn">Export CSV</button>
   </div>
 
@@ -339,6 +369,8 @@
   const searchEl    = document.getElementById('search');
   const exportBtn   = document.getElementById('export-btn');
   const errBanner   = document.getElementById('err-banner');
+  const couplesToggleWrap = document.getElementById('couples-toggle-wrap');
+  const couplesToggle     = document.getElementById('couples-toggle');
   const countEls = {
     rsvps: document.getElementById('count-rsvps'),
     gifts: document.getElementById('count-gifts'),
@@ -347,6 +379,12 @@
 
   let activeTab = 'rsvps';
   let cache = { rsvps: [], gifts: [], songs: [] };
+
+  function isPlusOneNamed(v) {
+    if (!v) return false;
+    const s = String(v).trim().toLowerCase();
+    return s !== '' && s !== 'yes' && s !== 'true';
+  }
 
   function escapeHtml(s) {
     return String(s == null ? '' : s)
@@ -437,6 +475,11 @@
     const yes = rsvps.filter(r => String(r['Attending']).toLowerCase() === 'yes').length;
     const no  = rsvps.filter(r => String(r['Attending']).toLowerCase() === 'no').length;
     const plusOnes = rsvps.filter(r => r['Plus One']).length;
+    const headcount = rsvps.reduce((sum, r) => {
+      if (String(r['Attending']).toLowerCase() !== 'yes') return sum;
+      const p = String(r['Plus One'] || '').trim().toLowerCase();
+      return sum + (p === '' ? 1 : 2);
+    }, 0);
     const giftTotal = cache.gifts.reduce((sum, g) => sum + (Number(g['Amount']) || 0), 0);
 
     statsEl.innerHTML = `
@@ -446,9 +489,9 @@
         <div class="sub">${yes} yes · ${no} no</div>
       </div>
       <div class="stat-card">
-        <div class="label">Plus Ones</div>
-        <div class="value">${plusOnes}</div>
-        <div class="sub">named or pending</div>
+        <div class="label">Headcount</div>
+        <div class="value">${headcount}</div>
+        <div class="sub">${plusOnes} with plus-ones</div>
       </div>
       <div class="stat-card">
         <div class="label">Gift Notes</div>
@@ -479,28 +522,64 @@
 
   function renderActiveTab() {
     const q = searchEl.value.trim();
+    couplesToggleWrap.hidden = activeTab !== 'rsvps';
     if (activeTab === 'rsvps') {
       const rows = filterRows(cache.rsvps, q);
       if (!rows.length) { panelEl.innerHTML = '<div class="empty">No RSVPs yet.</div>'; return; }
-      panelEl.innerHTML = `
-        <table>
-          <thead><tr>
-            <th>Submitted</th><th>Name</th><th>Email</th><th>Attending</th>
-            <th>Plus One</th><th>Transport</th><th>Song</th>
-          </tr></thead>
-          <tbody>
-            ${rows.map(r => `
-              <tr>
-                <td class="muted">${escapeHtml(fmtDate(r['Submitted At']))}</td>
-                <td>${escapeHtml(r['Name'] || '')}</td>
-                <td class="muted">${escapeHtml(r['Email'] || '')}</td>
-                <td>${attendingPill(r['Attending'])}</td>
-                <td>${plusOneDisplay(r['Plus One'])}</td>
-                <td>${escapeHtml(r['Transport'] || '')}</td>
-                <td>${r['Song Title'] ? escapeHtml(r['Song Title']) + (r['Song Artist'] ? ' <span class="muted">— ' + escapeHtml(r['Song Artist']) + '</span>' : '') : ''}</td>
-              </tr>`).join('')}
-          </tbody>
-        </table>`;
+      const couplesView = !!couplesToggle.checked;
+      if (couplesView) {
+        panelEl.innerHTML = `
+          <table>
+            <thead><tr>
+              <th>Submitted</th><th>Party</th><th>Size</th><th>Email</th><th>Attending</th>
+              <th>Transport</th><th>Song</th>
+            </tr></thead>
+            <tbody>
+              ${rows.map(r => {
+                const named = isPlusOneNamed(r['Plus One']);
+                const plusYes = !named && String(r['Plus One']).toLowerCase() === 'yes';
+                const partySize = (named || plusYes) ? 2 : 1;
+                const attending = String(r['Attending']).toLowerCase() === 'yes';
+                const partyHtml = `
+                  <span class="primary">${escapeHtml(r['Name'] || '')}</span>
+                  ${named
+                    ? '<span class="plus">&amp; ' + escapeHtml(r['Plus One']) + '</span>'
+                    : (plusYes ? '<span class="plus">&amp; plus-one (unnamed)</span>' : '')}
+                `;
+                return `
+                  <tr>
+                    <td class="muted">${escapeHtml(fmtDate(r['Submitted At']))}</td>
+                    <td class="party">${partyHtml}</td>
+                    <td>${attending ? '<span class="party-size">' + partySize + '</span>' : '<span class="muted">—</span>'}</td>
+                    <td class="muted">${escapeHtml(r['Email'] || '')}</td>
+                    <td>${attendingPill(r['Attending'])}</td>
+                    <td>${escapeHtml(r['Transport'] || '')}</td>
+                    <td>${r['Song Title'] ? escapeHtml(r['Song Title']) + (r['Song Artist'] ? ' <span class="muted">— ' + escapeHtml(r['Song Artist']) + '</span>' : '') : ''}</td>
+                  </tr>`;
+              }).join('')}
+            </tbody>
+          </table>`;
+      } else {
+        panelEl.innerHTML = `
+          <table>
+            <thead><tr>
+              <th>Submitted</th><th>Name</th><th>Email</th><th>Attending</th>
+              <th>Plus One</th><th>Transport</th><th>Song</th>
+            </tr></thead>
+            <tbody>
+              ${rows.map(r => `
+                <tr>
+                  <td class="muted">${escapeHtml(fmtDate(r['Submitted At']))}</td>
+                  <td>${escapeHtml(r['Name'] || '')}</td>
+                  <td class="muted">${escapeHtml(r['Email'] || '')}</td>
+                  <td>${attendingPill(r['Attending'])}</td>
+                  <td>${plusOneDisplay(r['Plus One'])}</td>
+                  <td>${escapeHtml(r['Transport'] || '')}</td>
+                  <td>${r['Song Title'] ? escapeHtml(r['Song Title']) + (r['Song Artist'] ? ' <span class="muted">— ' + escapeHtml(r['Song Artist']) + '</span>' : '') : ''}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+      }
     } else if (activeTab === 'gifts') {
       const rows = filterRows(cache.gifts, q);
       if (!rows.length) { panelEl.innerHTML = '<div class="empty">No gift notes yet.</div>'; return; }
@@ -611,6 +690,11 @@
   });
 
   searchEl.addEventListener('input', renderActiveTab);
+  couplesToggle.checked = localStorage.getItem('cl_admin_couples_v1') === '1';
+  couplesToggle.addEventListener('change', () => {
+    localStorage.setItem('cl_admin_couples_v1', couplesToggle.checked ? '1' : '0');
+    renderActiveTab();
+  });
 
   refreshBtn.addEventListener('click', () => loadDashboard());
   logoutBtn.addEventListener('click', () => {
