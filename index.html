@@ -2756,17 +2756,53 @@
   }
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeStylist(); });
 
+  function resetStylistUpload() {
+    outfitDataUrl = null;
+    imgEl.removeAttribute('src');
+    uploadEl.style.display = '';
+    previewEl.hidden = true;
+    submitEl.disabled = true;
+    fileInput.value = '';
+  }
+
+  function showUploadError(msg) {
+    responseEl.hidden = false;
+    responseEl.innerHTML =
+      '<div class="verdict-notes" style="padding:4px;color:#f8c0c0;">' +
+        msg +
+      '</div>';
+    resetStylistUpload();
+  }
+
   fileInput.addEventListener('change', (e) => {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
+
+    // HEIC/HEIF often comes through Files-app pickers on iOS and most non-Safari
+    // browsers can't decode it for an <img> preview. Catch it up front.
+    const looksHeic = /\.(heic|heif)$/i.test(f.name) || /heic|heif/i.test(f.type || '');
+    if (looksHeic) {
+      showUploadError('That photo is an HEIC file. Try sharing it from your Photos app, or convert it to JPG or PNG and upload again.');
+      return;
+    }
+
     const reader = new FileReader();
+    reader.onerror = () => showUploadError('We couldn\'t read that file. Try a different photo.');
     reader.onload = (ev) => {
-      outfitDataUrl = ev.target.result;
-      imgEl.src = outfitDataUrl;
-      uploadEl.style.display = 'none';
-      previewEl.hidden = false;
-      submitEl.disabled = false;
-      responseEl.hidden = true;
+      const dataUrl = String(ev.target && ev.target.result || '');
+      // Probe decoding before swapping it into the visible <img> so a broken
+      // file never renders as a 29px-tall broken-image placeholder.
+      const probe = new Image();
+      probe.onload = () => {
+        outfitDataUrl = dataUrl;
+        imgEl.src = dataUrl;
+        uploadEl.style.display = 'none';
+        previewEl.hidden = false;
+        submitEl.disabled = false;
+        responseEl.hidden = true;
+      };
+      probe.onerror = () => showUploadError('We couldn\'t open that image. JPG, PNG, or WEBP usually works best.');
+      probe.src = dataUrl;
     };
     reader.readAsDataURL(f);
   });
