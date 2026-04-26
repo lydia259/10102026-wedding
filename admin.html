@@ -506,8 +506,13 @@
 
     try {
       const data = await fetchAll(token);
-      cache.rsvps = Array.isArray(data.rsvps) ? data.rsvps : [];
-      cache.gifts = Array.isArray(data.gifts) ? data.gifts : [];
+      const byNewest = (a, b) => {
+        const ta = new Date(a['Submitted At']).getTime() || 0;
+        const tb = new Date(b['Submitted At']).getTime() || 0;
+        return tb - ta;
+      };
+      cache.rsvps = (Array.isArray(data.rsvps) ? data.rsvps : []).slice().sort(byNewest);
+      cache.gifts = (Array.isArray(data.gifts) ? data.gifts : []).slice().sort(byNewest);
       cache.songs = Array.isArray(data.songs) ? data.songs : [];
       renderStats();
       renderCounts();
