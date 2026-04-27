@@ -2001,6 +2001,26 @@
     color: var(--accent-soft, #2d4db3);
     border-bottom-color: currentColor;
   }
+  .playlist.collapsed .playlist-row.beyond-top { display: none; }
+  .playlist-toggle {
+    display: block;
+    margin: 36px auto 0;
+    padding: 12px 28px;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid rgba(31, 58, 138, 0.35);
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 250ms ease;
+  }
+  .playlist-toggle:hover {
+    background: var(--accent);
+    color: #f8f4ec;
+    letter-spacing: 0.55em;
+  }
   @media (max-width: 720px) {
     .playlist-section { padding: 100px 20px 80px; }
     .playlist-intro { font-size: 18px; margin-bottom: 40px; }
@@ -2669,7 +2689,9 @@
     <h2 class="section-title reveal in">Top ten, <em>by request</em></h2>
     <p class="playlist-intro reveal in">Guests add a song when they RSVP. The most-requested tracks rise to the top for everyone to see.</p>
 
-    <ol class="playlist reveal in" id="playlist-list" role="list"></ol>
+    <ol class="playlist reveal in collapsed" id="playlist-list" role="list"></ol>
+
+    <button type="button" class="playlist-toggle reveal in" id="playlist-toggle" style="display: none;" aria-expanded="false">Show all songs</button>
 
     <div class="playlist-empty" id="playlist-empty" style="display: none;">
       <span class="script">the request line is open&hellip;</span>
@@ -2939,10 +2961,13 @@
     const UP_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"></polyline></svg>';
     const DOWN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
 
-    const listEl  = document.getElementById('playlist-list');
-    const emptyEl = document.getElementById('playlist-empty');
-    const footEl  = document.getElementById('playlist-foot');
-    const countEl = document.getElementById('playlist-count');
+    const listEl   = document.getElementById('playlist-list');
+    const emptyEl  = document.getElementById('playlist-empty');
+    const footEl   = document.getElementById('playlist-foot');
+    const countEl  = document.getElementById('playlist-count');
+    const toggleEl = document.getElementById('playlist-toggle');
+    const TOP_N    = 10;
+    let expanded   = false;
 
     function loadJSON(key, fallback) {
       try { return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback; }
@@ -3057,16 +3082,34 @@
 
     let currentSongs = [];
 
+    function applyToggleState(totalCount) {
+      if (totalCount <= TOP_N) {
+        toggleEl.style.display = 'none';
+        listEl.classList.remove('collapsed');
+        return;
+      }
+      toggleEl.style.display = '';
+      if (expanded) {
+        listEl.classList.remove('collapsed');
+        toggleEl.textContent = 'Show top ' + TOP_N;
+        toggleEl.setAttribute('aria-expanded', 'true');
+      } else {
+        listEl.classList.add('collapsed');
+        toggleEl.textContent = 'Show all ' + totalCount + ' songs';
+        toggleEl.setAttribute('aria-expanded', 'false');
+      }
+    }
+
     function render(songs) {
       currentSongs = songs;
       const ranked = aggregateSongs(songs);
-      const top = ranked.slice(0, 10);
 
-      if (top.length === 0) {
+      if (ranked.length === 0) {
         listEl.innerHTML = '';
         listEl.style.display = 'none';
         emptyEl.style.display = '';
         footEl.style.display = 'none';
+        toggleEl.style.display = 'none';
         return;
       }
 
@@ -3077,7 +3120,7 @@
 
       const mine = loadJSON(MINE_KEY, {}) || {};
 
-      listEl.innerHTML = top.map((s, i) => {
+      listEl.innerHTML = ranked.map((s, i) => {
         const artistHtml = s.artist ? `<p class="playlist-artist">${escapeHtml(s.artist)}</p>` : '';
         const submittersHtml = s.submitters.length
           ? `<div class="playlist-by">${formatSubmitters(s.submitters)}</div>`
@@ -3085,8 +3128,9 @@
         const my = mine[s.key];
         const upActive   = my === 1  ? ' active' : '';
         const downActive = my === -1 ? ' active' : '';
+        const beyond     = i >= TOP_N ? ' beyond-top' : '';
         return `
-          <li class="playlist-row" data-key="${escapeHtml(s.key)}">
+          <li class="playlist-row${beyond}" data-key="${escapeHtml(s.key)}">
             <div class="playlist-rank">${rankLabel(i)}</div>
             <div class="playlist-meta">
               <h3 class="playlist-title">${escapeHtml(s.title || 'Untitled')}</h3>
@@ -3100,7 +3144,19 @@
             </div>
           </li>`;
       }).join('');
+
+      applyToggleState(ranked.length);
     }
+
+    toggleEl.addEventListener('click', () => {
+      expanded = !expanded;
+      const ranked = aggregateSongs(currentSongs);
+      applyToggleState(ranked.length);
+      if (!expanded) {
+        const section = document.getElementById('playlist');
+        if (section) window.scrollTo({ top: section.offsetTop - 60, behavior: 'smooth' });
+      }
+    });
 
     function castVote(songKey, dir) {
       const mine  = loadJSON(MINE_KEY, {}) || {};
