@@ -468,6 +468,7 @@
       <input type="checkbox" id="couples-toggle">
       <span>Couples</span>
     </label>
+    <button class="btn" id="add-btn" hidden>New entry</button>
     <button class="btn" id="export-btn">Export CSV</button>
   </div>
 
@@ -510,6 +511,7 @@
   const statsEl     = document.getElementById('stats');
   const searchEl    = document.getElementById('search');
   const exportBtn   = document.getElementById('export-btn');
+  const addBtn      = document.getElementById('add-btn');
   const errBanner   = document.getElementById('err-banner');
   const couplesToggleWrap = document.getElementById('couples-toggle-wrap');
   const couplesToggle     = document.getElementById('couples-toggle');
@@ -712,6 +714,7 @@
   function renderActiveTab() {
     const q = searchEl.value.trim();
     couplesToggleWrap.hidden = activeTab !== 'rsvps';
+    addBtn.hidden = activeTab === 'songs';
     if (activeTab === 'rsvps') {
       const couplesView = !!couplesToggle.checked;
       let baseRows = cache.rsvps;
@@ -982,7 +985,7 @@
   const editCancelBtn  = document.getElementById('edit-cancel');
   const editCloseBtn   = document.getElementById('edit-modal-close');
 
-  let editing = null; // { sheet, submittedAt }
+  let editing = null; // { mode: 'create' | 'edit', sheet, submittedAt }
 
   function findRow(sheet, submittedAt) {
     const list = sheet === 'rsvp' ? cache.rsvps
@@ -999,11 +1002,28 @@
     }
     const fields = EDIT_FIELDS[sheet];
     if (!fields) return;
-    editing = { sheet, submittedAt };
+    editing = { mode: 'edit', sheet, submittedAt };
     editTitle.textContent = sheet === 'gift' ? 'Edit gift note' : 'Edit RSVP';
     editSub.textContent = row['Name'] ? row['Name'] : '';
     editErr.textContent = '';
     editForm.innerHTML = fields.map(f => renderField(f, row[f.key])).join('');
+    editModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    const firstInput = editForm.querySelector('input, select, textarea');
+    if (firstInput) firstInput.focus();
+  }
+
+  function openCreateModal(sheet) {
+    const fields = EDIT_FIELDS[sheet];
+    if (!fields) return;
+    editing = { mode: 'create', sheet, submittedAt: null };
+    editTitle.textContent = sheet === 'gift' ? 'New gift note' : 'New RSVP';
+    editSub.textContent = '';
+    editErr.textContent = '';
+    const defaults = {};
+    fields.forEach(f => { defaults[f.key] = ''; });
+    if (sheet === 'rsvp') defaults['Attending'] = 'yes';
+    editForm.innerHTML = fields.map(f => renderField(f, defaults[f.key])).join('');
     editModal.hidden = false;
     document.body.style.overflow = 'hidden';
     const firstInput = editForm.querySelector('input, select, textarea');
@@ -1059,16 +1079,13 @@
     editCancelBtn.disabled = true;
     editErr.textContent = '';
     try {
+      const payload = editing.mode === 'create'
+        ? { type: 'admin-create', token, sheet: editing.sheet, updates }
+        : { type: 'admin-update', token, sheet: editing.sheet, submittedAt: editing.submittedAt, updates };
       const res = await fetch(ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          type: 'admin-update',
-          token,
-          sheet: editing.sheet,
-          submittedAt: editing.submittedAt,
-          updates
-        })
+        body: JSON.stringify(payload)
       });
       const json = await res.json();
       if (json.error === 'unauthorized') {
@@ -1078,7 +1095,10 @@
         loginErr.textContent = 'Session expired. Sign in again.';
         return;
       }
-      if (json.ok === false || json.updated === false) {
+      if (json.ok === false) {
+        throw new Error(json.error || (editing.mode === 'create' ? 'Could not create entry.' : 'Entry not found.'));
+      }
+      if (editing.mode === 'edit' && json.updated === false) {
         throw new Error(json.error || 'Entry not found.');
       }
       closeEditModal();
@@ -1090,6 +1110,11 @@
       editCancelBtn.disabled = false;
     }
   }
+
+  addBtn.addEventListener('click', () => {
+    if (activeTab === 'rsvps') openCreateModal('rsvp');
+    else if (activeTab === 'gifts') openCreateModal('gift');
+  });
 
   editForm.addEventListener('submit', submitEdit);
   editCancelBtn.addEventListener('click', closeEditModal);

@@ -99,6 +99,29 @@ function doPost(e) {
       return jsonOut_({ ok: deleted, deleted: deleted });
     }
 
+    // Silent admin create: appends a new row to the sheet using a
+    // server-side timestamp. Does NOT trigger any guest notifications.
+    if (type === 'admin-create') {
+      const expected = getAdminToken_();
+      if (!expected || String(body.token || '') !== expected) {
+        return jsonOut_({ ok: false, error: 'unauthorized' });
+      }
+      const sheetKey = String(body.sheet || '').toLowerCase();
+      const config = sheetKey === 'rsvp' ? SHEETS.rsvp
+                   : sheetKey === 'gift' ? SHEETS.gift
+                   : null;
+      if (!config) return jsonOut_({ ok: false, error: 'unknown sheet' });
+      const updates = (body.updates && typeof body.updates === 'object') ? body.updates : {};
+      const createdAt = new Date();
+      const values = config.headers.map((h, idx) => {
+        if (idx === 0) return createdAt;
+        const v = updates[h];
+        return v == null ? '' : v;
+      });
+      appendRow_(config, values);
+      return jsonOut_({ ok: true, submittedAt: createdAt.toISOString() });
+    }
+
     // Silent admin edit: updates a sheet row in place without sending any
     // confirmation email to the guest. Uses the row's "Submitted At"
     // timestamp as a stable identifier.
