@@ -99,6 +99,29 @@ function doPost(e) {
       return jsonOut_({ ok: deleted, deleted: deleted });
     }
 
+    // Silent admin edit: updates a sheet row in place without sending any
+    // confirmation email to the guest. Uses the row's "Submitted At"
+    // timestamp as a stable identifier.
+    if (type === 'admin-update') {
+      const expected = getAdminToken_();
+      if (!expected || String(body.token || '') !== expected) {
+        return jsonOut_({ ok: false, error: 'unauthorized' });
+      }
+      const sheetKey = String(body.sheet || '').toLowerCase();
+      const config = sheetKey === 'rsvp' ? SHEETS.rsvp
+                   : sheetKey === 'gift' ? SHEETS.gift
+                   : null;
+      if (!config) return jsonOut_({ ok: false, error: 'unknown sheet' });
+      const updates = (body.updates && typeof body.updates === 'object') ? body.updates : {};
+      const updated = updateRowBySubmittedAt_(
+        config.name,
+        config.headers,
+        String(body.submittedAt || ''),
+        updates
+      );
+      return jsonOut_({ ok: !!updated, updated: !!updated });
+    }
+
     return jsonOut_({ ok: false, error: 'unknown type' });
   } catch (err) {
     return jsonOut_({ ok: false, error: String(err) });
@@ -287,6 +310,40 @@ function deleteRowBySubmittedAt_(sheetName, submittedAtIso) {
       sheet.deleteRow(i + 2);
       return true;
     }
+  }
+  return false;
+}
+
+/**
+ * Updates a row in the given sheet by matching its "Submitted At" timestamp
+ * (column A, ISO string). The `updates` object is keyed by header name and
+ * may include any subset of editable columns; "Submitted At" is always
+ * preserved. Returns true if a row was updated.
+ *
+ * Intentionally does NOT trigger any guest notifications.
+ */
+function updateRowBySubmittedAt_(sheetName, headers, submittedAtIso, updates) {
+  if (!submittedAtIso) return false;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet || sheet.getLastRow() < 2) return false;
+  const lastRow = sheet.getLastRow();
+  const numCols = headers.length;
+  const data = sheet.getRange(2, 1, lastRow - 1, numCols).getValues();
+  for (let i = data.length - 1; i >= 0; i--) {
+    const v = data[i][0];
+    const iso = v instanceof Date ? v.toISOString() : String(v);
+    if (iso !== submittedAtIso) continue;
+    const newRow = headers.map((h, idx) => {
+      if (idx === 0) return data[i][0];
+      if (Object.prototype.hasOwnProperty.call(updates, h)) {
+        const val = updates[h];
+        return val == null ? '' : val;
+      }
+      return data[i][idx];
+    });
+    sheet.getRange(i + 2, 1, 1, numCols).setValues([newRow]);
+    return true;
   }
   return false;
 }
