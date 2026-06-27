@@ -506,10 +506,52 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1px;
-    background: var(--line);
-    border: 1px solid var(--line);
+    background: var(--line-soft);
+    border: 1px solid var(--line-soft);
     margin-top: 40px;
   }
+  .detail-cell {
+    background: #f8f4ec;
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    text-align: left;
+  }
+  .detail-cell-label {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--silver);
+  }
+  .detail-cell-value {
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-weight: 500;
+    font-size: 23px;
+    line-height: 1.1;
+    letter-spacing: -0.005em;
+    color: var(--porcelain);
+  }
+  .detail-cell-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 16px;
+    color: var(--silver);
+  }
+  .detail-cell-map {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    color: var(--silver);
+    transition: color 220ms ease;
+  }
+  .detail-cell-map:hover { color: var(--accent); }
+  .detail-cell-map svg { width: 13px; height: 13px; flex: 0 0 auto; }
   .detail-card {
     background: var(--ink-blue);
     padding: 60px 40px;
@@ -559,6 +601,136 @@
     opacity: 0.82;
     max-width: 240px;
   }
+  .detail-card-link { text-decoration: none; color: inherit; }
+  .detail-maplink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .detail-maplink svg { width: 12px; height: 12px; transition: transform 240ms ease; }
+  .detail-card-link:hover .detail-maplink svg { transform: translate(2px, -2px); }
+
+  /* Details day-of timeline */
+  .details-timeline { margin-top: 64px; }
+  .details-timeline .timeline-time {
+    font-size: 32px;
+    white-space: nowrap;
+  }
+
+  /* Quick links to related sections */
+  .details-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 56px;
+  }
+  .details-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 32px;
+    border: 1px solid var(--line);
+    background: var(--ink-blue);
+    color: var(--porcelain);
+    text-decoration: none;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    transition: color 240ms ease, border-color 240ms ease, background 240ms ease, transform 240ms ease;
+  }
+  .details-link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: #e6ecf8;
+    transform: translateY(-2px);
+  }
+  .details-link-icon { width: 16px; height: 16px; flex: 0 0 auto; }
+  .details-actions .details-link span,
+  .details-actions .details-rsvp-btn .lbl { white-space: nowrap; }
+
+  /* Action row: What to Wear · Where to Stay · RSVP (equal height) */
+  .details-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: 16px;
+    margin-top: 56px;
+  }
+  .details-actions .details-link,
+  .details-actions .details-rsvp-btn {
+    margin: 0;
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+  }
+  .details-actions .details-link {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .details-actions .details-rsvp-btn {
+    padding-top: 0;
+    padding-bottom: 0;
+    justify-content: center;
+  }
+
+  /* ===================== SECTION NAV ===================== */
+  .section-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--ink-blue);
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    padding: 20px 24px;
+  }
+  .section-nav ul {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    max-width: 980px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px 30px;
+  }
+  .section-nav a {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--silver);
+    text-decoration: none;
+    transition: color 220ms ease;
+  }
+  .section-nav a:hover { color: var(--accent); }
+  @media (max-width: 600px) {
+    .section-nav { padding: 14px 0; }
+    .section-nav ul {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      gap: 24px;
+      padding: 0 18px;
+      scrollbar-width: none;
+    }
+    .section-nav ul::-webkit-scrollbar { display: none; }
+    .section-nav li { flex: 0 0 auto; }
+    .section-nav a { font-size: 10px; letter-spacing: 0.22em; white-space: nowrap; }
+  }
 
   /* ===================== ATTIRE ===================== */
   .attire { background: var(--ink-blue); }
@@ -584,6 +756,56 @@
     color: var(--pearl);
     max-width: 620px;
     margin: 0 auto 40px;
+  }
+  .attire-dress {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    width: 100%;
+    margin: 0 auto 40px;
+    border: 1px solid var(--line-soft);
+  }
+  .attire-dress-block {
+    padding: 30px 28px;
+    text-align: center;
+  }
+  .attire-dress-block + .attire-dress-block {
+    border-left: 1px solid var(--line-soft);
+  }
+  .attire-dress-label {
+    display: block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .attire-dress-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(20px, 2.2vw, 24px);
+    line-height: 1.4;
+    color: var(--pearl);
+    margin: 0;
+  }
+  .attire-dress-text em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--porcelain);
+  }
+  .attire-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .attire-swatch-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
   }
   .attire-rule {
     width: 48px; height: 1px;
@@ -1407,7 +1629,7 @@
 
   /* ===================== ACCOMMODATIONS ===================== */
   .stay {
-    background: var(--midnight);
+    background: #f8f4ec;
     color: var(--porcelain);
   }
   .stay-grid {
@@ -1495,6 +1717,196 @@
     text-shadow: 0 2px 20px rgba(0,0,0,0.65);
   }
 
+  /* ===================== STAY IN THE LOOP ===================== */
+  .loop { background: #f8f4ec; }
+  .loop-inner {
+    max-width: 700px;
+    margin: 40px auto 0;
+    text-align: center;
+  }
+  .loop-lead {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(19px, 2.2vw, 23px);
+    line-height: 1.65;
+    color: var(--pearl);
+    max-width: 600px;
+    margin: 0 auto 44px;
+  }
+  .loop-points {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line-soft);
+    border: 1px solid var(--line-soft);
+    margin-bottom: 48px;
+  }
+  .loop-point {
+    background: #f8f4ec;
+    padding: 30px 22px;
+    text-align: center;
+  }
+  .loop-point-label {
+    display: block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .loop-point p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: normal;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--silver);
+    margin: 0;
+  }
+  .loop-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 44px;
+    background: var(--accent);
+    color: #f8f4ec;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 300ms ease, transform 300ms ease, box-shadow 300ms ease;
+  }
+  .loop-btn:hover {
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -14px rgba(30,58,138,0.45);
+  }
+  @media (max-width: 600px) {
+    .loop-points { grid-template-columns: 1fr; }
+    .loop-btn { display: flex; justify-content: center; padding: 16px 32px; letter-spacing: 0.35em; }
+  }
+
+  /* ----- Hotel block card ----- */
+  .stay-block {
+    max-width: 720px;
+    margin: 40px auto 0;
+    text-align: center;
+  }
+  .stay-block-intro {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(19px, 2.2vw, 23px);
+    line-height: 1.65;
+    color: var(--pearl);
+    max-width: 600px;
+    margin: 0 auto 40px;
+  }
+  .stay-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--line-soft);
+    background: rgba(255,255,255,0.45);
+  }
+  .stay-detail {
+    padding: 28px 20px;
+    text-align: center;
+  }
+  .stay-detail + .stay-detail {
+    border-left: 1px solid var(--line-soft);
+  }
+  .stay-detail-label {
+    display: block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .stay-detail-value {
+    display: block;
+    font-family: 'Bodoni Moda', 'Didot', serif;
+    font-size: 26px;
+    line-height: 1.1;
+    color: var(--porcelain);
+  }
+  .stay-detail-value a {
+    color: var(--porcelain);
+    text-decoration: none;
+  }
+  .stay-detail-value a:hover { color: var(--accent); }
+  .stay-code {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .stay-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--line-soft);
+    background: transparent;
+    color: var(--silver);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 200ms ease, border-color 200ms ease, background 200ms ease;
+  }
+  .stay-copy-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(30,58,138,0.06);
+  }
+  .stay-copy-btn svg { width: 15px; height: 15px; display: block; }
+  .stay-copy-btn .icon-check { display: none; }
+  .stay-copy-btn.copied { color: var(--accent); border-color: var(--accent); }
+  .stay-copy-btn.copied .icon-copy { display: none; }
+  .stay-copy-btn.copied .icon-check { display: block; }
+  .stay-book-btn {
+    display: inline-block;
+    margin-top: 36px;
+    padding: 18px 44px;
+    background: var(--accent);
+    color: #f8f4ec;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 300ms ease, transform 300ms ease, box-shadow 300ms ease;
+  }
+  .stay-book-btn:hover {
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -14px rgba(30,58,138,0.45);
+  }
+  .stay-block-note {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--silver);
+    margin: 28px auto 0;
+    max-width: none;
+    white-space: nowrap;
+  }
+  @media (max-width: 600px) {
+    .stay-detail-grid { grid-template-columns: 1fr; }
+    .stay-detail + .stay-detail { border-left: none; border-top: 1px solid var(--line-soft); }
+    .stay-detail-value { font-size: 24px; }
+    .stay-book-btn { display: block; padding: 16px 32px; letter-spacing: 0.35em; }
+    .stay-block-note { white-space: normal; max-width: 520px; }
+  }
+
   /* ===================== FOOTER ===================== */
   footer {
     background: var(--ink-blue);
@@ -1562,7 +1974,7 @@
   /* Phones */
   @media (max-width: 720px) {
     /* Prevent horizontal scroll from any stray overflow */
-    html, body { overflow-x: hidden; }
+    html, body { overflow-x: clip; }
 
     /* Nav (if ever re-enabled) */
     nav { gap: 14px; padding: 14px 18px; flex-wrap: wrap; justify-content: center; }
@@ -1598,8 +2010,12 @@
     .signature { font-size: 42px; margin-top: 20px; }
 
     /* ---------- DETAILS ---------- */
-    .details-grid { border: none; background: transparent; gap: 14px; }
-    .detail-card { padding: 36px 24px; border: 1px solid var(--line); }
+    .detail-cell { padding: 24px 26px; gap: 8px; }
+    .details-actions { gap: 8px; margin-top: 40px; }
+    .details-actions .details-link { padding: 14px 8px; font-size: 9px; letter-spacing: 0.12em; gap: 0; }
+    .details-actions .details-link-icon { display: none; }
+    .details-actions .details-rsvp-btn { padding-left: 10px; padding-right: 10px; }
+    .details-actions .details-rsvp-btn .lbl { font-size: 11px; letter-spacing: 0.28em; }
     .detail-card .big { font-size: 20px; }
     .detail-card h3 { font-size: 11px; letter-spacing: 0.3em; }
     .detail-card .sub { font-size: 14px; }
@@ -1608,6 +2024,10 @@
     .attire-wrap { padding: 0 4px; }
     .attire-chic { font-size: clamp(48px, 14vw, 80px); margin-bottom: 14px; }
     .attire-lead { font-size: 17px; line-height: 1.6; margin-bottom: 30px; padding: 0 4px; }
+    .attire-dress { grid-template-columns: 1fr; margin-bottom: 30px; }
+    .attire-dress-block { padding: 24px 20px; }
+    .attire-dress-block + .attire-dress-block { border-left: none; border-top: 1px solid var(--line-soft); }
+    .attire-dress-text { font-size: 20px; }
     .attire-rule { margin-bottom: 30px; }
     .attire-gallery { gap: 10px; margin-bottom: 14px; }
     .attire-caption { font-size: 13px; margin-bottom: 40px; }
@@ -2391,7 +2811,7 @@
 
 </style>
 </head>
-<body data-cc-id="cc-14" style="background-color: rgb(248, 244, 236); cursor: crosshair;">
+<body style="background-color: rgb(248, 244, 236);">
 
 <!-- NAV REMOVED -->
 
@@ -2419,6 +2839,18 @@
   </div>
 </section>
 
+<nav class="section-nav" aria-label="Wedding sections">
+  <ul>
+    <li><a href="#details">Details</a></li>
+    <li><a href="#stay">Stay</a></li>
+    <li><a href="#attire">Attire</a></li>
+    <li><a href="#registry">Gifts</a></li>
+    <li><a href="#story">Our Story</a></li>
+    <li><a href="#updates">Updates</a></li>
+    <li><a href="#playlist">Playlist</a></li>
+  </ul>
+</nav>
+
 <!-- DETAILS (moved under Hero) -->
 <section class="details" id="details" data-screen-label="Details" data-cc-id="cc-10">
   <div class="container" data-cc-id="cc-8">
@@ -2430,36 +2862,31 @@
     <h2 class="section-title reveal in" data-cc-id="cc-9">When &amp; <em>where</em></h2>
 
     <div class="details-grid reveal in">
-      <div class="detail-card reveal reveal-rise in">
-        <div class="ornament">
-          <svg width="32" height="14" viewBox="0 0 32 14" fill="none"><path d="M1 7 C 7 0, 11 14, 16 7 C 21 0, 25 14, 31 7" stroke="currentColor" stroke-width="0.8" fill="none"></path></svg>
-        </div>
-        <h3>The Day</h3>
-        <div class="big">10 · 10 · 2026</div>
-        <div class="sub">Saturday evening, at the golden hour</div>
+      <div class="detail-cell">
+        <span class="detail-cell-label">The Day</span>
+        <span class="detail-cell-value">10 · 10 · 2026</span>
+        <span class="detail-cell-sub">Saturday, at the golden hour</span>
       </div>
-      <div class="detail-card reveal reveal-rise in">
-        <div class="ornament">
-          <svg width="32" height="14" viewBox="0 0 32 14" fill="none"><path d="M1 7 C 7 0, 11 14, 16 7 C 21 0, 25 14, 31 7" stroke="currentColor" stroke-width="0.8" fill="none"></path></svg>
-        </div>
-        <h3>The Place</h3>
-        <div class="big">Calamigos Ranch</div>
-        <div class="sub">Malibu, California</div>
+      <div class="detail-cell">
+        <span class="detail-cell-label">Ceremony Starts At</span>
+        <span class="detail-cell-value">5:30 PM</span>
+        <span class="detail-cell-sub">Please be seated before 5:15 PM</span>
       </div>
-      <div class="detail-card reveal reveal-rise in" data-cc-id="cc-5">
-        <div class="ornament">
-          <svg width="32" height="14" viewBox="0 0 32 14" fill="none"><path d="M1 7 C 7 0, 11 14, 16 7 C 21 0, 25 14, 31 7" stroke="currentColor" stroke-width="0.8" fill="none"></path></svg>
-        </div>
-        <h3 data-cc-id="cc-7">The Attire</h3>
-        <div class="big">Garden Formal</div>
-        <div class="sub" data-cc-id="cc-6">Soft, elegant, and forgiving of grass</div>
+      <div class="detail-cell">
+        <span class="detail-cell-label">The Place</span>
+        <span class="detail-cell-value">Calamigos Ranch</span>
+        <a class="detail-cell-sub detail-cell-map" href="https://www.google.com/maps/search/?api=1&amp;query=Calamigos+Ranch+Malibu+CA" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          Malibu, California
+        </a>
       </div>
     </div>
 
-    <div class="details-cta reveal in">
+    <div class="details-actions reveal in">
+      <a class="details-link" href="#attire"><svg class="details-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6a2 2 0 1 0-1.4-3.4"></path><path d="M12 6c0 1-1 1.5-1 2.2 0 .5.4.8 1 1.1l8.3 4.2c.7.4 1.2.9 1.2 1.7v0c0 1-.8 1.6-1.8 1.6H4c-1 0-1.8-.6-1.8-1.6v0c0-.8.5-1.3 1.2-1.7L11 9.3"></path></svg><span>What to Wear</span></a>
+      <a class="details-link" href="#stay"><svg class="details-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4v16"></path><path d="M2 8h18a2 2 0 0 1 2 2v10"></path><path d="M2 17h20"></path><path d="M6 8v9"></path></svg><span>Where to Stay</span></a>
       <a href="RSVP.html" class="details-rsvp-btn">
         <span class="lbl">RSVP</span>
-        <span class="sub">Send your reply</span>
       </a>
     </div>
   </div>
@@ -2469,30 +2896,75 @@
 
 <!-- PLAYLIST removed -->
 
-<!-- STORY -->
-<section class="story" id="story" data-screen-label="Our Story" data-cc-id="cc-5">
-  <div class="container" data-cc-id="cc-3">
-    <div class="section-eyebrow reveal in" data-cc-id="cc-14">
+<!-- WHERE TO STAY -->
+<section class="stay" id="stay" data-screen-label="Where to Stay">
+  <div class="container">
+    <div class="section-eyebrow reveal in">
       <div class="rule"></div>
-      <span class="label">Our Story</span>
+      <span class="label">Travel &amp; Lodging</span>
       <div class="rule"></div>
     </div>
-    <h2 class="section-title reveal in" data-cc-id="cc-13">A new <em data-cc-id="cc-12">chapter</em></h2>
+    <h2 class="section-title reveal in">Where to <em>stay</em></h2>
 
-    <div class="story-grid">
-      <div class="story-photo reveal reveal-clip" data-cc-id="cc-4">
-        <img src="assets/story-couple.jpg" alt="Colin and Lydia, winter light">
-        <div class="frame-corner tl"></div>
-        <div class="frame-corner br"></div>
+    <div class="stay-block reveal in">
+      <p class="stay-block-intro">We&rsquo;ve reserved a block of rooms at Hilton for our guests. Book early &mdash; the group rate is held until the cut-off date below.</p>
+
+      <div class="stay-detail-grid">
+        <div class="stay-detail">
+          <span class="stay-detail-label">Group Code</span>
+          <span class="stay-detail-value stay-code">
+            <span>90B</span>
+            <button type="button" class="stay-copy-btn" data-copy="90B" aria-label="Copy group code">
+              <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+          </span>
+        </div>
+        <div class="stay-detail">
+          <span class="stay-detail-label">Book by Phone</span>
+          <span class="stay-detail-value"><a href="tel:+18188651000">818.865.1000</a></span>
+        </div>
+        <div class="stay-detail">
+          <span class="stay-detail-label">Cut-off Date</span>
+          <span class="stay-detail-value">Sep 9</span>
+        </div>
       </div>
-      <div class="reveal in">
-        <p class="drop">We met in undergrad and have been building a life together ever since &mdash; from Los Angeles to San Francisco, and now New York, with our cat Zoomie along for the ride. After all these years, we&rsquo;re ready to make it official.</p>
-        <p>On the tenth of October, we&rsquo;re returning to LA, where the story started, to make our promises. We can&rsquo;t wait to celebrate with the people who&rsquo;ve shaped us along the way.</p>
-        <div class="signature" style="font-size: 32px;">Colin &amp; Lydia &amp; Zoomie</div>
-      </div>
+
+      <a href="https://www.hilton.com/en/attend-my-event/agohwhw-90b-1879cb72-dad9-4e7a-9a57-42c2a1c665e1/" class="stay-book-btn" target="_blank" rel="noopener">Book Your Room</a>
+
+      <p class="stay-block-note">Booking by phone? Just reference the dates of your stay and our wedding group code <strong>90B</strong>.</p>
     </div>
   </div>
 </section>
+
+<script>
+  (function() {
+    document.querySelectorAll('.stay-copy-btn').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        const text = btn.getAttribute('data-copy') || '';
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (err) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta);
+        }
+        btn.classList.add('copied');
+        btn.setAttribute('aria-label', 'Copied');
+        clearTimeout(btn._copyTimer);
+        btn._copyTimer = setTimeout(function() {
+          btn.classList.remove('copied');
+          btn.setAttribute('aria-label', 'Copy group code');
+        }, 1600);
+      });
+    });
+  })();
+</script>
 
 <!-- DETAILS MOVED UNDER HERO -->
 
@@ -2510,7 +2982,30 @@
       <p class="attire-chic reveal in" data-cc-id="cc-2">Please <em>dress up.</em></p>
       <p class="attire-lead reveal in" data-cc-id="cc-12">Bring your most chic, most joyful self. The ceremony is outdoor, the reception is indoor, and the evening runs from golden hour into candlelight — dress for all three.</p>
 
-      <div class="attire-rule" aria-hidden="true"></div>
+      <div class="attire-dress reveal in">
+        <div class="attire-dress-block">
+          <span class="attire-dress-label">Gentlemen</span>
+          <p class="attire-dress-text">A <em>dark suit</em></p>
+          <div class="attire-swatches">
+            <span class="attire-swatch-dot" style="background:#1b2a4a;" title="Navy" aria-label="Navy"></span>
+            <span class="attire-swatch-dot" style="background:#111418;" title="Black" aria-label="Black"></span>
+            <span class="attire-swatch-dot" style="background:#36454f;" title="Charcoal" aria-label="Charcoal"></span>
+          </div>
+        </div>
+        <div class="attire-dress-block">
+          <span class="attire-dress-label">Ladies</span>
+          <p class="attire-dress-text">A long dress in a <em>summer color</em></p>
+          <div class="attire-swatches">
+            <span class="attire-swatch-dot" style="background:#ff7f6b;" title="Coral" aria-label="Coral"></span>
+            <span class="attire-swatch-dot" style="background:#9caf88;" title="Sage" aria-label="Sage"></span>
+            <span class="attire-swatch-dot" style="background:#e8a0b4;" title="Rose" aria-label="Rose"></span>
+            <span class="attire-swatch-dot" style="background:#eaa221;" title="Marigold" aria-label="Marigold"></span>
+            <span class="attire-swatch-dot" style="background:#b8a4d4;" title="Lavender" aria-label="Lavender"></span>
+            <span class="attire-swatch-dot" style="background:#3a9a9a;" title="Teal" aria-label="Teal"></span>
+            <span class="attire-swatch-dot" style="background:#c66b4a;" title="Terracotta" aria-label="Terracotta"></span>
+          </div>
+        </div>
+      </div>
 
       <div class="attire-gallery" data-cc-id="cc-3">
         <figure class="attire-photo"><img src="assets/attire-1.png" alt="Garden cocktail attire" loading="lazy"></figure>
@@ -2573,7 +3068,7 @@
 
     <p class="registry-body reveal in">We are so grateful to everyone who has agreed to join us in celebration of the beginning of our new chapter together. To celebrate our love with our closest family and friends is more than either of us could ever ask for.</p>
 
-    <p class="registry-body reveal in">If you are, however, feeling <em>particularly generous,</em> we have set up a few cash funds for those who would like to contribute in support of this journey.</p>
+    <p class="registry-body reveal in">If you are, however, feeling <em>particularly generous,</em> we have set up a cash fund for those who would like to contribute in support of this journey.</p>
 
     <div class="registry-rule" aria-hidden="true"></div>
 
@@ -2677,6 +3172,64 @@
     </div>
   </div>
 </div>
+
+<!-- STORY -->
+<section class="story" id="story" data-screen-label="Our Story" data-cc-id="cc-5">
+  <div class="container" data-cc-id="cc-3">
+    <div class="section-eyebrow reveal in" data-cc-id="cc-14">
+      <div class="rule"></div>
+      <span class="label">Our Story</span>
+      <div class="rule"></div>
+    </div>
+    <h2 class="section-title reveal in" data-cc-id="cc-13">A new <em data-cc-id="cc-12">chapter</em></h2>
+
+    <div class="story-grid">
+      <div class="story-photo reveal reveal-clip" data-cc-id="cc-4">
+        <img src="assets/story-couple.jpg" alt="Colin and Lydia, winter light">
+        <div class="frame-corner tl"></div>
+        <div class="frame-corner br"></div>
+      </div>
+      <div class="reveal in">
+        <p class="drop">We met in undergrad and have been building a life together ever since &mdash; from Los Angeles to San Francisco, and now New York, with our cat Zoomie along for the ride. After all these years, we&rsquo;re ready to make it official.</p>
+        <p>On the tenth of October, we&rsquo;re returning to LA, where the story started, to make our promises. We can&rsquo;t wait to celebrate with the people who&rsquo;ve shaped us along the way.</p>
+        <div class="signature" style="font-size: 32px;">Colin &amp; Lydia &amp; Zoomie</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAY IN THE LOOP -->
+<section class="loop" id="updates" data-screen-label="Stay in the Loop">
+  <div class="container">
+    <div class="section-eyebrow reveal in">
+      <div class="rule"></div>
+      <span class="label">Stay in the Loop</span>
+      <div class="rule"></div>
+    </div>
+    <h2 class="section-title reveal in">Join the <em>conversation</em></h2>
+
+    <div class="loop-inner reveal in">
+      <p class="loop-lead">We&rsquo;re keeping everything in one place on Partiful. RSVP isn&rsquo;t there &mdash; but it&rsquo;s the easiest way to stay connected with everyone in the lead-up to the day.</p>
+
+      <div class="loop-points">
+        <div class="loop-point">
+          <span class="loop-point-label">Ask Questions</span>
+          <p>Anything about the day &mdash; we&rsquo;re happy to help.</p>
+        </div>
+        <div class="loop-point">
+          <span class="loop-point-label">Find a Carpool</span>
+          <p>Coordinate rides with other guests heading to Malibu.</p>
+        </div>
+        <div class="loop-point">
+          <span class="loop-point-label">Day-of Updates</span>
+          <p>Timing, weather, and any last-minute notes.</p>
+        </div>
+      </div>
+
+      <a href="https://partiful.com/e/uhI2HRJexpkBs4QihIdJ?c=F4ZarFCP" class="loop-btn" target="_blank" rel="noopener">Join us on Partiful</a>
+    </div>
+  </div>
+</section>
 
 <!-- GUEST GARDEN -->
 <section class="playlist-section" id="playlist" data-screen-label="The Playlist">
