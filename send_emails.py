@@ -97,59 +97,10 @@ def _swatch_row(colors):
     )
 
 
-def _diet_tag(label, bg, fg):
-    return (
-        f'<span style="display:inline-block;font-family:{SANS};font-size:9px;'
-        f'font-weight:bold;letter-spacing:1px;text-transform:uppercase;'
-        f'background:{bg};color:{fg};padding:3px 7px;margin-right:5px;">{label}</span>'
-    )
-
-
-def _menu_item(name, tags_html, desc, inline_tag=False):
-    if inline_tag:
-        # Name on the left, tag right-aligned on the same row.
-        header = (
-            '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;"><tr>'
-            f'<td valign="middle" style="font-family:{SERIF};font-size:17px;font-weight:bold;color:{C_INK};">{name}</td>'
-            f'<td valign="middle" align="right" style="white-space:nowrap;">{tags_html}</td>'
-            '</tr></table>'
-        )
-    else:
-        header = (
-            f'<div style="font-family:{SERIF};font-size:17px;font-weight:bold;color:{C_INK};margin-bottom:6px;">{name}</div>'
-            f'<div style="margin-bottom:8px;">{tags_html}</div>'
-        )
-    return f"""
-      <tr><td style="padding:0 0 16px;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-               style="background:{C_CARD};border:1px solid {C_BORDER};">
-          <tr><td style="padding:16px 18px;">
-            {header}
-            <div style="font-family:{SERIF};font-size:14px;color:{C_SECOND};line-height:1.5;">{desc}</div>
-          </td></tr>
-        </table>
-      </td></tr>"""
-
-
 def build_html(first_name, survey_url):
-    gf  = _diet_tag("GF",  "#d4edda", "#276138")
-    df  = _diet_tag("DF",  "#fff3cd", "#856404")
-    veg = _diet_tag("Veg", "#e8e6f8", "#3730a3")
-
     gents_swatches  = _swatch_row(["#1b2a4a", "#111418", "#36454f"])
     ladies_swatches = _swatch_row(
         ["#ff7f6b", "#9caf88", "#e8a0b4", "#eaa221", "#b8a4d4", "#3a9a9a", "#c66b4a"])
-
-    menu = (
-        _menu_item("The Carvery", _diet_tag("Live Station", "#e8e6f8", "#3730a3"),
-                   "A one-hour live steak station — unlimited service.", inline_tag=True)
-        + _menu_item("Garlic herb Jidori chicken", gf + df,
-                     "White bean &amp; potato cassoulet, kale, blistered tomatoes with shallots &amp; dill, agrumato oil.")
-        + _menu_item("Grilled salmon", df,
-                     "Blueberry chili sauce, Chinese broccoli, roasted shallots, Thai basil, mint.")
-        + _menu_item("Rigatoni with summer corn cream sauce", veg,
-                     "Lime zest, brown butter, scallions, Parmigiano Reggiano.")
-    )
 
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
@@ -164,7 +115,7 @@ def build_html(first_name, survey_url):
     <div style="font-family:{SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:{C_BLUE};">October 10, 2026 &middot; Calamigos Ranch, Malibu</div>
     <div style="font-family:{SERIF};font-style:italic;font-size:44px;color:{C_INK};padding:16px 0 0;">Colin &amp; Lydia</div>
     <div style="font-size:0;line-height:0;padding:22px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td width="48" style="width:48px;height:1px;background:{C_BLUE};opacity:0.3;font-size:0;line-height:0;">&nbsp;</td></tr></table></div>
-    <div style="font-family:{SERIF};font-size:16px;color:#2a3347;line-height:1.5;">Hi {first_name} &mdash; we can&rsquo;t wait to celebrate with you.</div>
+    <div style="font-family:{SERIF};font-size:16px;color:#2a3347;line-height:1.5;">Hi {first_name},</div>
   </td></tr>
 
   <!-- 2. CTA BAND -->
@@ -200,12 +151,12 @@ def build_html(first_name, survey_url):
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid {C_BORDER};"><tr>
       <td width="50%" valign="top" align="center" style="padding:30px 22px;">
         <div style="font-family:{SANS};font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;">Gentlemen</div>
-        <div style="font-family:{SERIF};font-size:17px;color:{C_SECOND};margin-bottom:16px;">A <strong style="color:{C_INK};">dark suit</strong></div>
+        <div style="font-family:{SERIF};font-size:15px;color:{C_SECOND};margin-bottom:16px;white-space:nowrap;">A <strong style="color:{C_INK};">dark suit</strong></div>
         {gents_swatches}
       </td>
       <td width="50%" valign="top" align="center" style="padding:30px 22px;border-left:1px solid {C_BORDER};">
         <div style="font-family:{SANS};font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;">Ladies</div>
-        <div style="font-family:{SERIF};font-size:17px;color:{C_SECOND};margin-bottom:16px;">A long dress in a <strong style="color:{C_INK};">summer color</strong></div>
+        <div style="font-family:{SERIF};font-size:15px;color:{C_SECOND};margin-bottom:16px;white-space:nowrap;">A long dress in a <strong style="color:{C_INK};">summer color</strong></div>
         {ladies_swatches}
       </td>
     </tr></table>
@@ -234,16 +185,10 @@ def build_html(first_name, survey_url):
     </table>
   </td></tr>
 
-  <!-- 6. ON THE MENU -->
-  <tr><td style="padding:28px 40px 0;">
-    <div style="font-family:{SANS};font-size:10px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:16px;">On the menu</div>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">{menu}</table>
-  </td></tr>
-
   <!-- 7. STAY IN THE LOOP (mirrors website "Join the conversation") -->
   <tr><td style="padding:28px 40px 0;" align="center">
-    <div style="font-family:{SANS};font-size:10px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;">Stay in the loop</div>
-    <div style="font-family:{SERIF};font-size:16px;color:{C_SECOND};line-height:1.6;margin:0 auto 22px;max-width:460px;">We&rsquo;re keeping everything in one place on Partiful &mdash; the easiest way to stay connected in the lead-up to the day.</div>
+    <div style="font-family:{SANS};font-size:10px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;text-align:left;">Stay in the loop</div>
+    <div style="font-family:{SERIF};font-size:16px;color:{C_SECOND};line-height:1.6;margin:0 auto;max-width:460px;text-align:left;">Partiful is our home base for the wedding &mdash; the place to ask questions, catch updates, and stay connected with us in the lead-up to the big day.</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid {C_BORDER};margin-bottom:24px;"><tr>
       <td width="33%" valign="top" align="center" style="padding:24px 14px;">
         <div style="font-family:{SANS};font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Ask Questions</div>
@@ -285,18 +230,12 @@ def build_text(first_name, survey_url):
     return "\n".join([
         "Colin & Lydia · October 10, 2026 · Calamigos Ranch, Malibu",
         "",
-        f"Hi {first_name} — we can't wait to celebrate with you.",
+        f"Hi {first_name},",
         "",
         f"ONE THING WE NEED FROM YOU: Please select your dinner entree by {MEAL_DEADLINE}.",
         f"Select your dinner: {survey_url}",
         "",
         f"HOTEL BLOCK: {HOTEL_NAME}. Book by {HOTEL_DEADLINE}: {HOTEL_LINK}",
-        "",
-        "ON THE MENU:",
-        "  • The Carvery — live carving station",
-        "  • Garlic herb Jidori chicken (GF, DF)",
-        "  • Grilled salmon (DF)",
-        "  • Rigatoni with summer corn cream sauce (Veg)",
         "",
         f"Stay in the loop on Partiful: {PARTIFUL_LINK}",
         "",

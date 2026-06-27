@@ -85,6 +85,18 @@
     transition: border-color 200ms ease;
   }
   .field input:focus { border-color: var(--accent); }
+  .field-row { display: flex; gap: 12px; }
+  .field-row .field { flex: 1 1 0; }
+  .field-note {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 15px;
+    color: var(--silver);
+    line-height: 1.5;
+    margin: 0 0 16px;
+  }
+  @media (max-width: 520px) {
+    .field-row { flex-direction: column; gap: 0; }
+  }
 
   /* ---------- Section label ---------- */
   .section-label {
@@ -258,27 +270,26 @@
         </div>
 
         <div class="section-label">Choose your entree</div>
+        <p class="field-note">A live steak station will be served during dinner for everyone, so steak is not offered as an entr&eacute;e choice below.</p>
 
         <label class="entree" data-value="chicken">
           <input type="radio" name="entree" value="chicken">
           <span class="dot"></span>
-          <span class="name">Garlic herb Jidori chicken</span>
+          <span class="name">Garlic Herb Jidori Chicken</span>
           <span class="desc">White bean &amp; potato cassoulet, kale, blistered tomatoes with shallots &amp; dill, agrumato oil.</span>
-          <span class="tags"><span class="tag tag-gf">GF</span><span class="tag tag-df">DF</span></span>
         </label>
 
         <label class="entree" data-value="salmon">
           <input type="radio" name="entree" value="salmon">
           <span class="dot"></span>
-          <span class="name">Grilled salmon</span>
+          <span class="name">Grilled Salmon</span>
           <span class="desc">Blueberry chili sauce, Chinese broccoli, roasted shallots, Thai basil, mint.</span>
-          <span class="tags"><span class="tag tag-df">DF</span></span>
         </label>
 
         <label class="entree" data-value="rigatoni">
           <input type="radio" name="entree" value="rigatoni">
           <span class="dot"></span>
-          <span class="name">Rigatoni with summer corn cream sauce</span>
+          <span class="name">Rigatoni with Summer Corn Cream Sauce</span>
           <span class="desc">Lime zest, brown butter, scallions, Parmigiano Reggiano.</span>
           <span class="tags"><span class="tag tag-veg">Veg</span></span>
         </label>
@@ -287,6 +298,37 @@
           <div class="field">
             <label for="dietaryInput">Allergies or dietary restrictions (optional)</label>
             <input type="text" id="dietaryInput" placeholder="e.g. nut allergy, vegetarian, none">
+          </div>
+        </div>
+
+        <div class="dietary-block">
+          <div class="section-label">Mailing address (optional)</div>
+          <p class="field-note">We&rsquo;d love to send you a thank-you note after the wedding.</p>
+          <div class="field">
+            <label for="addr1">Street address</label>
+            <input type="text" id="addr1" placeholder="123 Main St" autocomplete="address-line1">
+          </div>
+          <div class="field">
+            <label for="addr2">Apartment, suite, etc.</label>
+            <input type="text" id="addr2" placeholder="Apt 4B" autocomplete="address-line2">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="city">City</label>
+              <input type="text" id="city" autocomplete="address-level2">
+            </div>
+            <div class="field">
+              <label for="state">State / Region</label>
+              <input type="text" id="state" autocomplete="address-level1">
+            </div>
+            <div class="field">
+              <label for="zip">ZIP / Postal</label>
+              <input type="text" id="zip" autocomplete="postal-code">
+            </div>
+          </div>
+          <div class="field">
+            <label for="country">Country</label>
+            <input type="text" id="country" placeholder="United States" autocomplete="country-name">
           </div>
         </div>
 
@@ -337,7 +379,7 @@
     identBlock.classList.add('hidden');
     nameInput.value = urlName;
     emailInput.value = urlEmail;
-    greeting.textContent = 'Hi ' + firstName(urlName) + ' \u2014 please choose your dinner option below.';
+    greeting.textContent = 'Hi ' + firstName(urlName) + ', please choose your dinner option below.';
   } else {
     if (urlName) nameInput.value = urlName;
     if (urlEmail) emailInput.value = urlEmail;
@@ -377,12 +419,22 @@
       if (!/^\S+@\S+\.\S+$/.test(email)) { errorMsg.textContent = 'Please enter a valid email.'; emailInput.focus(); return; }
     }
 
+    function v(id) { return (document.getElementById(id).value || '').trim(); }
+    var addressParts = [
+      v('addr1'),
+      v('addr2'),
+      [v('city'), v('state')].filter(Boolean).join(', '),
+      v('zip'),
+      v('country')
+    ].filter(Boolean);
+
     var payload = {
       type: 'meal',
       name: name,
       email: email,
       entree: entree,
-      dietary: document.getElementById('dietaryInput').value.trim(),
+      dietary: v('dietaryInput'),
+      address: addressParts.join(' \u00b7 '),
       submittedAt: new Date().toISOString()
     };
 

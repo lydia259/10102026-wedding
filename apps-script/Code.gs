@@ -24,7 +24,7 @@ function getAdminToken_() {
 const SHEETS = {
   rsvp: {
     name: 'RSVPs',
-    headers: ['Submitted At', 'Name', 'Email', 'Attending', 'Plus One', 'Transport', 'Song Title', 'Song Artist', 'Entree', 'Dietary']
+    headers: ['Submitted At', 'Name', 'Email', 'Attending', 'Plus One', 'Transport', 'Song Title', 'Song Artist', 'Entree', 'Dietary', 'Address']
   },
   gift: {
     name: 'Gifts',
@@ -288,9 +288,9 @@ function upsertMeal_(body, submittedAt) {
     sheet.setFrozenRows(1);
   }
 
-  // Read the live header row and make sure Entree/Dietary exist.
+  // Read the live header row and make sure Entree/Dietary/Address exist.
   let headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
-  ['Entree', 'Dietary'].forEach(h => {
+  ['Entree', 'Dietary', 'Address'].forEach(h => {
     if (headers.indexOf(h) === -1) {
       sheet.getRange(1, headers.length + 1).setValue(h);
       headers.push(h);
@@ -302,11 +302,13 @@ function upsertMeal_(body, submittedAt) {
   const emailIdx     = headers.indexOf('Email');
   const entreeIdx    = headers.indexOf('Entree');
   const dietaryIdx   = headers.indexOf('Dietary');
+  const addressIdx   = headers.indexOf('Address');
 
   const email   = String(body.email || '').trim().toLowerCase();
   const name    = String(body.name || body.fullname || '').trim();
   const entree  = String(body.entree || '').trim();
   const dietary = String(body.dietary || '').trim();
+  const address = String(body.address || '').trim();
 
   const lastRow = sheet.getLastRow();
   if (lastRow >= 2 && email && emailIdx !== -1) {
@@ -316,6 +318,8 @@ function upsertMeal_(body, submittedAt) {
       if (rowEmail && rowEmail === email) {
         sheet.getRange(i + 2, entreeIdx + 1).setValue(entree);
         sheet.getRange(i + 2, dietaryIdx + 1).setValue(dietary);
+        // Only overwrite address when the guest actually provided one.
+        if (address) sheet.getRange(i + 2, addressIdx + 1).setValue(address);
         return { updated: true, row: i + 2 };
       }
     }
@@ -327,6 +331,7 @@ function upsertMeal_(body, submittedAt) {
     if (idx === emailIdx)     return body.email || '';
     if (idx === entreeIdx)    return entree;
     if (idx === dietaryIdx)   return dietary;
+    if (idx === addressIdx)   return address;
     return '';
   });
   sheet.appendRow(newRow);
