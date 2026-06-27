@@ -24,7 +24,7 @@ function getAdminToken_() {
 const SHEETS = {
   rsvp: {
     name: 'RSVPs',
-    headers: ['Submitted At', 'Name', 'Email', 'Attending', 'Plus One', 'Transport', 'Song Title', 'Song Artist']
+    headers: ['Submitted At', 'Name', 'Email', 'Attending', 'Plus One', 'Transport', 'Song Title', 'Song Artist', 'Entree', 'Dietary']
   },
   gift: {
     name: 'Gifts',
@@ -60,6 +60,14 @@ function doPost(e) {
       try { sendRsvpConfirmation_(body); } catch (mailErr) {
         console.error('RSVP email failed:', mailErr);
       }
+      return jsonOut_({ ok: true, updated: !!result.updated });
+    }
+
+    // Dinner / meal selection from survey.html. Writes the guest's entree and
+    // dietary note onto their existing RSVP row (matched by email), or appends
+    // a new row if the email isn't found. Does not send any email.
+    if (type === 'meal') {
+      const result = upsertMeal_(body, submittedAt);
       return jsonOut_({ ok: true, updated: !!result.updated });
     }
 
@@ -259,6 +267,69 @@ function upsertRsvpRow_(values, body) {
   }
 
   sheet.appendRow(values);
+  return { updated: false };
+}
+
+/**
+ * Writes a guest's dinner selection onto their RSVP row.
+ *
+ * Matches the most recent row by email (case-insensitive) and sets the
+ * "Entree" and "Dietary" columns in place. If those columns don't exist yet
+ * (sheet created before this feature), they're added to the header row first.
+ * If no row matches the email, a new row is appended with just the name,
+ * email, and meal selection so the response is never lost.
+ */
+function upsertMeal_(body, submittedAt) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const config = SHEETS.rsvp;
+  const sheet = ss.getSheetByName(config.name) || ss.insertSheet(config.name);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(config.headers);
+    sheet.setFrozenRows(1);
+  }
+
+  // Read the live header row and make sure Entree/Dietary exist.
+  let headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  ['Entree', 'Dietary'].forEach(h => {
+    if (headers.indexOf(h) === -1) {
+      sheet.getRange(1, headers.length + 1).setValue(h);
+      headers.push(h);
+    }
+  });
+
+  const submittedIdx = headers.indexOf('Submitted At');
+  const nameIdx      = headers.indexOf('Name');
+  const emailIdx     = headers.indexOf('Email');
+  const entreeIdx    = headers.indexOf('Entree');
+  const dietaryIdx   = headers.indexOf('Dietary');
+
+  const email   = String(body.email || '').trim().toLowerCase();
+  const name    = String(body.name || body.fullname || '').trim();
+  const entree  = String(body.entree || '').trim();
+  const dietary = String(body.dietary || '').trim();
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow >= 2 && email && emailIdx !== -1) {
+    const data = sheet.getRange(2, 1, lastRow - 1, headers.length).getValues();
+    for (let i = data.length - 1; i >= 0; i--) {
+      const rowEmail = String(data[i][emailIdx] || '').trim().toLowerCase();
+      if (rowEmail && rowEmail === email) {
+        sheet.getRange(i + 2, entreeIdx + 1).setValue(entree);
+        sheet.getRange(i + 2, dietaryIdx + 1).setValue(dietary);
+        return { updated: true, row: i + 2 };
+      }
+    }
+  }
+
+  const newRow = headers.map((h, idx) => {
+    if (idx === submittedIdx) return submittedAt;
+    if (idx === nameIdx)      return name;
+    if (idx === emailIdx)     return body.email || '';
+    if (idx === entreeIdx)    return entree;
+    if (idx === dietaryIdx)   return dietary;
+    return '';
+  });
+  sheet.appendRow(newRow);
   return { updated: false };
 }
 

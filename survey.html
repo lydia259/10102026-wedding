@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dinner Selection · Colin &amp; Lydia · October 10, 2026</title>
+<meta name="description" content="Select your dinner entree for Colin &amp; Lydia's wedding on October 10, 2026.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #f8f4ec;
+    --band: #efe8d9;
+    --card: #faf7f0;
+    --card-border: #ddd6c8;
+    --ink: #0f1a33;
+    --silver: #5a6476;
+    --muted: #8a8070;
+    --accent: #1e3a8a;
+    --accent-soft: #2c4ba0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--ivory); }
+  body {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 20px 64px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 500px; margin: 0 auto; }
+
+  /* ---------- Header ---------- */
+  .eyebrow {
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-align: center;
+  }
+  .monogram {
+    font-family: 'Bodoni Moda', 'Didot', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 44px;
+    line-height: 1.1;
+    color: var(--ink);
+    text-align: center;
+    margin-top: 14px;
+    letter-spacing: -0.01em;
+  }
+  .rule { width: 48px; height: 1px; background: var(--accent); opacity: 0.3; margin: 22px auto; }
+  .greeting {
+    font-size: 19px;
+    color: #2a3347;
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  /* ---------- Fallback identity fields ---------- */
+  .ident { margin-bottom: 30px; }
+  .ident.hidden { display: none; }
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 7px;
+  }
+  .field input {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 17px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 200ms ease;
+  }
+  .field input:focus { border-color: var(--accent); }
+
+  /* ---------- Section label ---------- */
+  .section-label {
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  /* ---------- Entree cards ---------- */
+  .entree {
+    display: block;
+    position: relative;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    padding: 20px 20px 20px 52px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  }
+  .entree:hover { border-color: var(--accent); }
+  .entree input { position: absolute; opacity: 0; pointer-events: none; }
+  .entree .dot {
+    position: absolute;
+    left: 20px;
+    top: 22px;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #b9b1a0;
+    border-radius: 50%;
+    background: #fff;
+    transition: border-color 200ms ease;
+  }
+  .entree .dot::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: scale(0);
+    transition: transform 160ms ease;
+  }
+  .entree.selected { border-color: var(--accent); background: #f3f0e6; box-shadow: 0 8px 24px -16px rgba(30,58,138,0.5); }
+  .entree.selected .dot { border-color: var(--accent); }
+  .entree.selected .dot::after { transform: scale(1); }
+  .entree .name {
+    display: block;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 5px;
+  }
+  .entree .desc {
+    display: block;
+    font-size: 16px;
+    color: var(--silver);
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 3px;
+  }
+  .tag-gf { background: #d4edda; color: #276138; }
+  .tag-df { background: #fff3cd; color: #856404; }
+  .tag-veg { background: #e8e6f8; color: #3730a3; }
+
+  /* ---------- Dietary input ---------- */
+  .dietary-block { margin-top: 28px; }
+
+  /* ---------- Submit ---------- */
+  .error {
+    color: #9a2c2c;
+    font-size: 16px;
+    text-align: center;
+    margin: 18px 0 0;
+    min-height: 20px;
+  }
+  .submit-btn {
+    display: block;
+    width: 100%;
+    margin-top: 22px;
+    padding: 17px 20px;
+    background: var(--accent);
+    color: var(--ivory);
+    border: none;
+    cursor: pointer;
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    transition: background 240ms ease, transform 240ms ease, box-shadow 240ms ease;
+  }
+  .submit-btn:hover { background: var(--accent-soft); transform: translateY(-1px); box-shadow: 0 14px 30px -14px rgba(30,58,138,0.5); }
+  .submit-btn[disabled] { opacity: 0.55; cursor: default; transform: none; box-shadow: none; }
+  .deadline {
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 18px;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    text-align: center;
+    margin-top: 54px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(30,58,138,0.14);
+  }
+  footer .love { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 20px; color: var(--ink); }
+  footer .stamp {
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+
+  /* ---------- Confirmation ---------- */
+  .confirm { display: none; text-align: center; padding: 20px 0; }
+  .confirm.show { display: block; }
+  .confirm .check {
+    width: 56px; height: 56px; margin: 0 auto 24px;
+    border-radius: 50%; border: 1px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .confirm .check svg { width: 26px; height: 26px; stroke: var(--accent); }
+  .confirm h2 {
+    font-family: 'Bodoni Moda', 'Didot', Georgia, serif;
+    font-style: italic; font-weight: 500; font-size: 34px;
+    color: var(--ink); margin-bottom: 14px; line-height: 1.15;
+  }
+  .confirm p { font-size: 19px; color: var(--silver); max-width: 380px; margin: 0 auto; }
+  .form-area.hidden { display: none; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">October 10, 2026 · Calamigos Ranch, Malibu</div>
+    <div class="monogram">Colin &amp; Lydia</div>
+    <div class="rule"></div>
+
+    <!-- FORM -->
+    <div class="form-area" id="formArea">
+      <p class="greeting" id="greeting">Please choose your dinner option below.</p>
+
+      <form id="mealForm" novalidate>
+        <div class="ident" id="identBlock">
+          <div class="field">
+            <label for="nameInput">Your name</label>
+            <input type="text" id="nameInput" autocomplete="name" placeholder="First &amp; last name">
+          </div>
+          <div class="field">
+            <label for="emailInput">Email</label>
+            <input type="email" id="emailInput" autocomplete="email" placeholder="you@example.com">
+          </div>
+        </div>
+
+        <div class="section-label">Choose your entree</div>
+
+        <label class="entree" data-value="chicken">
+          <input type="radio" name="entree" value="chicken">
+          <span class="dot"></span>
+          <span class="name">Garlic herb Jidori chicken</span>
+          <span class="desc">White bean &amp; potato cassoulet, kale, blistered tomatoes with shallots &amp; dill, agrumato oil.</span>
+          <span class="tags"><span class="tag tag-gf">GF</span><span class="tag tag-df">DF</span></span>
+        </label>
+
+        <label class="entree" data-value="salmon">
+          <input type="radio" name="entree" value="salmon">
+          <span class="dot"></span>
+          <span class="name">Grilled salmon</span>
+          <span class="desc">Blueberry chili sauce, Chinese broccoli, roasted shallots, Thai basil, mint.</span>
+          <span class="tags"><span class="tag tag-df">DF</span></span>
+        </label>
+
+        <label class="entree" data-value="rigatoni">
+          <input type="radio" name="entree" value="rigatoni">
+          <span class="dot"></span>
+          <span class="name">Rigatoni with summer corn cream sauce</span>
+          <span class="desc">Lime zest, brown butter, scallions, Parmigiano Reggiano.</span>
+          <span class="tags"><span class="tag tag-veg">Veg</span></span>
+        </label>
+
+        <div class="dietary-block">
+          <div class="field">
+            <label for="dietaryInput">Allergies or dietary restrictions (optional)</label>
+            <input type="text" id="dietaryInput" placeholder="e.g. nut allergy, vegetarian, none">
+          </div>
+        </div>
+
+        <p class="error" id="errorMsg"></p>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Submit my selection</button>
+        <div class="deadline">Respond by July 18, 2026</div>
+      </form>
+    </div>
+
+    <!-- CONFIRMATION -->
+    <div class="confirm" id="confirm">
+      <div class="check">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+      </div>
+      <h2 id="confirmTitle">Thank you</h2>
+      <p id="confirmBody">Your dinner selection has been received. We&rsquo;ll see you on 10.10.</p>
+    </div>
+
+    <footer>
+      <div class="love">With love</div>
+      <div class="stamp">Colin &amp; Lydia · 10.10.2026</div>
+    </footer>
+  </div>
+
+<script src="assets/wedding-config.js"></script>
+<script>
+(function () {
+  var ENDPOINT = (window.WEDDING_CONFIG && window.WEDDING_CONFIG.ENDPOINT) || '';
+
+  var params    = new URLSearchParams(window.location.search);
+  var urlName   = (params.get('name')  || '').trim();
+  var urlEmail  = (params.get('email') || '').trim();
+
+  var identBlock = document.getElementById('identBlock');
+  var nameInput  = document.getElementById('nameInput');
+  var emailInput = document.getElementById('emailInput');
+  var greeting   = document.getElementById('greeting');
+  var form       = document.getElementById('mealForm');
+  var errorMsg   = document.getElementById('errorMsg');
+  var submitBtn  = document.getElementById('submitBtn');
+
+  function firstName(full) { return (full || '').trim().split(/\s+/)[0] || ''; }
+
+  // Happy path: name + email present in URL → hide fields, personalize.
+  var prefilled = !!(urlName && urlEmail);
+  if (prefilled) {
+    identBlock.classList.add('hidden');
+    nameInput.value = urlName;
+    emailInput.value = urlEmail;
+    greeting.textContent = 'Hi ' + firstName(urlName) + ' \u2014 please choose your dinner option below.';
+  } else {
+    if (urlName) nameInput.value = urlName;
+    if (urlEmail) emailInput.value = urlEmail;
+  }
+
+  // Radio selection visual state.
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.entree'));
+  cards.forEach(function (card) {
+    card.addEventListener('click', function () {
+      cards.forEach(function (c) { c.classList.remove('selected'); });
+      card.classList.add('selected');
+      card.querySelector('input').checked = true;
+      errorMsg.textContent = '';
+    });
+  });
+
+  function selectedEntree() {
+    var checked = form.querySelector('input[name="entree"]:checked');
+    return checked ? checked.value : '';
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    errorMsg.textContent = '';
+
+    var entree = selectedEntree();
+    if (!entree) {
+      errorMsg.textContent = 'Please choose an entree before submitting.';
+      return;
+    }
+
+    var name  = (prefilled ? urlName  : nameInput.value).trim();
+    var email = (prefilled ? urlEmail : emailInput.value).trim();
+
+    if (!prefilled) {
+      if (!name) { errorMsg.textContent = 'Please enter your name.'; nameInput.focus(); return; }
+      if (!/^\S+@\S+\.\S+$/.test(email)) { errorMsg.textContent = 'Please enter a valid email.'; emailInput.focus(); return; }
+    }
+
+    var payload = {
+      type: 'meal',
+      name: name,
+      email: email,
+      entree: entree,
+      dietary: document.getElementById('dietaryInput').value.trim(),
+      submittedAt: new Date().toISOString()
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending\u2026';
+
+    // Fire-and-forget POST (text/plain avoids a CORS preflight Apps Script
+    // can't answer). We optimistically confirm regardless of the opaque
+    // no-cors response, matching the RSVP flow.
+    function finish() {
+      document.getElementById('formArea').classList.add('hidden');
+      var first = firstName(name);
+      document.getElementById('confirmTitle').textContent = first ? ('Thank you, ' + first) : 'Thank you';
+      document.getElementById('confirmBody').textContent =
+        'Your dinner selection has been received. We\u2019ll see you on 10.10.';
+      document.getElementById('confirm').classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (ENDPOINT) {
+      fetch(ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      }).then(finish).catch(finish);
+    } else {
+      finish();
+    }
+  });
+})();
+</script>
+</body>
+</html>
