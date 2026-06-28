@@ -329,17 +329,41 @@ function upsertMeal_(body, submittedAt) {
   const dietary = String(body.dietary || '').trim();
   const address = String(body.address || '').trim();
 
+  // Writes the meal fields onto an existing row and returns the result.
+  function applyMeal(rowNumber) {
+    sheet.getRange(rowNumber, entreeIdx + 1).setValue(entree);
+    sheet.getRange(rowNumber, dietaryIdx + 1).setValue(dietary);
+    // Only overwrite address when the guest actually provided one.
+    if (address) sheet.getRange(rowNumber, addressIdx + 1).setValue(address);
+    return { updated: true, row: rowNumber };
+  }
+
+  const nameKey = name.toLowerCase().replace(/\s+/g, ' ');
   const lastRow = sheet.getLastRow();
-  if (lastRow >= 2 && email && emailIdx !== -1) {
+  if (lastRow >= 2) {
     const data = sheet.getRange(2, 1, lastRow - 1, headers.length).getValues();
-    for (let i = data.length - 1; i >= 0; i--) {
-      const rowEmail = String(data[i][emailIdx] || '').trim().toLowerCase();
-      if (rowEmail && rowEmail === email) {
-        sheet.getRange(i + 2, entreeIdx + 1).setValue(entree);
-        sheet.getRange(i + 2, dietaryIdx + 1).setValue(dietary);
-        // Only overwrite address when the guest actually provided one.
-        if (address) sheet.getRange(i + 2, addressIdx + 1).setValue(address);
-        return { updated: true, row: i + 2 };
+
+    // 1) Match by email first — it is the most reliable identifier.
+    if (email && emailIdx !== -1) {
+      for (let i = data.length - 1; i >= 0; i--) {
+        const rowEmail = String(data[i][emailIdx] || '').trim().toLowerCase();
+        if (rowEmail && rowEmail === email) return applyMeal(i + 2);
+      }
+    }
+
+    // 2) Fall back to an exact (case-insensitive) name match. This covers
+    //    guests who arrive without their email link, or whose RSVP row was
+    //    saved under a different/blank email.
+    if (nameKey && nameIdx !== -1) {
+      for (let i = data.length - 1; i >= 0; i--) {
+        const rowName = String(data[i][nameIdx] || '').trim().toLowerCase().replace(/\s+/g, ' ');
+        if (rowName && rowName === nameKey) {
+          // Backfill the email on that row if it was missing one.
+          if (email && emailIdx !== -1 && !String(data[i][emailIdx] || '').trim()) {
+            sheet.getRange(i + 2, emailIdx + 1).setValue(body.email || '');
+          }
+          return applyMeal(i + 2);
+        }
       }
     }
   }

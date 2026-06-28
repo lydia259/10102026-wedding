@@ -37,12 +37,16 @@ from urllib.parse import quote
 # ======================================================================
 # CONFIG
 # ======================================================================
-GMAIL_ADDRESS  = "your@gmail.com"
-GMAIL_APP_PASS = "xxxx xxxx xxxx xxxx"      # Gmail App Password, NOT your login password
+# Read from environment so your app password is never written into this file
+# (and never committed). Set them inline when you run, e.g.:
+#   GMAIL_ADDRESS="you@gmail.com" GMAIL_APP_PASS="abcd efgh ijkl mnop" python3 send_emails.py
+GMAIL_ADDRESS  = os.environ.get("GMAIL_ADDRESS", "your@gmail.com")
+GMAIL_APP_PASS = os.environ.get("GMAIL_APP_PASS", "xxxx xxxx xxxx xxxx")  # Gmail App Password, NOT your login password
 FROM_NAME      = "Colin & Lydia"
 
 CSV_PATH       = "rsvps.csv"
 SURVEY_URL     = "https://colin-and-lydia-wedding.vercel.app/survey"
+RSVP_URL       = "https://colin-and-lydia-wedding.vercel.app/RSVP"
 HOTEL_LINK     = "https://www.hilton.com/en/attend-my-event/agohwhw-90b-1879cb72-dad9-4e7a-9a57-42c2a1c665e1/"
 PARTIFUL_LINK  = "https://partiful.com/e/uhI2HRJexpkBs4QihIdJ?c=F4ZarFCP"
 
@@ -53,13 +57,13 @@ MEAL_DEADLINE   = "July 18, 2026"
 SUBJECT         = "Action required: select your dinner for Lydia & Colin's wedding"
 
 # Sending controls
-DRY_RUN         = True                      # True = print/preview only, send nothing
+DRY_RUN         = False                     # True = print/preview only, send nothing
 SEND_DELAY_SEC  = 1.5                       # pause between sends (Gmail rate limits)
 
 # When non-empty, the CSV is ignored and the email is sent ONLY to these
 # addresses (with the name below). Use this to land a real test in your inbox.
-TEST_RECIPIENTS = []                        # e.g. ["you@gmail.com"]
-TEST_NAME       = "Test Guest"
+TEST_RECIPIENTS = ["Lydiahongp@gmail.com"]  # e.g. ["you@gmail.com"]
+TEST_NAME       = "Lydia"
 
 # ======================================================================
 # PALETTE (kept in one place so the template stays consistent)
@@ -92,30 +96,47 @@ def _dot(color):
 def _swatch_row(colors):
     cells = "".join(_dot(c) for c in colors)
     return (
-        '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" '
-        f'style="margin:0 auto;"><tr>{cells}</tr></table>'
+        '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="left" '
+        f'style="margin:0;"><tr>{cells}</tr></table>'
     )
 
 
 def build_html(first_name, survey_url):
+    # HTML-escape ampersands in URLs used inside href="" attributes. A raw &
+    # is invalid in HTML and some clients (notably Gmail) can mangle the link.
+    survey_href = survey_url.replace("&", "&amp;")
+    hotel_href = HOTEL_LINK.replace("&", "&amp;")
+    partiful_href = PARTIFUL_LINK.replace("&", "&amp;")
+
     gents_swatches  = _swatch_row(["#1b2a4a", "#111418", "#36454f"])
     ladies_swatches = _swatch_row(
         ["#ff7f6b", "#9caf88", "#e8a0b4", "#eaa221", "#b8a4d4", "#3a9a9a", "#c66b4a"])
 
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:{C_BG};">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {{ -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }}
+  @media only screen and (max-width:600px) {{
+    .email-container {{ width:100% !important; max-width:100% !important; }}
+    .m-body {{ font-size:18px !important; line-height:1.6 !important; }}
+    .m-lead {{ font-size:19px !important; }}
+    .m-desc {{ font-size:16px !important; }}
+    .m-label {{ font-size:12px !important; }}
+  }}
+</style>
+</head>
+<body style="margin:0;padding:0;background:{C_BG};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{C_BG};">
-<tr><td align="center" style="padding:32px 14px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:{C_BG};">
+<tr><td align="center" style="padding:32px 0 0;">
+<table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:{C_BG};">
 
   <!-- 1. HEADER -->
   <tr><td align="center" style="padding:32px 40px 0;">
-    <div style="font-family:{SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:{C_BLUE};">October 10, 2026 &middot; Calamigos Ranch, Malibu</div>
+    <div style="font-family:{SANS};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:{C_BLUE};">October 10, 2026 &middot; Calamigos Ranch, Malibu</div>
     <div style="font-family:{SERIF};font-style:italic;font-size:44px;color:{C_INK};padding:16px 0 0;">Colin &amp; Lydia</div>
     <div style="font-size:0;line-height:0;padding:22px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td width="48" style="width:48px;height:1px;background:{C_BLUE};opacity:0.3;font-size:0;line-height:0;">&nbsp;</td></tr></table></div>
-    <div style="font-family:{SERIF};font-size:16px;color:#2a3347;line-height:1.5;">Hi {first_name},</div>
+    <div class="m-body" style="font-family:{SERIF};font-size:17px;color:#2a3347;line-height:1.5;">Hi {first_name},</div>
   </td></tr>
 
   <!-- 2. CTA BAND -->
@@ -123,10 +144,10 @@ def build_html(first_name, survey_url):
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{C_BAND};">
       <tr><td align="center" style="padding:30px 40px;">
         <div style="font-family:{SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:12px;">One thing we need from you</div>
-        <div style="font-family:{SERIF};font-size:17px;color:{C_INK};line-height:1.55;margin-bottom:22px;">Please select your dinner entree by {MEAL_DEADLINE} so we can share your preference with our caterer.</div>
+        <div class="m-lead" style="font-family:{SERIF};font-size:17px;color:{C_INK};line-height:1.55;margin-bottom:22px;">Please select your dinner entree by {MEAL_DEADLINE} so we can share your preference with our caterer.</div>
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
           <td style="background:{C_BLUE};">
-            <a href="{survey_url}" style="display:inline-block;font-family:{SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BG};text-decoration:none;padding:15px 34px;">Select your dinner</a>
+            <a href="{survey_href}" style="display:inline-block;font-family:{SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BG};text-decoration:none;padding:15px 34px;">Select your dinner</a>
           </td>
         </tr></table>
       </td></tr>
@@ -137,26 +158,26 @@ def build_html(first_name, survey_url):
   <tr><td style="padding:28px 40px 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{C_CARD};border:1px solid {C_BORDER};">
       <tr><td style="padding:22px 24px;">
-        <div style="font-family:{SANS};font-size:10px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Hotel block</div>
+        <div style="font-family:{SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Hotel block</div>
         <div style="font-family:{SERIF};font-size:18px;color:{C_INK};margin-bottom:6px;">{HOTEL_NAME}</div>
-        <div style="font-family:{SERIF};font-size:14px;color:{C_SECOND};margin-bottom:14px;">Book by {HOTEL_DEADLINE} to hold the group rate.</div>
-        <a href="{HOTEL_LINK}" style="font-family:{SANS};font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:{C_BLUE};text-decoration:none;">Book your room &rarr;</a>
+        <div style="font-family:{SERIF};font-size:15px;color:{C_SECOND};margin-bottom:14px;">Book by {HOTEL_DEADLINE} to hold the group rate.</div>
+        <a href="{hotel_href}" style="font-family:{SANS};font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:{C_BLUE};text-decoration:none;">Book your room &rarr;</a>
       </td></tr>
     </table>
   </td></tr>
 
   <!-- 4. DRESS CODE (mirrors the website's bordered two-column attire block) -->
   <tr><td style="padding:28px 40px 0;">
-    <div style="font-family:{SANS};font-size:10px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:16px;">Dress code</div>
+    <div style="font-family:{SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:16px;">Dress code</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid {C_BORDER};"><tr>
-      <td width="50%" valign="top" align="center" style="padding:30px 22px;">
-        <div style="font-family:{SANS};font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;">Gentlemen</div>
-        <div style="font-family:{SERIF};font-size:15px;color:{C_SECOND};margin-bottom:16px;white-space:nowrap;">A <strong style="color:{C_INK};">dark suit</strong></div>
+      <td width="50%" valign="top" align="left" style="padding:30px 22px;">
+        <div style="font-family:{SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;">Gentlemen</div>
+        <div style="font-family:{SERIF};font-size:16px;color:{C_SECOND};margin-bottom:16px;white-space:nowrap;">A <strong style="color:{C_INK};">dark suit</strong></div>
         {gents_swatches}
       </td>
-      <td width="50%" valign="top" align="center" style="padding:30px 22px;border-left:1px solid {C_BORDER};">
-        <div style="font-family:{SANS};font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;">Ladies</div>
-        <div style="font-family:{SERIF};font-size:15px;color:{C_SECOND};margin-bottom:16px;white-space:nowrap;">A long dress in a <strong style="color:{C_INK};">summer color</strong></div>
+      <td width="50%" valign="top" align="left" style="padding:30px 22px;border-left:1px solid {C_BORDER};">
+        <div style="font-family:{SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;">Ladies</div>
+        <div style="font-family:{SERIF};font-size:16px;color:{C_SECOND};margin-bottom:16px;white-space:nowrap;">A long dress in a <strong style="color:{C_INK};">summer color</strong></div>
         {ladies_swatches}
       </td>
     </tr></table>
@@ -164,21 +185,21 @@ def build_html(first_name, survey_url):
 
   <!-- 5. DAY OF -->
   <tr><td style="padding:28px 40px 0;">
-    <div style="font-family:{SANS};font-size:10px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:16px;">Day of</div>
+    <div style="font-family:{SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:16px;">Day of</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{C_CARD};border:1px solid {C_BORDER};">
       <tr><td style="padding:16px 22px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr>
-            <td width="90" valign="middle" style="font-family:{SANS};font-size:11px;font-weight:bold;color:{C_BLUE};padding:8px 0;">4:50 pm</td>
-            <td valign="middle" style="font-family:{SERIF};font-size:15px;color:{C_INK};padding:8px 0;">Guest arrival</td>
+            <td width="90" valign="middle" style="font-family:{SANS};font-size:11px;font-weight:bold;color:{C_BLUE};padding:8px 0;">4:45 pm</td>
+            <td valign="middle" style="font-family:{SERIF};font-size:16px;color:{C_INK};padding:8px 0;">Guest arrival starts</td>
           </tr>
           <tr>
             <td width="90" valign="middle" style="font-family:{SANS};font-size:11px;font-weight:bold;color:{C_BLUE};padding:8px 0;border-top:1px solid {C_BORDER};">5:30 pm</td>
-            <td valign="middle" style="font-family:{SERIF};font-size:15px;color:{C_INK};padding:8px 0;border-top:1px solid {C_BORDER};">Ceremony starts</td>
+            <td valign="middle" style="font-family:{SERIF};font-size:16px;color:{C_INK};padding:8px 0;border-top:1px solid {C_BORDER};">Ceremony starts</td>
           </tr>
           <tr>
             <td width="90" valign="middle" style="font-family:{SANS};font-size:11px;font-weight:bold;color:{C_BLUE};padding:8px 0;border-top:1px solid {C_BORDER};">11:30 pm</td>
-            <td valign="middle" style="font-family:{SERIF};font-size:15px;color:{C_INK};padding:8px 0;border-top:1px solid {C_BORDER};">Reception ends</td>
+            <td valign="middle" style="font-family:{SERIF};font-size:16px;color:{C_INK};padding:8px 0;border-top:1px solid {C_BORDER};">Reception ends</td>
           </tr>
         </table>
       </td></tr>
@@ -187,25 +208,25 @@ def build_html(first_name, survey_url):
 
   <!-- 7. STAY IN THE LOOP (mirrors website "Join the conversation") -->
   <tr><td style="padding:28px 40px 0;" align="center">
-    <div style="font-family:{SANS};font-size:10px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;text-align:left;">Stay in the loop</div>
-    <div style="font-family:{SERIF};font-size:16px;color:{C_SECOND};line-height:1.6;margin:0 auto;max-width:460px;text-align:left;">Partiful is our home base for the wedding &mdash; the place to ask questions, catch updates, and stay connected with us in the lead-up to the big day.</div>
+    <div style="font-family:{SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;text-align:left;">Stay in the loop</div>
+    <div class="m-body" style="font-family:{SERIF};font-size:17px;color:{C_SECOND};line-height:1.6;margin:0 0 22px;text-align:left;">Partiful is our home base for the wedding &mdash; the place to ask questions, catch updates, and stay connected with us in the lead-up to the big day.</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid {C_BORDER};margin-bottom:24px;"><tr>
-      <td width="33%" valign="top" align="center" style="padding:24px 14px;">
-        <div style="font-family:{SANS};font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Ask Questions</div>
-        <div style="font-family:{SERIF};font-size:14px;color:{C_SECOND};line-height:1.5;">Anything about the day &mdash; we&rsquo;re happy to help.</div>
+      <td width="33%" valign="top" align="left" style="padding:24px 14px;">
+        <div style="font-family:{SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Ask Questions</div>
+        <div class="m-desc" style="font-family:{SERIF};font-size:15px;color:{C_SECOND};line-height:1.5;">Anything about the day &mdash; we&rsquo;re happy to help.</div>
       </td>
-      <td width="34%" valign="top" align="center" style="padding:24px 14px;border-left:1px solid {C_BORDER};">
-        <div style="font-family:{SANS};font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Find a Carpool</div>
-        <div style="font-family:{SERIF};font-size:14px;color:{C_SECOND};line-height:1.5;">Coordinate rides with other guests heading to Malibu.</div>
+      <td width="34%" valign="top" align="left" style="padding:24px 14px;border-left:1px solid {C_BORDER};">
+        <div style="font-family:{SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Find a Carpool</div>
+        <div class="m-desc" style="font-family:{SERIF};font-size:15px;color:{C_SECOND};line-height:1.5;">Coordinate rides with other guests heading to Malibu.</div>
       </td>
-      <td width="33%" valign="top" align="center" style="padding:24px 14px;border-left:1px solid {C_BORDER};">
-        <div style="font-family:{SANS};font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Day-of Updates</div>
-        <div style="font-family:{SERIF};font-size:14px;color:{C_SECOND};line-height:1.5;">Timing, weather, and any last-minute notes.</div>
+      <td width="33%" valign="top" align="left" style="padding:24px 14px;border-left:1px solid {C_BORDER};">
+        <div style="font-family:{SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Day-of Updates</div>
+        <div class="m-desc" style="font-family:{SERIF};font-size:15px;color:{C_SECOND};line-height:1.5;">Timing, weather, and any last-minute notes.</div>
       </td>
     </tr></table>
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
-      <td style="background:{C_BLUE};">
-        <a href="{PARTIFUL_LINK}" style="display:inline-block;font-family:{SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BG};text-decoration:none;padding:15px 34px;">Join us on Partiful</a>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+      <td align="center" style="background:{C_BLUE};">
+        <a href="{partiful_href}" style="display:block;font-family:{SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BG};text-decoration:none;padding:15px 34px;text-align:center;">Join us on Partiful</a>
       </td>
     </tr></table>
   </td></tr>
@@ -215,7 +236,8 @@ def build_html(first_name, survey_url):
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{C_BAND};">
       <tr><td align="center" style="padding:28px 40px;">
         <div style="font-family:{SERIF};font-style:italic;font-size:20px;color:{C_INK};">With love</div>
-        <div style="font-family:{SANS};font-size:9px;letter-spacing:3px;text-transform:uppercase;color:{C_MUTED};margin-top:10px;">Colin &amp; Lydia &middot; 10.10.2026</div>
+        <div style="font-family:{SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:{C_MUTED};margin-top:10px;">Colin &amp; Lydia &middot; 10.10.2026</div>
+        <div style="margin-top:16px;"><a href="{RSVP_URL}" style="font-family:{SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};text-decoration:none;">Visit our wedding website &rarr;</a></div>
       </td></tr>
     </table>
   </td></tr>
@@ -238,6 +260,8 @@ def build_text(first_name, survey_url):
         f"HOTEL BLOCK: {HOTEL_NAME}. Book by {HOTEL_DEADLINE}: {HOTEL_LINK}",
         "",
         f"Stay in the loop on Partiful: {PARTIFUL_LINK}",
+        "",
+        f"Visit our wedding website: {RSVP_URL}",
         "",
         "With love, Colin & Lydia · 10.10.2026",
     ])

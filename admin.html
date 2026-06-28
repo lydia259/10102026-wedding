@@ -219,18 +219,81 @@
   }
   .toggle input { margin: 0; cursor: pointer; accent-color: var(--accent); width: 14px; height: 14px; }
   .toggle:has(input:checked) { color: var(--accent); }
+  .filter-select {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 9px 12px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    cursor: pointer;
+    outline: none;
+  }
+  .filter-select:focus { border-color: var(--accent); }
+  th.th-filter { position: relative; }
+  .th-filter-toggle {
+    margin-left: 8px;
+    background: transparent;
+    border: none;
+    color: var(--silver);
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1;
+    padding: 2px 3px;
+    vertical-align: middle;
+    transition: transform 160ms ease, color 160ms ease;
+  }
+  .th-filter-toggle:hover { color: var(--accent); }
+  .th-filter-toggle.active { color: var(--accent); }
+  .th-filter-toggle.open { transform: rotate(180deg); }
+  .th-filter-menu {
+    position: absolute;
+    top: calc(100% - 4px);
+    left: 16px;
+    z-index: 30;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    box-shadow: 0 10px 30px rgba(15,26,51,0.18);
+    min-width: 150px;
+    padding: 4px;
+  }
+  .th-filter-menu[hidden] { display: none; }
+  .th-filter-opt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    padding: 8px 10px;
+  }
+  .th-filter-opt:hover { background: rgba(30,58,138,0.06); }
+  .th-filter-opt.selected { color: var(--accent); }
 
   /* Tables */
   .panel {
     background: var(--paper);
     border: 1px solid var(--line);
-    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
   }
+  /* Keep cells on one line so columns aren't crushed; the panel scrolls
+     horizontally instead of clipping the right-hand columns. */
+  tbody td { white-space: nowrap; }
+  /* Address can be long — let it wrap within a capped width. */
+  td.addr { white-space: normal; min-width: 160px; max-width: 240px; }
   thead th {
     text-align: left;
     background: rgba(30,58,138,0.05);
@@ -279,6 +342,26 @@
   }
   td.row-actions { text-align: right; white-space: nowrap; }
   td.row-actions .row-action-group { display: inline-flex; gap: 6px; justify-content: flex-end; }
+  /* Pin the actions column to the right edge while scrolling horizontally. */
+  th.sticky-col, td.sticky-col {
+    position: sticky;
+    right: 0;
+    z-index: 5;
+    background: var(--paper);
+    box-shadow: -8px 0 12px -10px rgba(15,26,51,0.18);
+  }
+  thead th.sticky-col { z-index: 6; background: #f0eee7; }
+  tbody tr:hover td.sticky-col { background: #f4f1e9; }
+  /* Pin the first (name/party) column to the left edge while scrolling horizontally. */
+  th.sticky-col-left, td.sticky-col-left {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: var(--paper);
+    box-shadow: 8px 0 12px -10px rgba(15,26,51,0.18);
+  }
+  thead th.sticky-col-left { z-index: 6; background: #f0eee7; }
+  tbody tr:hover td.sticky-col-left { background: #f4f1e9; }
   .row-btn {
     background: transparent;
     border: 1px solid var(--line);
@@ -402,6 +485,93 @@
   }
   .modal-foot .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+  /* Detail side panel (drawer) */
+  tr.row-clickable { cursor: pointer; }
+  .drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,26,51,0.45);
+    display: flex;
+    justify-content: flex-end;
+    z-index: 110;
+  }
+  .drawer-overlay[hidden] { display: none; }
+  .drawer {
+    background: var(--paper);
+    border-left: 1px solid var(--line);
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -24px 0 60px rgba(15,26,51,0.25);
+    animation: drawerIn 220ms ease;
+  }
+  @keyframes drawerIn { from { transform: translateX(28px); opacity: 0.5; } to { transform: none; opacity: 1; } }
+  .drawer-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 26px 28px 14px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .drawer-head h2 {
+    font-family: 'Bodoni Moda', serif;
+    font-weight: 500;
+    font-size: 24px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .drawer-head .drawer-sub {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--silver);
+    margin-top: 3px;
+    word-break: break-word;
+  }
+  .drawer-head-actions { display: flex; align-items: center; gap: 2px; }
+  .drawer-nav-btn {
+    background: transparent;
+    border: none;
+    color: var(--silver);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 6px 6px;
+    transition: color 160ms ease;
+  }
+  .drawer-nav-btn:hover { color: var(--accent); }
+  .drawer-nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .drawer-body { padding: 6px 28px 16px; overflow-y: auto; flex: 1; }
+  .detail-row { padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+  .detail-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .detail-value.empty { color: var(--silver); font-style: italic; padding: 0; text-align: left; }
+  .drawer-foot {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px 22px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .drawer-foot-meta { font-size: 12px; font-style: italic; color: var(--silver); }
+  .drawer-foot-actions { display: flex; gap: 10px; }
+
   .empty {
     text-align: center;
     padding: 60px 20px;
@@ -495,6 +665,29 @@
   </div>
 </div>
 
+<div class="drawer-overlay" id="detail-drawer" hidden>
+  <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="drawer-head">
+      <div>
+        <h2 id="detail-title">Guest</h2>
+      </div>
+      <div class="drawer-head-actions">
+        <button type="button" class="drawer-nav-btn" id="detail-prev" aria-label="Previous guest" title="Previous (&uarr;)">&#9650;</button>
+        <button type="button" class="drawer-nav-btn" id="detail-next" aria-label="Next guest" title="Next (&darr;)">&#9660;</button>
+        <button type="button" class="modal-close" id="detail-close" aria-label="Close">&times;</button>
+      </div>
+    </div>
+    <div class="drawer-body" id="detail-body"></div>
+    <div class="drawer-foot">
+      <div class="drawer-foot-meta" id="detail-submitted"></div>
+      <div class="drawer-foot-actions">
+        <button type="button" class="btn ghost" id="detail-delete">Delete</button>
+        <button type="button" class="btn solid" id="detail-edit">Edit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   const TOKEN_KEY = 'cl_admin_token_v1';
   const ENDPOINT = (window.WEDDING_CONFIG && window.WEDDING_CONFIG.ENDPOINT) || '';
@@ -515,6 +708,9 @@
   const errBanner   = document.getElementById('err-banner');
   const couplesToggleWrap = document.getElementById('couples-toggle-wrap');
   const couplesToggle     = document.getElementById('couples-toggle');
+  let emailMode = localStorage.getItem('cl_admin_email_filter_v1') || 'all';
+  let mealMode  = localStorage.getItem('cl_admin_meal_filter_v1') || 'all';
+  let detailList = []; // Submitted-At keys in current display order (for drawer prev/next)
   const countEls = {
     rsvps: document.getElementById('count-rsvps'),
     gifts: document.getElementById('count-gifts'),
@@ -711,6 +907,28 @@
     ));
   }
 
+  function filterTh(labelText, key, mode, opts, extraClass) {
+    const active = mode !== 'all';
+    const optHtml = opts.map(([v, label]) =>
+      '<button type="button" class="th-filter-opt' + (mode === v ? ' selected' : '') +
+      '" data-filter="' + key + '" data-val="' + v + '">' + label + '</button>').join('');
+    return '<th class="th-filter' + (extraClass ? ' ' + extraClass : '') + '">' +
+      '<span class="th-filter-label">' + labelText + '</span>' +
+      '<button type="button" class="th-filter-toggle' + (active ? ' active' : '') +
+      '" aria-label="Filter by ' + labelText + '" aria-haspopup="true">\u25BE</button>' +
+      '<div class="th-filter-menu" hidden>' + optHtml + '</div></th>';
+  }
+
+  function emailFilterTh() {
+    return filterTh('Email', 'email', emailMode,
+      [['all', 'All'], ['has', 'Has email'], ['missing', 'No email']]);
+  }
+
+  function mealFilterTh(labelText) {
+    return filterTh(labelText, 'meal', mealMode,
+      [['all', 'All'], ['has', 'Meal submitted'], ['missing', 'No meal yet']], 'sticky-col-left');
+  }
+
   function renderActiveTab() {
     const q = searchEl.value.trim();
     couplesToggleWrap.hidden = activeTab !== 'rsvps';
@@ -718,6 +936,16 @@
     if (activeTab === 'rsvps') {
       const couplesView = !!couplesToggle.checked;
       let baseRows = cache.rsvps;
+      if (emailMode === 'has') {
+        baseRows = baseRows.filter(r => String(r['Email'] || '').trim());
+      } else if (emailMode === 'missing') {
+        baseRows = baseRows.filter(r => !String(r['Email'] || '').trim());
+      }
+      if (mealMode === 'has') {
+        baseRows = baseRows.filter(r => String(r['Entree'] || '').trim());
+      } else if (mealMode === 'missing') {
+        baseRows = baseRows.filter(r => !String(r['Entree'] || '').trim());
+      }
       if (couplesView) {
         baseRows = baseRows.filter(r =>
           isPlusOneNamed(r['Plus One']) ||
@@ -725,6 +953,7 @@
         );
       }
       const rows = filterRows(baseRows, q);
+      detailList = rows.map(r => String(r['Submitted At'] || ''));
       if (!rows.length) {
         panelEl.innerHTML = '<div class="empty">' +
           (couplesView ? 'No RSVPs with a plus-one yet.' : 'No RSVPs yet.') +
@@ -735,8 +964,8 @@
         panelEl.innerHTML = `
           <table>
             <thead><tr>
-              <th>Submitted</th><th>Party</th><th>Size</th><th>Email</th><th>Attending</th>
-              <th>Transport</th><th>Song</th><th>Entree</th><th>Dietary</th><th>Address</th><th></th>
+              ${mealFilterTh('Party')}<th>Size</th>${emailFilterTh()}<th>Entree</th><th>Dietary</th>
+              <th>Transport</th><th>Address</th><th>Attending</th><th class="sticky-col"></th>
             </tr></thead>
             <tbody>
               ${rows.map(r => {
@@ -751,18 +980,16 @@
                     : (plusYes ? '<span class="plus">&amp; plus-one (unnamed)</span>' : '')}
                 `;
                 return `
-                  <tr>
-                    <td class="muted">${escapeHtml(fmtDate(r['Submitted At']))}</td>
-                    <td class="party">${partyHtml}</td>
+                  <tr class="row-clickable" data-at="${escapeHtml(String(r['Submitted At'] || ''))}">
+                    <td class="party sticky-col-left">${partyHtml}</td>
                     <td>${attending ? '<span class="party-size">' + partySize + '</span>' : '<span class="muted">—</span>'}</td>
                     <td class="muted">${escapeHtml(r['Email'] || '')}</td>
-                    <td>${attendingPill(r['Attending'])}</td>
-                    <td>${escapeHtml(r['Transport'] || '')}</td>
-                    <td>${r['Song Title'] ? escapeHtml(r['Song Title']) + (r['Song Artist'] ? ' <span class="muted">— ' + escapeHtml(r['Song Artist']) + '</span>' : '') : ''}</td>
-                    <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeLabel(r['Entree'])) + '</span>' : ''}</td>
+                    <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeShort(r['Entree'])) + '</span>' : ''}</td>
                     <td>${escapeHtml(r['Dietary'] || '')}</td>
-                    <td class="muted">${escapeHtml(r['Address'] || '')}</td>
-                    <td class="row-actions">${rowActionsHtml('rsvp', r['Submitted At'], r['Name'])}</td>
+                    <td>${escapeHtml(r['Transport'] || '')}</td>
+                    <td class="muted addr">${escapeHtml(r['Address'] || '')}</td>
+                    <td>${attendingPill(r['Attending'])}</td>
+                    <td class="row-actions sticky-col">${rowActionsHtml('rsvp', r['Submitted At'], r['Name'])}</td>
                   </tr>`;
               }).join('')}
             </tbody>
@@ -771,23 +998,21 @@
         panelEl.innerHTML = `
           <table>
             <thead><tr>
-              <th>Submitted</th><th>Name</th><th>Email</th><th>Attending</th>
-              <th>Plus One</th><th>Transport</th><th>Song</th><th>Entree</th><th>Dietary</th><th>Address</th><th></th>
+              ${mealFilterTh('Name')}${emailFilterTh()}<th>Plus One</th><th>Entree</th><th>Dietary</th>
+              <th>Transport</th><th>Address</th><th>Attending</th><th class="sticky-col"></th>
             </tr></thead>
             <tbody>
               ${rows.map(r => `
-                <tr>
-                  <td class="muted">${escapeHtml(fmtDate(r['Submitted At']))}</td>
-                  <td>${escapeHtml(r['Name'] || '')}</td>
+                <tr class="row-clickable" data-at="${escapeHtml(String(r['Submitted At'] || ''))}">
+                  <td class="sticky-col-left">${escapeHtml(r['Name'] || '')}</td>
                   <td class="muted">${escapeHtml(r['Email'] || '')}</td>
-                  <td>${attendingPill(r['Attending'])}</td>
                   <td>${plusOneDisplay(r['Plus One'])}</td>
-                  <td>${escapeHtml(r['Transport'] || '')}</td>
-                  <td>${r['Song Title'] ? escapeHtml(r['Song Title']) + (r['Song Artist'] ? ' <span class="muted">— ' + escapeHtml(r['Song Artist']) + '</span>' : '') : ''}</td>
-                  <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeLabel(r['Entree'])) + '</span>' : ''}</td>
+                  <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeShort(r['Entree'])) + '</span>' : ''}</td>
                   <td>${escapeHtml(r['Dietary'] || '')}</td>
-                  <td class="muted">${escapeHtml(r['Address'] || '')}</td>
-                  <td class="row-actions">${rowActionsHtml('rsvp', r['Submitted At'], r['Name'])}</td>
+                  <td>${escapeHtml(r['Transport'] || '')}</td>
+                  <td class="muted addr">${escapeHtml(r['Address'] || '')}</td>
+                  <td>${attendingPill(r['Attending'])}</td>
+                  <td class="row-actions sticky-col">${rowActionsHtml('rsvp', r['Submitted At'], r['Name'])}</td>
                 </tr>`).join('')}
             </tbody>
           </table>`;
@@ -940,7 +1165,36 @@
     renderActiveTab();
   });
 
+  function closeColMenus() {
+    panelEl.querySelectorAll('.th-filter-menu').forEach(m => { m.hidden = true; });
+    panelEl.querySelectorAll('.th-filter-toggle.open').forEach(t => t.classList.remove('open'));
+  }
+
   panelEl.addEventListener('click', (e) => {
+    // Column-header filter: toggle the dropdown menu open/closed.
+    const toggle = e.target.closest('.th-filter-toggle');
+    if (toggle) {
+      const menu = toggle.parentElement.querySelector('.th-filter-menu');
+      const willOpen = menu && menu.hidden;
+      closeColMenus();
+      if (willOpen) { menu.hidden = false; toggle.classList.add('open'); }
+      return;
+    }
+    // Column-header filter: pick an option.
+    const opt = e.target.closest('.th-filter-opt');
+    if (opt) {
+      const key = opt.getAttribute('data-filter');
+      const val = opt.getAttribute('data-val');
+      if (key === 'email') {
+        emailMode = val;
+        localStorage.setItem('cl_admin_email_filter_v1', val);
+      } else if (key === 'meal') {
+        mealMode = val;
+        localStorage.setItem('cl_admin_meal_filter_v1', val);
+      }
+      renderActiveTab();
+      return;
+    }
     const editTrigger = e.target.closest('.edit-btn');
     if (editTrigger) {
       const sheet = editTrigger.getAttribute('data-edit-sheet');
@@ -950,21 +1204,118 @@
       return;
     }
     const btn = e.target.closest('.delete-btn');
-    if (!btn) return;
-    const sheet = btn.getAttribute('data-delete-sheet');
-    const at    = btn.getAttribute('data-delete-at');
-    const label = btn.getAttribute('data-delete-label');
-    if (!sheet || !at) return;
-    btn.disabled = true;
-    deleteEntry(sheet, at, label);
+    if (btn) {
+      const sheet = btn.getAttribute('data-delete-sheet');
+      const at    = btn.getAttribute('data-delete-at');
+      const label = btn.getAttribute('data-delete-label');
+      if (!sheet || !at) return;
+      btn.disabled = true;
+      deleteEntry(sheet, at, label);
+      return;
+    }
+    // Otherwise: clicking anywhere on an RSVP row opens the detail panel.
+    if (activeTab === 'rsvps') {
+      const tr = e.target.closest('tr[data-at]');
+      if (tr) openDetailDrawer(tr.getAttribute('data-at'));
+    }
+  });
+
+  // Close any open column-header filter menu when clicking elsewhere.
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.th-filter')) closeColMenus();
+  });
+
+  /* ------------------------ Detail side panel ------------------------ */
+
+  const detailDrawer    = document.getElementById('detail-drawer');
+  const detailTitle     = document.getElementById('detail-title');
+  const detailBody      = document.getElementById('detail-body');
+  const detailCloseBtn  = document.getElementById('detail-close');
+  const detailEditBtn   = document.getElementById('detail-edit');
+  const detailDeleteBtn = document.getElementById('detail-delete');
+  const detailPrevBtn   = document.getElementById('detail-prev');
+  const detailNextBtn   = document.getElementById('detail-next');
+  const detailSubmitted = document.getElementById('detail-submitted');
+
+  let detailAt = null;
+
+  const DETAIL_FIELDS = [
+    ['Email',               r => r['Email']],
+    ['Mailing address',     r => r['Address']],
+    ['Plus one',            r => r['Plus One']],
+    ['Entree',              r => entreeLabel(r['Entree'])],
+    ['Dietary / allergies', r => r['Dietary']],
+    ['Transport',           r => r['Transport']],
+    ['Song request',        r => [r['Song Title'], r['Song Artist']].filter(Boolean).join(' — ')],
+    ['Attending',           r => r['Attending']]
+  ];
+
+  function openDetailDrawer(submittedAt) {
+    const row = findRow('rsvp', submittedAt);
+    if (!row) return;
+    detailAt = submittedAt;
+    detailTitle.textContent = row['Name'] || 'Guest';
+    detailBody.innerHTML = DETAIL_FIELDS.map(([label, get]) => {
+      const raw = get(row);
+      const val = (raw == null ? '' : String(raw)).trim();
+      const cls = val ? 'detail-value' : 'detail-value empty';
+      return '<div class="detail-row"><div class="detail-label">' + escapeHtml(label) +
+        '</div><div class="' + cls + '">' + (val ? escapeHtml(val) : '\u2014') + '</div></div>';
+    }).join('');
+    const submittedOn = fmtDate(row['Submitted At']);
+    detailSubmitted.textContent = submittedOn ? 'Submitted ' + submittedOn : '';
+    const idx = detailList.indexOf(String(submittedAt));
+    detailPrevBtn.disabled = !(idx > 0);
+    detailNextBtn.disabled = !(idx >= 0 && idx < detailList.length - 1);
+    detailDrawer.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function navigateDetail(delta) {
+    if (detailDrawer.hidden || detailAt == null) return;
+    const idx = detailList.indexOf(String(detailAt));
+    if (idx === -1) return;
+    const nextIdx = idx + delta;
+    if (nextIdx < 0 || nextIdx >= detailList.length) return;
+    openDetailDrawer(detailList[nextIdx]);
+  }
+
+  function closeDetailDrawer() {
+    detailDrawer.hidden = true;
+    detailAt = null;
+    document.body.style.overflow = '';
+  }
+
+  detailCloseBtn.addEventListener('click', closeDetailDrawer);
+  detailPrevBtn.addEventListener('click', () => navigateDetail(-1));
+  detailNextBtn.addEventListener('click', () => navigateDetail(1));
+  detailDrawer.addEventListener('click', (e) => {
+    if (e.target === detailDrawer) closeDetailDrawer();
+  });
+  detailEditBtn.addEventListener('click', () => {
+    const at = detailAt;
+    closeDetailDrawer();
+    if (at) openEditModal('rsvp', at);
+  });
+  detailDeleteBtn.addEventListener('click', () => {
+    const at = detailAt;
+    const row = at ? findRow('rsvp', at) : null;
+    const label = row ? row['Name'] : '';
+    closeDetailDrawer();
+    if (at) deleteEntry('rsvp', at, label);
   });
 
   /* ------------------------ Edit modal ------------------------ */
 
   const ENTREE_LABELS = { chicken: 'Garlic Herb Jidori Chicken', salmon: 'Grilled Salmon', rigatoni: 'Rigatoni with Summer Corn Cream Sauce' };
+  const ENTREE_SHORT = { chicken: 'Chicken', salmon: 'Salmon', rigatoni: 'Rigatoni' };
   function entreeLabel(v) {
     const k = String(v || '').trim().toLowerCase();
     return ENTREE_LABELS[k] || String(v || '');
+  }
+  function entreeShort(v) {
+    const k = String(v || '').trim().toLowerCase();
+    return ENTREE_SHORT[k] || entreeLabel(v);
   }
 
   const EDIT_FIELDS = {
@@ -1139,7 +1490,17 @@
     if (e.target === editModal) closeEditModal();
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !editModal.hidden) closeEditModal();
+    if (e.key === 'Escape') {
+      if (!editModal.hidden) closeEditModal();
+      else if (!detailDrawer.hidden) closeDetailDrawer();
+      return;
+    }
+    // Arrow keys flip through guests while the detail panel is open
+    // (and the edit modal isn't covering it).
+    if (!detailDrawer.hidden && editModal.hidden) {
+      if (e.key === 'ArrowUp')   { e.preventDefault(); navigateDetail(-1); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); navigateDetail(1); }
+    }
   });
 
   refreshBtn.addEventListener('click', () => loadDashboard());
