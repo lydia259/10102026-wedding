@@ -736,7 +736,7 @@
           <table>
             <thead><tr>
               <th>Submitted</th><th>Party</th><th>Size</th><th>Email</th><th>Attending</th>
-              <th>Transport</th><th>Song</th><th></th>
+              <th>Transport</th><th>Song</th><th>Entree</th><th>Dietary</th><th>Address</th><th></th>
             </tr></thead>
             <tbody>
               ${rows.map(r => {
@@ -759,6 +759,9 @@
                     <td>${attendingPill(r['Attending'])}</td>
                     <td>${escapeHtml(r['Transport'] || '')}</td>
                     <td>${r['Song Title'] ? escapeHtml(r['Song Title']) + (r['Song Artist'] ? ' <span class="muted">— ' + escapeHtml(r['Song Artist']) + '</span>' : '') : ''}</td>
+                    <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeLabel(r['Entree'])) + '</span>' : ''}</td>
+                    <td>${escapeHtml(r['Dietary'] || '')}</td>
+                    <td class="muted">${escapeHtml(r['Address'] || '')}</td>
                     <td class="row-actions">${rowActionsHtml('rsvp', r['Submitted At'], r['Name'])}</td>
                   </tr>`;
               }).join('')}
@@ -769,7 +772,7 @@
           <table>
             <thead><tr>
               <th>Submitted</th><th>Name</th><th>Email</th><th>Attending</th>
-              <th>Plus One</th><th>Transport</th><th>Song</th><th></th>
+              <th>Plus One</th><th>Transport</th><th>Song</th><th>Entree</th><th>Dietary</th><th>Address</th><th></th>
             </tr></thead>
             <tbody>
               ${rows.map(r => `
@@ -781,6 +784,9 @@
                   <td>${plusOneDisplay(r['Plus One'])}</td>
                   <td>${escapeHtml(r['Transport'] || '')}</td>
                   <td>${r['Song Title'] ? escapeHtml(r['Song Title']) + (r['Song Artist'] ? ' <span class="muted">— ' + escapeHtml(r['Song Artist']) + '</span>' : '') : ''}</td>
+                  <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeLabel(r['Entree'])) + '</span>' : ''}</td>
+                  <td>${escapeHtml(r['Dietary'] || '')}</td>
+                  <td class="muted">${escapeHtml(r['Address'] || '')}</td>
                   <td class="row-actions">${rowActionsHtml('rsvp', r['Submitted At'], r['Name'])}</td>
                 </tr>`).join('')}
             </tbody>
@@ -955,6 +961,12 @@
 
   /* ------------------------ Edit modal ------------------------ */
 
+  const ENTREE_LABELS = { chicken: 'Garlic Herb Jidori Chicken', salmon: 'Grilled Salmon', rigatoni: 'Rigatoni with Summer Corn Cream Sauce' };
+  function entreeLabel(v) {
+    const k = String(v || '').trim().toLowerCase();
+    return ENTREE_LABELS[k] || String(v || '');
+  }
+
   const EDIT_FIELDS = {
     rsvp: [
       { key: 'Name',        label: 'Name',         type: 'text' },
@@ -966,7 +978,11 @@
       { key: 'Transport',   label: 'Transport',    type: 'select',
         options: [['', '—'], ['drive', 'Driving myself'], ['rideshare', 'Rideshare / taxi'], ['other', 'Other']] },
       { key: 'Song Title',  label: 'Song title',   type: 'text' },
-      { key: 'Song Artist', label: 'Song artist',  type: 'text' }
+      { key: 'Song Artist', label: 'Song artist',  type: 'text' },
+      { key: 'Entree',      label: 'Entree',       type: 'select',
+        options: [['', '—'], ['chicken', 'Garlic Herb Jidori Chicken'], ['salmon', 'Grilled Salmon'], ['rigatoni', 'Rigatoni with Summer Corn Cream Sauce']] },
+      { key: 'Dietary',     label: 'Dietary / allergies', type: 'text' },
+      { key: 'Address',     label: 'Mailing address',     type: 'textarea' }
     ],
     gift: [
       { key: 'Name',   label: 'Name',   type: 'text' },

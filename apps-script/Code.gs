@@ -220,11 +220,30 @@ function getSongs_() {
 function appendRow_(config, values) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(config.name) || ss.insertSheet(config.name);
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(config.headers);
-    sheet.setFrozenRows(1);
-  }
+  ensureHeaders_(sheet, config.headers);
   sheet.appendRow(values);
+}
+
+/**
+ * Make sure the sheet's header row contains every header in `headers`.
+ * Missing headers are appended to the end in order. This keeps the physical
+ * column order aligned with config.headers so index-based reads/writes stay
+ * correct even on sheets created before a new column (e.g. Address) was added.
+ * Safe because config.headers is only ever appended to, never reordered.
+ */
+function ensureHeaders_(sheet, headers) {
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(headers);
+    sheet.setFrozenRows(1);
+    return;
+  }
+  const existing = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  headers.forEach(h => {
+    if (existing.indexOf(h) === -1) {
+      sheet.getRange(1, existing.length + 1).setValue(h);
+      existing.push(h);
+    }
+  });
 }
 
 /**
@@ -426,6 +445,7 @@ function updateRowBySubmittedAt_(sheetName, headers, submittedAtIso, updates) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(sheetName);
   if (!sheet || sheet.getLastRow() < 2) return false;
+  ensureHeaders_(sheet, headers);
   const lastRow = sheet.getLastRow();
   const numCols = headers.length;
   const data = sheet.getRange(2, 1, lastRow - 1, numCols).getValues();
