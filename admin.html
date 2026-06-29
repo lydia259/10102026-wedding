@@ -925,8 +925,14 @@
   }
 
   function mealFilterTh(labelText) {
+    const rows = cache.rsvps || [];
+    const total = rows.length;
+    const has = rows.filter(r => String(r['Entree'] || '').trim()).length;
+    const missing = total - has;
     return filterTh(labelText, 'meal', mealMode,
-      [['all', 'All'], ['has', 'Meal submitted'], ['missing', 'No meal yet']], 'sticky-col-left');
+      [['all', 'All (' + total + ')'],
+       ['has', 'Meal submitted (' + has + ')'],
+       ['missing', 'No meal yet (' + missing + ')']], 'sticky-col-left');
   }
 
   function renderActiveTab() {

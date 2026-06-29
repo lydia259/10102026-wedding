@@ -58,7 +58,7 @@
     color: var(--porcelain);
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-weight: 300;
-    font-size: 17px;
+    font-size: 12px;
     line-height: 1.6;
     scroll-behavior: smooth;
   }
@@ -1977,6 +1977,8 @@
   @media (max-width: 720px) {
     /* Prevent horizontal scroll from any stray overflow */
     html, body { overflow-x: clip; }
+    /* Keep the phone base size unchanged; the 14px base applies to desktop/tablet only */
+    html, body { font-size: 17px; }
 
     /* Nav (if ever re-enabled) */
     nav { gap: 14px; padding: 14px 18px; flex-wrap: wrap; justify-content: center; }
