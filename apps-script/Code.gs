@@ -865,3 +865,420 @@ function sendTestRsvpEmail() {
     songArtist: 'Taylor Swift'
   });
 }
+
+/* =============================================================
+   DINNER-SELECTION EMAIL BLAST
+   -------------------------------------------------------------
+   Sends the meal-survey invitation straight from the Sheet — no
+   CSV export, no laptop script. Reads guests from the RSVPs sheet,
+   emails everyone who has an address, and stamps a "Dinner Emailed
+   At" column so re-running only catches people who haven't been
+   sent yet. Drive it from the "Wedding" menu that appears when you
+   open the spreadsheet (reload the sheet once after deploying).
+
+   Free Gmail limit: 100 recipients/day. If the list is larger the
+   run stops at the quota and tells you how many remain.
+   ============================================================= */
+
+const DINNER = {
+  surveyUrl:     SITE_URL + '/survey',
+  rsvpUrl:       SITE_URL + '/RSVP',
+  hotelLink:     'https://www.hilton.com/en/attend-my-event/agohwhw-90b-1879cb72-dad9-4e7a-9a57-42c2a1c665e1/',
+  partifulLink:  'https://partiful.com/e/uhI2HRJexpkBs4QihIdJ?c=F4ZarFCP',
+  hotelName:     'Hilton \u2014 Calamigos wedding block (group code 90B)',
+  hotelDeadline: 'September 9, 2026',
+  mealDeadline:  'July 18, 2026',
+  subject:       "Action required: select your dinner for Lydia & Colin's wedding",
+  testRecipient: 'Lydiahongp@gmail.com',
+  emailedCol:    'Dinner Emailed At'
+};
+
+/** Adds the "Wedding" menu to the spreadsheet UI. */
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('Wedding')
+    .addItem('Dinner email: preview recipients', 'dinnerPreviewRecipients')
+    .addItem('Dinner email: send test to me', 'dinnerSendTest')
+    .addItem('Dinner email: send test to an address\u2026', 'dinnerSendTestTo')
+    .addSeparator()
+    .addItem('Dinner email: SEND to all unsent', 'dinnerSendAll')
+    .addToUi();
+}
+
+/** Gathers counts + a small sample of who would receive the blast. */
+function dinnerRecipientInfo_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEETS.rsvp.name);
+  const out = { total: 0, valid: 0, alreadyEmailed: 0, pending: 0,
+                quota: MailApp.getRemainingDailyQuota(), sample: [] };
+  if (!sheet || sheet.getLastRow() < 2) return out;
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  const nameIdx = headers.indexOf('Name');
+  const emailIdx = headers.indexOf('Email');
+  const emailedIdx = headers.indexOf(DINNER.emailedCol);
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+
+  const seen = {};
+  data.forEach(row => {
+    out.total++;
+    const email = String(row[emailIdx] || '').trim();
+    const name = String(row[nameIdx] || '').trim();
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) return;
+    const key = email.toLowerCase();
+    if (seen[key]) return;
+    seen[key] = true;
+    out.valid++;
+    const already = emailedIdx !== -1 && String(row[emailedIdx] || '').trim();
+    if (already) { out.alreadyEmailed++; return; }
+    out.pending++;
+    if (out.sample.length < 8) out.sample.push('  \u2022 ' + (name || '(no name)') + ' <' + email + '>');
+  });
+  return out;
+}
+
+/** Builds the personalized survey link for one guest. */
+function dinnerSurveyUrl_(fullName, email) {
+  return DINNER.surveyUrl + '?name=' + encodeURIComponent(fullName || '') +
+         '&email=' + encodeURIComponent(email || '');
+}
+
+/** Sends a single dinner email. Throws on failure so the caller can record it. */
+function sendOneDinnerEmail_(email, fullName) {
+  const first = String(fullName || '').trim().split(/\s+/)[0] || 'there';
+  const url = dinnerSurveyUrl_(fullName, email);
+  MailApp.sendEmail({
+    to: email,
+    subject: DINNER.subject,
+    htmlBody: buildDinnerEmail_(first, url),
+    body: buildDinnerText_(first, url),
+    name: FROM_NAME
+  });
+}
+
+/**
+ * Sends to every guest with a valid email. By default only those who
+ * haven't been emailed yet (blank "Dinner Emailed At"). Stamps the column
+ * after each successful send and stops cleanly at the daily Gmail quota.
+ */
+function sendDinnerEmails_(opts) {
+  opts = opts || {};
+  const onlyUnsent = opts.onlyUnsent !== false;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEETS.rsvp.name);
+  if (!sheet || sheet.getLastRow() < 2) {
+    return { sent: 0, skipped: 0, failed: [], remainingQuota: MailApp.getRemainingDailyQuota(), notes: ['No RSVP rows.'] };
+  }
+
+  let headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  if (headers.indexOf(DINNER.emailedCol) === -1) {
+    sheet.getRange(1, headers.length + 1).setValue(DINNER.emailedCol);
+    headers.push(DINNER.emailedCol);
+  }
+  const nameIdx = headers.indexOf('Name');
+  const emailIdx = headers.indexOf('Email');
+  const emailedIdx = headers.indexOf(DINNER.emailedCol);
+
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+  const quota = MailApp.getRemainingDailyQuota();
+  const seen = {};
+  let sent = 0, skipped = 0;
+  const failed = [], notes = [];
+
+  for (let i = 0; i < data.length; i++) {
+    const email = String(data[i][emailIdx] || '').trim();
+    const name = String(data[i][nameIdx] || '').trim();
+    const already = emailedIdx !== -1 && String(data[i][emailedIdx] || '').trim();
+
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) { skipped++; continue; }
+    const key = email.toLowerCase();
+    if (seen[key]) { skipped++; continue; }
+    if (onlyUnsent && already) { skipped++; continue; }
+    seen[key] = true;
+
+    if (sent >= quota) {
+      notes.push('Reached today\u2019s Gmail quota (' + quota + '). Run again tomorrow to send the rest.');
+      break;
+    }
+    try {
+      sendOneDinnerEmail_(email, name);
+      sheet.getRange(i + 2, emailedIdx + 1).setValue(new Date());
+      sent++;
+    } catch (err) {
+      failed.push(email + ': ' + err);
+    }
+  }
+  return { sent: sent, skipped: skipped, failed: failed, remainingQuota: MailApp.getRemainingDailyQuota(), notes: notes };
+}
+
+/* ---- Menu handlers (show dialogs) ---- */
+
+function dinnerPreviewRecipients() {
+  const info = dinnerRecipientInfo_();
+  const ui = SpreadsheetApp.getUi();
+  const lines = [
+    'RSVP rows: ' + info.total,
+    'With a valid email: ' + info.valid,
+    'Already emailed: ' + info.alreadyEmailed,
+    'Will receive now: ' + info.pending,
+    'Gmail quota left today: ' + info.quota,
+    '',
+    'Sample of who will receive now:'
+  ].concat(info.sample.length ? info.sample : ['  (none pending)']);
+  ui.alert('Dinner email \u2014 preview', lines.join('\n'), ui.ButtonSet.OK);
+}
+
+function dinnerSendTest() {
+  const ui = SpreadsheetApp.getUi();
+  try {
+    sendOneDinnerEmail_(DINNER.testRecipient, 'Lydia Test');
+    ui.alert('Test sent', 'A sample dinner email was sent to ' + DINNER.testRecipient + '.', ui.ButtonSet.OK);
+  } catch (err) {
+    ui.alert('Test failed', String(err), ui.ButtonSet.OK);
+  }
+}
+
+/**
+ * Prompts for a recipient and sends a single test email. Accepts either a bare
+ * email ("john@example.com") or a name + email ("John Culver <john@example.com>")
+ * so the test greeting and survey link look like a real send. Does not touch the sheet.
+ */
+function dinnerSendTestTo() {
+  const ui = SpreadsheetApp.getUi();
+  const resp = ui.prompt('Send a test dinner email',
+    'Enter the recipient. You can include a name:\n\n' +
+    '  John Culver <john@example.com>\n\n' +
+    'or just the email address.', ui.ButtonSet.OK_CANCEL);
+  if (resp.getSelectedButton() !== ui.Button.OK) return;
+
+  const raw = String(resp.getResponseText() || '').trim();
+  let name = '';
+  let to = raw;
+  const m = raw.match(/^(.*?)<\s*([^>]+?)\s*>\s*$/);
+  if (m) { name = m[1].trim(); to = m[2].trim(); }
+
+  if (!/^\S+@\S+\.\S+$/.test(to)) {
+    ui.alert('Invalid email', '\u201c' + to + '\u201d doesn\u2019t look like a valid email address.', ui.ButtonSet.OK);
+    return;
+  }
+  try {
+    sendOneDinnerEmail_(to, name || 'there');
+    ui.alert('Test sent', 'A sample dinner email was sent to ' + (name ? name + ' <' + to + '>' : to) + '.', ui.ButtonSet.OK);
+  } catch (err) {
+    ui.alert('Test failed', String(err), ui.ButtonSet.OK);
+  }
+}
+
+function dinnerSendAll() {
+  const ui = SpreadsheetApp.getUi();
+  const info = dinnerRecipientInfo_();
+  if (info.pending === 0) {
+    ui.alert('Nothing to send', 'No guests are pending. Everyone with an email has already been sent.', ui.ButtonSet.OK);
+    return;
+  }
+  const resp = ui.alert(
+    'Send dinner emails',
+    'Send to ' + info.pending + ' guest(s) who have an email and haven\u2019t been sent yet?\n\n' +
+    'Gmail quota left today: ' + info.quota,
+    ui.ButtonSet.YES_NO
+  );
+  if (resp !== ui.Button.YES) return;
+
+  const r = sendDinnerEmails_({ onlyUnsent: true });
+  const summary = [
+    'Sent: ' + r.sent,
+    'Skipped (no/dup email or already sent): ' + r.skipped,
+    'Failed: ' + r.failed.length,
+    'Gmail quota left: ' + r.remainingQuota
+  ];
+  if (r.failed.length) summary.push('', 'Failures:', ...r.failed.slice(0, 10));
+  if (r.notes.length) summary.push('', ...r.notes);
+  ui.alert('Dinner email \u2014 done', summary.join('\n'), ui.ButtonSet.OK);
+}
+
+/* ---- Email template (ported from send_emails.py, Gmail-safe) ---- */
+
+function _dinnerDot_(color) {
+  return '<td width="18" style="width:18px;height:18px;background:' + color +
+         ';border-radius:50%;font-size:0;line-height:0;">&nbsp;</td>' +
+         '<td width="6" style="width:6px;font-size:0;line-height:0;">&nbsp;</td>';
+}
+
+function _dinnerSwatchRow_(colors) {
+  const cells = colors.map(_dinnerDot_).join('');
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="left" ' +
+         'style="margin:0;"><tr>' + cells + '</tr></table>';
+}
+
+function buildDinnerEmail_(firstName, surveyUrl) {
+  const BG = '#f8f4ec', BAND = '#efe8d9', CARD = '#faf7f0', BORDER = '#ddd6c8';
+  const INK = '#0f1a33', SECOND = '#5a6476', MUTED = '#8a8070', BLUE = '#1e3a8a';
+  const SERIF = "Georgia, 'Times New Roman', serif";
+  const SANS = "Arial, Helvetica, sans-serif";
+
+  const surveyHref = String(surveyUrl).replace(/&/g, '&amp;');
+  const hotelHref = DINNER.hotelLink.replace(/&/g, '&amp;');
+  const partifulHref = DINNER.partifulLink.replace(/&/g, '&amp;');
+  const rsvpHref = DINNER.rsvpUrl.replace(/&/g, '&amp;');
+  const gents = _dinnerSwatchRow_(['#1b2a4a', '#111418', '#36454f']);
+  const ladies = _dinnerSwatchRow_(['#ff7f6b', '#9caf88', '#e8a0b4', '#eaa221', '#b8a4d4', '#3a9a9a', '#c66b4a']);
+  const fn = escapeHtml_(firstName);
+  const hotelName = escapeHtml_(DINNER.hotelName);
+
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+  @media only screen and (max-width:600px) {
+    .email-container { width:100% !important; max-width:100% !important; }
+    .m-body { font-size:18px !important; line-height:1.6 !important; }
+    .m-lead { font-size:19px !important; }
+    .m-desc { font-size:16px !important; }
+    .m-label { font-size:12px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:${BG};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BG};">
+<tr><td align="center" style="padding:32px 0 0;">
+<table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:${BG};">
+
+  <!-- 1. HEADER -->
+  <tr><td align="center" style="padding:32px 40px 0;">
+    <div style="font-family:${SANS};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${BLUE};">October 10, 2026 &middot; Calamigos Ranch, Malibu</div>
+    <div style="font-family:${SERIF};font-style:italic;font-size:44px;color:${INK};padding:16px 0 0;">Colin &amp; Lydia</div>
+    <div style="font-size:0;line-height:0;padding:22px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td width="48" style="width:48px;height:1px;background:${BLUE};opacity:0.3;font-size:0;line-height:0;">&nbsp;</td></tr></table></div>
+    <div class="m-body" style="font-family:${SERIF};font-size:17px;color:#2a3347;line-height:1.5;">Hi ${fn},</div>
+  </td></tr>
+
+  <!-- 2. CTA BAND -->
+  <tr><td style="padding:28px 0 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BAND};">
+      <tr><td align="center" style="padding:30px 40px;">
+        <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:12px;">One thing we need from you</div>
+        <div class="m-lead" style="font-family:${SERIF};font-size:17px;color:${INK};line-height:1.55;margin-bottom:22px;">Please select your dinner entree by ${DINNER.mealDeadline} so we can share your preference with our caterer.</div>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
+          <td style="background:${BLUE};">
+            <a href="${surveyHref}" style="display:inline-block;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BG};text-decoration:none;padding:15px 34px;">Select your dinner</a>
+          </td>
+        </tr></table>
+        <div style="font-family:${SERIF};font-size:14px;font-style:italic;color:${MUTED};line-height:1.5;margin-top:18px;">Please don&rsquo;t forward this email &mdash; your plus-one will receive their own at the address they used to RSVP.</div>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <!-- 3. HOTEL BLOCK -->
+  <tr><td style="padding:28px 40px 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${CARD};border:1px solid ${BORDER};">
+      <tr><td style="padding:22px 24px;">
+        <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Hotel block</div>
+        <div style="font-family:${SERIF};font-size:18px;color:${INK};margin-bottom:6px;">${hotelName}</div>
+        <div style="font-family:${SERIF};font-size:15px;color:${SECOND};margin-bottom:14px;">Book by ${DINNER.hotelDeadline} to hold the group rate.</div>
+        <a href="${hotelHref}" style="font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:${BLUE};text-decoration:none;">Book your room &rarr;</a>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <!-- 4. DRESS CODE -->
+  <tr><td style="padding:28px 40px 0;">
+    <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:16px;">Dress code</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${BORDER};"><tr>
+      <td width="50%" valign="top" align="left" style="padding:30px 22px;">
+        <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;">Gentlemen</div>
+        <div style="font-family:${SERIF};font-size:16px;color:${SECOND};margin-bottom:16px;white-space:nowrap;">A <strong style="color:${INK};">dark suit</strong></div>
+        ${gents}
+      </td>
+      <td width="50%" valign="top" align="left" style="padding:30px 22px;border-left:1px solid ${BORDER};">
+        <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;">Ladies</div>
+        <div style="font-family:${SERIF};font-size:16px;color:${SECOND};margin-bottom:16px;white-space:nowrap;">A long dress in a <strong style="color:${INK};">summer color</strong></div>
+        ${ladies}
+      </td>
+    </tr></table>
+  </td></tr>
+
+  <!-- 5. DAY OF -->
+  <tr><td style="padding:28px 40px 0;">
+    <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:16px;">Day of</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${CARD};border:1px solid ${BORDER};">
+      <tr><td style="padding:16px 22px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td width="90" valign="middle" style="font-family:${SANS};font-size:11px;font-weight:bold;color:${BLUE};padding:8px 0;">4:45 pm</td>
+            <td valign="middle" style="font-family:${SERIF};font-size:16px;color:${INK};padding:8px 0;">Guest arrival starts</td>
+          </tr>
+          <tr>
+            <td width="90" valign="middle" style="font-family:${SANS};font-size:11px;font-weight:bold;color:${BLUE};padding:8px 0;border-top:1px solid ${BORDER};">5:30 pm</td>
+            <td valign="middle" style="font-family:${SERIF};font-size:16px;color:${INK};padding:8px 0;border-top:1px solid ${BORDER};">Ceremony starts</td>
+          </tr>
+          <tr>
+            <td width="90" valign="middle" style="font-family:${SANS};font-size:11px;font-weight:bold;color:${BLUE};padding:8px 0;border-top:1px solid ${BORDER};">11:30 pm</td>
+            <td valign="middle" style="font-family:${SERIF};font-size:16px;color:${INK};padding:8px 0;border-top:1px solid ${BORDER};">Reception ends</td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <!-- 6. STAY IN THE LOOP -->
+  <tr><td style="padding:28px 40px 0;" align="center">
+    <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;text-align:left;">Stay in the loop</div>
+    <div class="m-body" style="font-family:${SERIF};font-size:17px;color:${SECOND};line-height:1.6;margin:0 0 22px;text-align:left;">Partiful is our home base for the wedding &mdash; the place to ask questions, catch updates, and stay connected with us leading up to the big day.</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${BORDER};margin-bottom:24px;"><tr>
+      <td width="33%" valign="top" align="left" style="padding:24px 14px;">
+        <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Ask Questions</div>
+        <div class="m-desc" style="font-family:${SERIF};font-size:15px;color:${SECOND};line-height:1.5;">Anything about the day &mdash; we&rsquo;re happy to help.</div>
+      </td>
+      <td width="34%" valign="top" align="left" style="padding:24px 14px;border-left:1px solid ${BORDER};">
+        <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Find a Carpool</div>
+        <div class="m-desc" style="font-family:${SERIF};font-size:15px;color:${SECOND};line-height:1.5;">Coordinate rides with other guests heading to Malibu.</div>
+      </td>
+      <td width="33%" valign="top" align="left" style="padding:24px 14px;border-left:1px solid ${BORDER};">
+        <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Day-of Updates</div>
+        <div class="m-desc" style="font-family:${SERIF};font-size:15px;color:${SECOND};line-height:1.5;">Timing, weather, and any last-minute notes.</div>
+      </td>
+    </tr></table>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+      <td align="center" style="background:${BLUE};">
+        <a href="${partifulHref}" style="display:block;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BG};text-decoration:none;padding:15px 34px;text-align:center;">Join us on Partiful</a>
+      </td>
+    </tr></table>
+  </td></tr>
+
+  <!-- 7. FOOTER -->
+  <tr><td style="padding:28px 0 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BAND};">
+      <tr><td align="center" style="padding:28px 40px;">
+        <div style="font-family:${SERIF};font-style:italic;font-size:20px;color:${INK};">With love</div>
+        <div style="font-family:${SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${MUTED};margin-top:10px;">Colin &amp; Lydia &middot; 10.10.2026</div>
+        <div style="margin-top:16px;"><a href="${rsvpHref}" style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};text-decoration:none;">Visit our wedding website &rarr;</a></div>
+      </td></tr>
+    </table>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body></html>`;
+}
+
+function buildDinnerText_(firstName, surveyUrl) {
+  return [
+    'Colin & Lydia \u00b7 October 10, 2026 \u00b7 Calamigos Ranch, Malibu',
+    '',
+    'Hi ' + firstName + ',',
+    '',
+    'ONE THING WE NEED FROM YOU: Please select your dinner entree by ' + DINNER.mealDeadline + '.',
+    'Select your dinner: ' + surveyUrl,
+    '',
+    "Please don't forward this email \u2014 your plus-one will receive their own at the address they used to RSVP.",
+    '',
+    'HOTEL BLOCK: ' + DINNER.hotelName + '. Book by ' + DINNER.hotelDeadline + ': ' + DINNER.hotelLink,
+    '',
+    'Stay in the loop on Partiful: ' + DINNER.partifulLink,
+    '',
+    'Visit our wedding website: ' + DINNER.rsvpUrl,
+    '',
+    'With love, Colin & Lydia \u00b7 10.10.2026'
+  ].join('\n');
+}
