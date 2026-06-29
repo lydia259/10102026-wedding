@@ -1149,7 +1149,7 @@ function buildDinnerEmail_(firstName, surveyUrl) {
     <div style="font-family:${SANS};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${BLUE};">October 10, 2026 &middot; Calamigos Ranch, Malibu</div>
     <div style="font-family:${SERIF};font-style:italic;font-size:44px;color:${INK};padding:16px 0 0;">Colin &amp; Lydia</div>
     <div style="font-size:0;line-height:0;padding:22px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td width="48" style="width:48px;height:1px;background:${BLUE};opacity:0.3;font-size:0;line-height:0;">&nbsp;</td></tr></table></div>
-    <div class="m-body" style="font-family:${SERIF};font-size:17px;color:#2a3347;line-height:1.5;">Hi ${fn},</div>
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.5;">Hi ${fn},</div>
   </td></tr>
 
   <!-- 2. CTA BAND -->
@@ -1157,13 +1157,13 @@ function buildDinnerEmail_(firstName, surveyUrl) {
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BAND};">
       <tr><td align="center" style="padding:30px 40px;">
         <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:12px;">One thing we need from you</div>
-        <div class="m-lead" style="font-family:${SERIF};font-size:17px;color:${INK};line-height:1.55;margin-bottom:22px;">Please select your dinner entree by ${DINNER.mealDeadline} so we can share your preference with our caterer.</div>
+        <div class="m-lead" style="font-family:${SERIF};font-size:16px;color:${INK};line-height:1.55;margin-bottom:22px;">Please select your dinner entree by ${DINNER.mealDeadline} so we can share your preference with our caterer.</div>
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
           <td style="background:${BLUE};">
             <a href="${surveyHref}" style="display:inline-block;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BG};text-decoration:none;padding:15px 34px;">Select your dinner</a>
           </td>
         </tr></table>
-        <div style="font-family:${SERIF};font-size:14px;font-style:italic;color:${MUTED};line-height:1.5;margin-top:18px;">Please don&rsquo;t forward this email &mdash; your plus-one will receive their own at the address they used to RSVP.</div>
+        <div style="font-family:${SERIF};font-size:13px;font-style:italic;color:${MUTED};line-height:1.5;margin-top:18px;">Please don&rsquo;t forward this email &mdash; your plus-one will receive their own at the address they used to RSVP.</div>
       </td></tr>
     </table>
   </td></tr>
@@ -1173,8 +1173,8 @@ function buildDinnerEmail_(firstName, surveyUrl) {
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${CARD};border:1px solid ${BORDER};">
       <tr><td style="padding:22px 24px;">
         <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Hotel block</div>
-        <div style="font-family:${SERIF};font-size:18px;color:${INK};margin-bottom:6px;">${hotelName}</div>
-        <div style="font-family:${SERIF};font-size:15px;color:${SECOND};margin-bottom:14px;">Book by ${DINNER.hotelDeadline} to hold the group rate.</div>
+        <div style="font-family:${SERIF};font-size:16px;color:${INK};margin-bottom:6px;">${hotelName}</div>
+        <div style="font-family:${SERIF};font-size:14px;color:${SECOND};margin-bottom:14px;">Book by ${DINNER.hotelDeadline} to hold the group rate.</div>
         <a href="${hotelHref}" style="font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:${BLUE};text-decoration:none;">Book your room &rarr;</a>
       </td></tr>
     </table>
@@ -1186,12 +1186,12 @@ function buildDinnerEmail_(firstName, surveyUrl) {
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${BORDER};"><tr>
       <td width="50%" valign="top" align="left" style="padding:30px 22px;">
         <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;">Gentlemen</div>
-        <div style="font-family:${SERIF};font-size:16px;color:${SECOND};margin-bottom:16px;white-space:nowrap;">A <strong style="color:${INK};">dark suit</strong></div>
+        <div style="font-family:${SERIF};font-size:15px;color:${SECOND};margin-bottom:16px;white-space:nowrap;">A <strong style="color:${INK};">dark suit</strong></div>
         ${gents}
       </td>
       <td width="50%" valign="top" align="left" style="padding:30px 22px;border-left:1px solid ${BORDER};">
         <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;">Ladies</div>
-        <div style="font-family:${SERIF};font-size:16px;color:${SECOND};margin-bottom:16px;white-space:nowrap;">A long dress in a <strong style="color:${INK};">summer color</strong></div>
+        <div style="font-family:${SERIF};font-size:15px;color:${SECOND};margin-bottom:16px;white-space:nowrap;">A long dress in a <strong style="color:${INK};">summer color</strong></div>
         ${ladies}
       </td>
     </tr></table>
@@ -1205,15 +1205,15 @@ function buildDinnerEmail_(firstName, surveyUrl) {
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td width="90" valign="middle" style="font-family:${SANS};font-size:11px;font-weight:bold;color:${BLUE};padding:8px 0;">4:45 pm</td>
-            <td valign="middle" style="font-family:${SERIF};font-size:16px;color:${INK};padding:8px 0;">Guest arrival starts</td>
+            <td valign="middle" style="font-family:${SERIF};font-size:15px;color:${INK};padding:8px 0;">Guest arrival starts</td>
           </tr>
           <tr>
             <td width="90" valign="middle" style="font-family:${SANS};font-size:11px;font-weight:bold;color:${BLUE};padding:8px 0;border-top:1px solid ${BORDER};">5:30 pm</td>
-            <td valign="middle" style="font-family:${SERIF};font-size:16px;color:${INK};padding:8px 0;border-top:1px solid ${BORDER};">Ceremony starts</td>
+            <td valign="middle" style="font-family:${SERIF};font-size:15px;color:${INK};padding:8px 0;border-top:1px solid ${BORDER};">Ceremony starts</td>
           </tr>
           <tr>
             <td width="90" valign="middle" style="font-family:${SANS};font-size:11px;font-weight:bold;color:${BLUE};padding:8px 0;border-top:1px solid ${BORDER};">11:30 pm</td>
-            <td valign="middle" style="font-family:${SERIF};font-size:16px;color:${INK};padding:8px 0;border-top:1px solid ${BORDER};">Reception ends</td>
+            <td valign="middle" style="font-family:${SERIF};font-size:15px;color:${INK};padding:8px 0;border-top:1px solid ${BORDER};">Reception ends</td>
           </tr>
         </table>
       </td></tr>
@@ -1223,19 +1223,19 @@ function buildDinnerEmail_(firstName, surveyUrl) {
   <!-- 6. STAY IN THE LOOP -->
   <tr><td style="padding:28px 40px 0;" align="center">
     <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;text-align:left;">Stay in the loop</div>
-    <div class="m-body" style="font-family:${SERIF};font-size:17px;color:${SECOND};line-height:1.6;margin:0 0 22px;text-align:left;">Partiful is our home base for the wedding &mdash; the place to ask questions, catch updates, and stay connected with us leading up to the big day.</div>
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:${SECOND};line-height:1.6;margin:0 0 22px;text-align:left;">Partiful is our home base for the wedding &mdash; the place to ask questions, catch updates, and stay connected with us leading up to the big day.</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${BORDER};margin-bottom:24px;"><tr>
       <td width="33%" valign="top" align="left" style="padding:24px 14px;">
         <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Ask Questions</div>
-        <div class="m-desc" style="font-family:${SERIF};font-size:15px;color:${SECOND};line-height:1.5;">Anything about the day &mdash; we&rsquo;re happy to help.</div>
+        <div class="m-desc" style="font-family:${SERIF};font-size:14px;color:${SECOND};line-height:1.5;">Anything about the day &mdash; we&rsquo;re happy to help.</div>
       </td>
       <td width="34%" valign="top" align="left" style="padding:24px 14px;border-left:1px solid ${BORDER};">
         <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Find a Carpool</div>
-        <div class="m-desc" style="font-family:${SERIF};font-size:15px;color:${SECOND};line-height:1.5;">Coordinate rides with other guests heading to Malibu.</div>
+        <div class="m-desc" style="font-family:${SERIF};font-size:14px;color:${SECOND};line-height:1.5;">Coordinate rides with other guests heading to Malibu.</div>
       </td>
       <td width="33%" valign="top" align="left" style="padding:24px 14px;border-left:1px solid ${BORDER};">
         <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Day-of Updates</div>
-        <div class="m-desc" style="font-family:${SERIF};font-size:15px;color:${SECOND};line-height:1.5;">Timing, weather, and any last-minute notes.</div>
+        <div class="m-desc" style="font-family:${SERIF};font-size:14px;color:${SECOND};line-height:1.5;">Timing, weather, and any last-minute notes.</div>
       </td>
     </tr></table>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
@@ -1249,7 +1249,7 @@ function buildDinnerEmail_(firstName, surveyUrl) {
   <tr><td style="padding:28px 0 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BAND};">
       <tr><td align="center" style="padding:28px 40px;">
-        <div style="font-family:${SERIF};font-style:italic;font-size:20px;color:${INK};">With love</div>
+        <div style="font-family:${SERIF};font-style:italic;font-size:18px;color:${INK};">With love</div>
         <div style="font-family:${SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${MUTED};margin-top:10px;">Colin &amp; Lydia &middot; 10.10.2026</div>
         <div style="margin-top:16px;"><a href="${rsvpHref}" style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};text-decoration:none;">Visit our wedding website &rarr;</a></div>
       </td></tr>
