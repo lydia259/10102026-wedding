@@ -154,10 +154,12 @@
   /* Tabs */
   .tabs {
     display: flex;
+    align-items: center;
     gap: 4px;
     border-bottom: 1px solid var(--line);
     margin-bottom: 24px;
   }
+  .tabs .btn { margin-left: auto; align-self: center; }
   .tab {
     background: transparent;
     border: none;
@@ -630,6 +632,7 @@
     <button class="tab active" data-tab="rsvps">RSVPs <span class="count" id="count-rsvps">0</span></button>
     <button class="tab" data-tab="gifts">Gifts <span class="count" id="count-gifts">0</span></button>
     <button class="tab" data-tab="songs">Songs <span class="count" id="count-songs">0</span></button>
+    <button class="btn" id="reset-filters-btn">Reset filters</button>
   </div>
 
   <div class="tools">
@@ -638,7 +641,6 @@
       <input type="checkbox" id="couples-toggle">
       <span>Couples</span>
     </label>
-    <button class="btn" id="reset-filters-btn">Reset filters</button>
     <button class="btn" id="add-btn" hidden>New entry</button>
     <button class="btn" id="export-btn">Export CSV</button>
   </div>
