@@ -51,7 +51,7 @@ HOTEL_LINK     = "https://www.hilton.com/en/attend-my-event/agohwhw-90b-1879cb72
 PARTIFUL_LINK  = "https://partiful.com/e/uhI2HRJexpkBs4QihIdJ?c=F4ZarFCP"
 
 # Content knobs (edit freely)
-HOTEL_NAME      = "Hilton — Calamigos wedding block (group code 90B)"
+HOTEL_NAME      = "Hilton, Calamigos wedding block (group code 90B)"
 HOTEL_DEADLINE  = "September 9, 2026"       # matches the cut-off on the website
 MEAL_DEADLINE   = "July 18, 2026"
 SUBJECT         = "Action required: select your dinner for Lydia & Colin's wedding"
@@ -128,7 +128,7 @@ def build_html(first_name, survey_url):
 </head>
 <body style="margin:0;padding:0;background:{C_BG};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{C_BG};">
-<tr><td align="center" style="padding:32px 0 0;">
+<tr><td align="center" style="padding:32px 0;">
 <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:{C_BG};">
 
   <!-- 1. HEADER -->
@@ -144,13 +144,13 @@ def build_html(first_name, survey_url):
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{C_BAND};">
       <tr><td align="center" style="padding:30px 40px;">
         <div style="font-family:{SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:12px;">One thing we need from you</div>
-        <div class="m-lead" style="font-family:{SERIF};font-size:16px;color:{C_INK};line-height:1.55;margin-bottom:22px;">Please select your dinner entree by {MEAL_DEADLINE} so we can share your preference with our caterer.</div>
+        <div class="m-lead" style="font-family:{SERIF};font-size:16px;color:{C_INK};line-height:1.55;margin-bottom:22px;">Please select your dinner entree by <strong>{MEAL_DEADLINE}</strong> so we can share your preference with our caterer.</div>
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
           <td style="background:{C_BLUE};">
             <a href="{survey_href}" style="display:inline-block;font-family:{SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BG};text-decoration:none;padding:15px 34px;">Select your dinner</a>
           </td>
         </tr></table>
-        <div style="font-family:{SERIF};font-size:13px;font-style:italic;color:{C_MUTED};line-height:1.5;margin-top:18px;">Please don&rsquo;t forward this email &mdash; your plus-one will receive their own at the address they used to RSVP.</div>
+        <div style="font-family:{SERIF};font-size:13px;font-style:italic;color:{C_MUTED};line-height:1.5;margin-top:18px;">Please don&rsquo;t forward this email. Your plus-one will receive their own at the address they used to RSVP.</div>
       </td></tr>
     </table>
   </td></tr>
@@ -210,11 +210,11 @@ def build_html(first_name, survey_url):
   <!-- 7. STAY IN THE LOOP (mirrors website "Join the conversation") -->
   <tr><td style="padding:28px 40px 0;" align="center">
     <div style="font-family:{SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:14px;text-align:left;">Stay in the loop</div>
-    <div class="m-body" style="font-family:{SERIF};font-size:15px;color:{C_SECOND};line-height:1.6;margin:0 0 22px;text-align:left;">Partiful is our home base for the wedding &mdash; the place to ask questions, catch updates, and stay connected with us leading up to the big day.</div>
+    <div class="m-body" style="font-family:{SERIF};font-size:15px;color:{C_SECOND};line-height:1.6;margin:0 0 22px;text-align:left;">Partiful is our home base for the wedding. It&rsquo;s the place to ask questions, catch updates, and stay connected with us leading up to the big day.</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid {C_BORDER};margin-bottom:24px;"><tr>
       <td width="33%" valign="top" align="left" style="padding:24px 14px;">
         <div style="font-family:{SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Ask Questions</div>
-        <div class="m-desc" style="font-family:{SERIF};font-size:14px;color:{C_SECOND};line-height:1.5;">Anything about the day &mdash; we&rsquo;re happy to help.</div>
+        <div class="m-desc" style="font-family:{SERIF};font-size:14px;color:{C_SECOND};line-height:1.5;">Anything about the day? We&rsquo;re happy to help.</div>
       </td>
       <td width="34%" valign="top" align="left" style="padding:24px 14px;border-left:1px solid {C_BORDER};">
         <div style="font-family:{SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BLUE};margin-bottom:10px;">Find a Carpool</div>
@@ -258,7 +258,7 @@ def build_text(first_name, survey_url):
         f"ONE THING WE NEED FROM YOU: Please select your dinner entree by {MEAL_DEADLINE}.",
         f"Select your dinner: {survey_url}",
         "",
-        "Please don't forward this email — your plus-one will receive their own at the address they used to RSVP.",
+        "Please don't forward this email. Your plus-one will receive their own at the address they used to RSVP.",
         "",
         f"HOTEL BLOCK: {HOTEL_NAME}. Book by {HOTEL_DEADLINE}: {HOTEL_LINK}",
         "",

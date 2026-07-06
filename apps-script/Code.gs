@@ -24,7 +24,7 @@ function getAdminToken_() {
 const SHEETS = {
   rsvp: {
     name: 'RSVPs',
-    headers: ['Submitted At', 'Name', 'Email', 'Attending', 'Plus One', 'Transport', 'Song Title', 'Song Artist', 'Entree', 'Dietary', 'Address']
+    headers: ['Submitted At', 'Name', 'Email', 'Attending', 'Plus One', 'Transport', 'Song Title', 'Song Artist', 'Entree', 'Dietary', 'Address', 'Meal Submitted At']
   },
   gift: {
     name: 'Gifts',
@@ -309,7 +309,7 @@ function upsertMeal_(body, submittedAt) {
 
   // Read the live header row and make sure Entree/Dietary/Address exist.
   let headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
-  ['Entree', 'Dietary', 'Address'].forEach(h => {
+  ['Entree', 'Dietary', 'Address', 'Meal Submitted At'].forEach(h => {
     if (headers.indexOf(h) === -1) {
       sheet.getRange(1, headers.length + 1).setValue(h);
       headers.push(h);
@@ -322,6 +322,7 @@ function upsertMeal_(body, submittedAt) {
   const entreeIdx    = headers.indexOf('Entree');
   const dietaryIdx   = headers.indexOf('Dietary');
   const addressIdx   = headers.indexOf('Address');
+  const mealAtIdx    = headers.indexOf('Meal Submitted At');
 
   const email   = String(body.email || '').trim().toLowerCase();
   const name    = String(body.name || body.fullname || '').trim();
@@ -335,6 +336,8 @@ function upsertMeal_(body, submittedAt) {
     sheet.getRange(rowNumber, dietaryIdx + 1).setValue(dietary);
     // Only overwrite address when the guest actually provided one.
     if (address) sheet.getRange(rowNumber, addressIdx + 1).setValue(address);
+    // Stamp when the meal was submitted so the admin can sort by it.
+    if (mealAtIdx !== -1) sheet.getRange(rowNumber, mealAtIdx + 1).setValue(submittedAt || new Date());
     return { updated: true, row: rowNumber };
   }
 
@@ -885,12 +888,14 @@ const DINNER = {
   rsvpUrl:       SITE_URL + '/RSVP',
   hotelLink:     'https://www.hilton.com/en/attend-my-event/agohwhw-90b-1879cb72-dad9-4e7a-9a57-42c2a1c665e1/',
   partifulLink:  'https://partiful.com/e/uhI2HRJexpkBs4QihIdJ?c=F4ZarFCP',
-  hotelName:     'Hilton \u2014 Calamigos wedding block (group code 90B)',
+  hotelName:     'Hilton, Calamigos wedding block (group code 90B)',
   hotelDeadline: 'September 9, 2026',
   mealDeadline:  'July 18, 2026',
-  subject:       "Action required: select your dinner for Lydia & Colin's wedding",
-  testRecipient: 'Lydiahongp@gmail.com',
-  emailedCol:    'Dinner Emailed At'
+  subject:         "Action required: select your dinner for Lydia & Colin's wedding",
+  reminderSubject: "Reminder: please pick your dinner for Lydia & Colin's wedding",
+  testRecipient:   'Lydiahongp@gmail.com',
+  emailedCol:      'Dinner Emailed At',
+  reminderCol:     'Meal Reminder At'
 };
 
 /** Adds the "Wedding" menu to the spreadsheet UI. */
@@ -902,6 +907,9 @@ function onOpen() {
     .addItem('Dinner email: send test to an address\u2026', 'dinnerSendTestTo')
     .addSeparator()
     .addItem('Dinner email: SEND to all unsent', 'dinnerSendAll')
+    .addSeparator()
+    .addItem('Meal reminder: preview no-meal-yet', 'dinnerRemindPreview')
+    .addItem('Meal reminder: SEND to no-meal-yet', 'dinnerRemindSend')
     .addToUi();
 }
 
@@ -944,14 +952,15 @@ function dinnerSurveyUrl_(fullName, email) {
 }
 
 /** Sends a single dinner email. Throws on failure so the caller can record it. */
-function sendOneDinnerEmail_(email, fullName) {
+function sendOneDinnerEmail_(email, fullName, subject, isReminder) {
   const first = String(fullName || '').trim().split(/\s+/)[0] || 'there';
   const url = dinnerSurveyUrl_(fullName, email);
+  const opts = { reminder: !!isReminder };
   MailApp.sendEmail({
     to: email,
-    subject: DINNER.subject,
-    htmlBody: buildDinnerEmail_(first, url),
-    body: buildDinnerText_(first, url),
+    subject: subject || DINNER.subject,
+    htmlBody: buildDinnerEmail_(first, url, opts),
+    body: buildDinnerText_(first, url, opts),
     name: FROM_NAME
   });
 }
@@ -1003,6 +1012,97 @@ function sendDinnerEmails_(opts) {
     try {
       sendOneDinnerEmail_(email, name);
       sheet.getRange(i + 2, emailedIdx + 1).setValue(new Date());
+      sent++;
+    } catch (err) {
+      failed.push(email + ': ' + err);
+    }
+  }
+  return { sent: sent, skipped: skipped, failed: failed, remainingQuota: MailApp.getRemainingDailyQuota(), notes: notes };
+}
+
+/** Counts + sample of guests who still owe a meal choice (no Entree). */
+function reminderRecipientInfo_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEETS.rsvp.name);
+  const out = { noMealValidEmail: 0, alreadyReminded: 0, pending: 0, noEmail: 0,
+                quota: MailApp.getRemainingDailyQuota(), sample: [] };
+  if (!sheet || sheet.getLastRow() < 2) return out;
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  const nameIdx = headers.indexOf('Name');
+  const emailIdx = headers.indexOf('Email');
+  const entreeIdx = headers.indexOf('Entree');
+  const remindIdx = headers.indexOf(DINNER.reminderCol);
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+
+  const seen = {};
+  data.forEach(row => {
+    const entree = entreeIdx !== -1 ? String(row[entreeIdx] || '').trim() : '';
+    if (entree) return;                                  // already chose a meal
+    const email = String(row[emailIdx] || '').trim();
+    const name = String(row[nameIdx] || '').trim();
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) { out.noEmail++; return; }
+    const key = email.toLowerCase();
+    if (seen[key]) return;
+    seen[key] = true;
+    out.noMealValidEmail++;
+    const reminded = remindIdx !== -1 && String(row[remindIdx] || '').trim();
+    if (reminded) { out.alreadyReminded++; return; }
+    out.pending++;
+    if (out.sample.length < 10) out.sample.push('  \u2022 ' + (name || '(no name)') + ' <' + email + '>');
+  });
+  return out;
+}
+
+/**
+ * Sends a reminder to guests who have a valid email but no Entree yet.
+ * Stamps a "Meal Reminder At" column so re-running only catches new stragglers.
+ */
+function sendMealReminders_(opts) {
+  opts = opts || {};
+  const onlyUnsent = opts.onlyUnsent !== false;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEETS.rsvp.name);
+  if (!sheet || sheet.getLastRow() < 2) {
+    return { sent: 0, skipped: 0, failed: [], remainingQuota: MailApp.getRemainingDailyQuota(), notes: ['No RSVP rows.'] };
+  }
+
+  let headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  if (headers.indexOf(DINNER.reminderCol) === -1) {
+    sheet.getRange(1, headers.length + 1).setValue(DINNER.reminderCol);
+    headers.push(DINNER.reminderCol);
+  }
+  const nameIdx = headers.indexOf('Name');
+  const emailIdx = headers.indexOf('Email');
+  const entreeIdx = headers.indexOf('Entree');
+  const remindIdx = headers.indexOf(DINNER.reminderCol);
+
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+  const quota = MailApp.getRemainingDailyQuota();
+  const seen = {};
+  let sent = 0, skipped = 0;
+  const failed = [], notes = [];
+
+  for (let i = 0; i < data.length; i++) {
+    const entree = entreeIdx !== -1 ? String(data[i][entreeIdx] || '').trim() : '';
+    const email = String(data[i][emailIdx] || '').trim();
+    const name = String(data[i][nameIdx] || '').trim();
+    const reminded = remindIdx !== -1 && String(data[i][remindIdx] || '').trim();
+
+    if (entree) { skipped++; continue; }                 // already picked a meal
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) { skipped++; continue; }
+    const key = email.toLowerCase();
+    if (seen[key]) { skipped++; continue; }
+    if (onlyUnsent && reminded) { skipped++; continue; }
+    seen[key] = true;
+
+    if (sent >= quota) {
+      notes.push('Reached today\u2019s Gmail quota (' + quota + '). Run again tomorrow to send the rest.');
+      break;
+    }
+    try {
+      sendOneDinnerEmail_(email, name, DINNER.reminderSubject, true);
+      sheet.getRange(i + 2, remindIdx + 1).setValue(new Date());
       sent++;
     } catch (err) {
       failed.push(email + ': ' + err);
@@ -1096,6 +1196,48 @@ function dinnerSendAll() {
   ui.alert('Dinner email \u2014 done', summary.join('\n'), ui.ButtonSet.OK);
 }
 
+function dinnerRemindPreview() {
+  const info = reminderRecipientInfo_();
+  const ui = SpreadsheetApp.getUi();
+  const lines = [
+    'No meal yet + valid email: ' + info.noMealValidEmail,
+    'Already reminded: ' + info.alreadyReminded,
+    'Will be reminded now: ' + info.pending,
+    'No meal + no reachable email: ' + info.noEmail,
+    'Gmail quota left today: ' + info.quota,
+    '',
+    'Sample of who will be reminded now:'
+  ].concat(info.sample.length ? info.sample : ['  (none pending)']);
+  ui.alert('Meal reminder \u2014 preview', lines.join('\n'), ui.ButtonSet.OK);
+}
+
+function dinnerRemindSend() {
+  const ui = SpreadsheetApp.getUi();
+  const info = reminderRecipientInfo_();
+  if (info.pending === 0) {
+    ui.alert('Nothing to send', 'No one is pending a reminder \u2014 everyone with a valid email has either picked a meal or already been reminded.', ui.ButtonSet.OK);
+    return;
+  }
+  const resp = ui.alert(
+    'Send meal reminders',
+    'Send a reminder to ' + info.pending + ' guest(s) who have a valid email but haven\u2019t picked a meal yet?\n\n' +
+    'Gmail quota left today: ' + info.quota,
+    ui.ButtonSet.YES_NO
+  );
+  if (resp !== ui.Button.YES) return;
+
+  const r = sendMealReminders_({ onlyUnsent: true });
+  const summary = [
+    'Reminders sent: ' + r.sent,
+    'Skipped (has meal / no-dup email / already reminded): ' + r.skipped,
+    'Failed: ' + r.failed.length,
+    'Gmail quota left: ' + r.remainingQuota
+  ];
+  if (r.failed.length) summary.push('', 'Failures:', ...r.failed.slice(0, 10));
+  if (r.notes.length) summary.push('', ...r.notes);
+  ui.alert('Meal reminder \u2014 done', summary.join('\n'), ui.ButtonSet.OK);
+}
+
 /* ---- Email template (ported from send_emails.py, Gmail-safe) ---- */
 
 function _dinnerDot_(color) {
@@ -1110,7 +1252,8 @@ function _dinnerSwatchRow_(colors) {
          'style="margin:0;"><tr>' + cells + '</tr></table>';
 }
 
-function buildDinnerEmail_(firstName, surveyUrl) {
+function buildDinnerEmail_(firstName, surveyUrl, opts) {
+  opts = opts || {};
   const BG = '#f8f4ec', BAND = '#efe8d9', CARD = '#faf7f0', BORDER = '#ddd6c8';
   const INK = '#0f1a33', SECOND = '#5a6476', MUTED = '#8a8070', BLUE = '#1e3a8a';
   const SERIF = "Georgia, 'Times New Roman', serif";
@@ -1124,6 +1267,9 @@ function buildDinnerEmail_(firstName, surveyUrl) {
   const ladies = _dinnerSwatchRow_(['#ff7f6b', '#9caf88', '#e8a0b4', '#eaa221', '#b8a4d4', '#3a9a9a', '#c66b4a']);
   const fn = escapeHtml_(firstName);
   const hotelName = escapeHtml_(DINNER.hotelName);
+  const leadText = opts.reminder
+    ? `Just a friendly reminder that we haven&rsquo;t received your dinner choice yet. Please select your dinner entree by <strong>${DINNER.mealDeadline}</strong> so we can share your preference with our caterer.`
+    : `Please select your dinner entree by <strong>${DINNER.mealDeadline}</strong> so we can share your preference with our caterer.`;
 
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
@@ -1141,7 +1287,7 @@ function buildDinnerEmail_(firstName, surveyUrl) {
 </head>
 <body style="margin:0;padding:0;background:${BG};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BG};">
-<tr><td align="center" style="padding:32px 0 0;">
+<tr><td align="center" style="padding:32px 0;">
 <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:${BG};">
 
   <!-- 1. HEADER -->
@@ -1157,13 +1303,13 @@ function buildDinnerEmail_(firstName, surveyUrl) {
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BAND};">
       <tr><td align="center" style="padding:30px 40px;">
         <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:12px;">One thing we need from you</div>
-        <div class="m-lead" style="font-family:${SERIF};font-size:16px;color:${INK};line-height:1.55;margin-bottom:22px;">Please select your dinner entree by ${DINNER.mealDeadline} so we can share your preference with our caterer.</div>
+        <div class="m-lead" style="font-family:${SERIF};font-size:16px;color:${INK};line-height:1.55;margin-bottom:22px;">${leadText}</div>
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
           <td style="background:${BLUE};">
             <a href="${surveyHref}" style="display:inline-block;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BG};text-decoration:none;padding:15px 34px;">Select your dinner</a>
           </td>
         </tr></table>
-        <div style="font-family:${SERIF};font-size:13px;font-style:italic;color:${MUTED};line-height:1.5;margin-top:18px;">Please don&rsquo;t forward this email &mdash; your plus-one will receive their own at the address they used to RSVP.</div>
+        <div style="font-family:${SERIF};font-size:13px;font-style:italic;color:${MUTED};line-height:1.5;margin-top:18px;">Please don&rsquo;t forward this email. Your plus-one will receive their own at the address they used to RSVP.</div>
       </td></tr>
     </table>
   </td></tr>
@@ -1223,11 +1369,11 @@ function buildDinnerEmail_(firstName, surveyUrl) {
   <!-- 6. STAY IN THE LOOP -->
   <tr><td style="padding:28px 40px 0;" align="center">
     <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;text-align:left;">Stay in the loop</div>
-    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:${SECOND};line-height:1.6;margin:0 0 22px;text-align:left;">Partiful is our home base for the wedding &mdash; the place to ask questions, catch updates, and stay connected with us leading up to the big day.</div>
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:${SECOND};line-height:1.6;margin:0 0 22px;text-align:left;">Partiful is our home base for the wedding. It&rsquo;s the place to ask questions, catch updates, and stay connected with us leading up to the big day.</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${BORDER};margin-bottom:24px;"><tr>
       <td width="33%" valign="top" align="left" style="padding:24px 14px;">
         <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Ask Questions</div>
-        <div class="m-desc" style="font-family:${SERIF};font-size:14px;color:${SECOND};line-height:1.5;">Anything about the day &mdash; we&rsquo;re happy to help.</div>
+        <div class="m-desc" style="font-family:${SERIF};font-size:14px;color:${SECOND};line-height:1.5;">Anything about the day? We&rsquo;re happy to help.</div>
       </td>
       <td width="34%" valign="top" align="left" style="padding:24px 14px;border-left:1px solid ${BORDER};">
         <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Find a Carpool</div>
@@ -1262,16 +1408,20 @@ function buildDinnerEmail_(firstName, surveyUrl) {
 </body></html>`;
 }
 
-function buildDinnerText_(firstName, surveyUrl) {
+function buildDinnerText_(firstName, surveyUrl, opts) {
+  opts = opts || {};
+  const oneThing = opts.reminder
+    ? "ONE THING WE NEED FROM YOU: Just a friendly reminder that we haven't received your dinner choice yet. Please select your dinner entree by " + DINNER.mealDeadline + '.'
+    : 'ONE THING WE NEED FROM YOU: Please select your dinner entree by ' + DINNER.mealDeadline + '.';
   return [
     'Colin & Lydia \u00b7 October 10, 2026 \u00b7 Calamigos Ranch, Malibu',
     '',
     'Hi ' + firstName + ',',
     '',
-    'ONE THING WE NEED FROM YOU: Please select your dinner entree by ' + DINNER.mealDeadline + '.',
+    oneThing,
     'Select your dinner: ' + surveyUrl,
     '',
-    "Please don't forward this email \u2014 your plus-one will receive their own at the address they used to RSVP.",
+    "Please don't forward this email. Your plus-one will receive their own at the address they used to RSVP.",
     '',
     'HOTEL BLOCK: ' + DINNER.hotelName + '. Book by ' + DINNER.hotelDeadline + ': ' + DINNER.hotelLink,
     '',

@@ -11,3 +11,5 @@ node_modules
 # Mail-merge: guest list (may contain real emails) and generated preview
 rsvps.csv
 preview.html
+email-preview.html
+reminder-preview.html

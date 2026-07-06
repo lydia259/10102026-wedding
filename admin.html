@@ -962,6 +962,10 @@
           String(r['Plus One']).toLowerCase() === 'yes'
         );
       }
+      if (mealMode === 'has') {
+        const mealTime = r => new Date(r['Meal Submitted At'] || r['Submitted At']).getTime() || 0;
+        baseRows = baseRows.slice().sort((a, b) => mealTime(b) - mealTime(a));
+      }
       const rows = filterRows(baseRows, q);
       detailList = rows.map(r => String(r['Submitted At'] || ''));
       if (!rows.length) {
