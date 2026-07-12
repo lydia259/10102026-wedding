@@ -150,7 +150,7 @@ def build_html(first_name, survey_url):
             <a href="{survey_href}" style="display:inline-block;font-family:{SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:{C_BG};text-decoration:none;padding:15px 34px;">Select your dinner</a>
           </td>
         </tr></table>
-        <div style="font-family:{SERIF};font-size:13px;font-style:italic;color:{C_MUTED};line-height:1.5;margin-top:18px;">Please don&rsquo;t forward this email. Your plus-one will receive their own at the address they used to RSVP.</div>
+        <div style="font-family:{SERIF};font-size:13px;font-style:italic;color:{C_MUTED};line-height:1.5;margin-top:18px;">Please don&rsquo;t forward this email. If your plus-one hasn&rsquo;t received an email, please contact <a href="mailto:lydiahongp@gmail.com" style="color:{C_BLUE};text-decoration:none;">lydiahongp@gmail.com</a>.</div>
       </td></tr>
     </table>
   </td></tr>
@@ -258,7 +258,7 @@ def build_text(first_name, survey_url):
         f"ONE THING WE NEED FROM YOU: Please select your dinner entree by {MEAL_DEADLINE}.",
         f"Select your dinner: {survey_url}",
         "",
-        "Please don't forward this email. Your plus-one will receive their own at the address they used to RSVP.",
+        "Please don't forward this email. If your plus-one hasn't received an email, please contact lydiahongp@gmail.com.",
         "",
         f"HOTEL BLOCK: {HOTEL_NAME}. Book by {HOTEL_DEADLINE}: {HOTEL_LINK}",
         "",
