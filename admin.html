@@ -388,6 +388,97 @@
     background: #fff4f4;
   }
 
+  /* Tags */
+  td.tags-cell { white-space: normal; min-width: 110px; max-width: 220px; }
+  .tag-chip {
+    display: inline-block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border: 1px solid;
+    border-radius: 999px;
+    margin: 2px 4px 2px 0;
+    white-space: nowrap;
+  }
+  .tags-empty { color: var(--silver); }
+  /* Tag editor inside the edit modal */
+  .tag-editor {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    background: var(--ivory);
+    border: 1px solid var(--line);
+    padding: 8px 10px;
+    cursor: text;
+  }
+  .tag-editor:focus-within { border-color: var(--accent); }
+  .tag-editor-chips { display: contents; }
+  .tag-editor-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 6px 4px 11px;
+    border: 1px solid;
+    border-radius: 999px;
+  }
+  .tag-remove {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    font-size: 15px;
+    line-height: 1;
+    padding: 0 2px;
+    opacity: 0.6;
+  }
+  .tag-remove:hover { opacity: 1; }
+  .tag-editor .tag-input {
+    flex: 1;
+    min-width: 130px;
+    width: auto;
+    border: none;
+    background: transparent;
+    padding: 4px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    color: var(--ink);
+    outline: none;
+  }
+  .tag-suggestions-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .tag-sug-label {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--silver);
+  }
+  .tag-sug {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border: 1px dashed;
+    border-radius: 999px;
+    cursor: pointer;
+    opacity: 0.85;
+  }
+  .tag-sug:hover { opacity: 1; }
+  .tag-hint { font-size: 12px; font-style: italic; color: var(--silver); margin-top: 6px; }
+
   /* Edit modal */
   .modal-overlay {
     position: fixed;
@@ -714,6 +805,7 @@
   const couplesToggle     = document.getElementById('couples-toggle');
   let emailMode = localStorage.getItem('cl_admin_email_filter_v1') || 'all';
   let mealMode  = localStorage.getItem('cl_admin_meal_filter_v1') || 'all';
+  let tagMode   = localStorage.getItem('cl_admin_tag_filter_v1') || 'all';
   let detailList = []; // Submitted-At keys in current display order (for drawer prev/next)
   const countEls = {
     rsvps: document.getElementById('count-rsvps'),
@@ -813,6 +905,57 @@
     if (!v) return '';
     if (v === true || v === 'yes' || v === 'true') return '<span class="pill">Yes</span>';
     return escapeHtml(String(v));
+  }
+
+  /* ------------------------ Tags ------------------------ */
+  // Tags live in a single "Tags" column per guest as a comma-separated list.
+  // The set of "known" tags is derived from everyone's tags, so creating a tag
+  // is just typing it once — it then appears as a suggestion and filter option.
+  function parseTags(v) {
+    if (!v) return [];
+    const seen = {};
+    const out = [];
+    String(v).split(',').forEach(part => {
+      const t = part.trim().replace(/\s+/g, ' ');
+      if (!t) return;
+      const key = t.toLowerCase();
+      if (seen[key]) return;
+      seen[key] = true;
+      out.push(t);
+    });
+    return out;
+  }
+  // Every distinct tag across all RSVPs, keeping the first-seen casing.
+  function allTags() {
+    const seen = {};
+    const out = [];
+    (cache.rsvps || []).forEach(r => {
+      parseTags(r['Tags']).forEach(t => {
+        const key = t.toLowerCase();
+        if (seen[key]) return;
+        seen[key] = true;
+        out.push(t);
+      });
+    });
+    return out.sort((a, b) => a.localeCompare(b));
+  }
+  // Deterministic pastel color per tag so a given tag looks the same everywhere.
+  function tagHue(name) {
+    const s = String(name).toLowerCase();
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return h % 360;
+  }
+  function tagColorStyle(name) {
+    const h = tagHue(name);
+    return 'background:hsl(' + h + ',55%,95%);color:hsl(' + h + ',48%,32%);border-color:hsl(' + h + ',40%,78%)';
+  }
+  function tagChipsHtml(v) {
+    const tags = parseTags(v);
+    if (!tags.length) return '';
+    return tags.map(t =>
+      '<span class="tag-chip" style="' + tagColorStyle(t) + '">' + escapeHtml(t) + '</span>'
+    ).join('');
   }
 
   function showLogin() {
@@ -928,6 +1071,22 @@
       [['all', 'All'], ['has', 'Has email'], ['missing', 'No email']]);
   }
 
+  // Column-header filter for tags. Options are built from the live tag set, so
+  // values may contain quotes/apostrophes — escape them for the HTML attribute.
+  function tagFilterTh() {
+    const tags = allTags();
+    const opts = [['all', 'All']].concat(tags.map(t => [t, t]));
+    const active = tagMode !== 'all';
+    const optHtml = opts.map(([v, label]) =>
+      '<button type="button" class="th-filter-opt' + (tagMode === v ? ' selected' : '') +
+      '" data-filter="tag" data-val="' + escapeHtml(v) + '">' + escapeHtml(label) + '</button>').join('');
+    return '<th class="th-filter">' +
+      '<span class="th-filter-label">Tags</span>' +
+      '<button type="button" class="th-filter-toggle' + (active ? ' active' : '') +
+      '" aria-label="Filter by tag" aria-haspopup="true">\u25BE</button>' +
+      '<div class="th-filter-menu" hidden>' + optHtml + '</div></th>';
+  }
+
   function mealFilterTh(labelText) {
     const rows = cache.rsvps || [];
     const total = rows.length;
@@ -956,6 +1115,10 @@
       } else if (mealMode === 'missing') {
         baseRows = baseRows.filter(r => !String(r['Entree'] || '').trim());
       }
+      if (tagMode !== 'all') {
+        const want = tagMode.toLowerCase();
+        baseRows = baseRows.filter(r => parseTags(r['Tags']).some(t => t.toLowerCase() === want));
+      }
       if (couplesView) {
         baseRows = baseRows.filter(r =>
           isPlusOneNamed(r['Plus One']) ||
@@ -978,7 +1141,7 @@
         panelEl.innerHTML = `
           <table>
             <thead><tr>
-              ${mealFilterTh('Party')}<th>Size</th>${emailFilterTh()}<th>Entree</th><th>Dietary</th>
+              ${mealFilterTh('Party')}<th>Size</th>${tagFilterTh()}${emailFilterTh()}<th>Entree</th><th>Dietary</th>
               <th>Transport</th><th>Address</th><th>Attending</th><th class="sticky-col"></th>
             </tr></thead>
             <tbody>
@@ -997,6 +1160,7 @@
                   <tr class="row-clickable" data-at="${escapeHtml(String(r['Submitted At'] || ''))}">
                     <td class="party sticky-col-left">${partyHtml}</td>
                     <td>${attending ? '<span class="party-size">' + partySize + '</span>' : '<span class="muted">—</span>'}</td>
+                    <td class="tags-cell">${tagChipsHtml(r['Tags'])}</td>
                     <td class="muted">${escapeHtml(r['Email'] || '')}</td>
                     <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeShort(r['Entree'])) + '</span>' : ''}</td>
                     <td>${escapeHtml(r['Dietary'] || '')}</td>
@@ -1012,13 +1176,14 @@
         panelEl.innerHTML = `
           <table>
             <thead><tr>
-              ${mealFilterTh('Name')}${emailFilterTh()}<th>Plus One</th><th>Entree</th><th>Dietary</th>
+              ${mealFilterTh('Name')}${tagFilterTh()}${emailFilterTh()}<th>Plus One</th><th>Entree</th><th>Dietary</th>
               <th>Transport</th><th>Address</th><th>Attending</th><th class="sticky-col"></th>
             </tr></thead>
             <tbody>
               ${rows.map(r => `
                 <tr class="row-clickable" data-at="${escapeHtml(String(r['Submitted At'] || ''))}">
                   <td class="sticky-col-left">${escapeHtml(r['Name'] || '')}</td>
+                  <td class="tags-cell">${tagChipsHtml(r['Tags'])}</td>
                   <td class="muted">${escapeHtml(r['Email'] || '')}</td>
                   <td>${plusOneDisplay(r['Plus One'])}</td>
                   <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeShort(r['Entree'])) + '</span>' : ''}</td>
@@ -1183,8 +1348,10 @@
     searchEl.value = '';
     emailMode = 'all';
     mealMode = 'all';
+    tagMode = 'all';
     localStorage.setItem('cl_admin_email_filter_v1', 'all');
     localStorage.setItem('cl_admin_meal_filter_v1', 'all');
+    localStorage.setItem('cl_admin_tag_filter_v1', 'all');
     couplesToggle.checked = false;
     localStorage.setItem('cl_admin_couples_v1', '0');
     if (typeof closeColMenus === 'function') closeColMenus();
@@ -1217,6 +1384,9 @@
       } else if (key === 'meal') {
         mealMode = val;
         localStorage.setItem('cl_admin_meal_filter_v1', val);
+      } else if (key === 'tag') {
+        tagMode = val;
+        localStorage.setItem('cl_admin_tag_filter_v1', val);
       }
       renderActiveTab();
       return;
@@ -1266,6 +1436,7 @@
   let detailAt = null;
 
   const DETAIL_FIELDS = [
+    ['Tags',                r => tagChipsHtml(r['Tags']), true],
     ['Email',               r => r['Email']],
     ['Mailing address',     r => r['Address']],
     ['Plus one',            r => r['Plus One']],
@@ -1281,8 +1452,14 @@
     if (!row) return;
     detailAt = submittedAt;
     detailTitle.textContent = row['Name'] || 'Guest';
-    detailBody.innerHTML = DETAIL_FIELDS.map(([label, get]) => {
+    detailBody.innerHTML = DETAIL_FIELDS.map(([label, get, isHtml]) => {
       const raw = get(row);
+      if (isHtml) {
+        const html = raw || '';
+        const cls = html ? 'detail-value' : 'detail-value empty';
+        return '<div class="detail-row"><div class="detail-label">' + escapeHtml(label) +
+          '</div><div class="' + cls + '">' + (html || '\u2014') + '</div></div>';
+      }
       const val = (raw == null ? '' : String(raw)).trim();
       const cls = val ? 'detail-value' : 'detail-value empty';
       return '<div class="detail-row"><div class="detail-label">' + escapeHtml(label) +
@@ -1359,7 +1536,8 @@
       { key: 'Entree',      label: 'Entree',       type: 'select',
         options: [['', '—'], ['chicken', 'Garlic Herb Jidori Chicken'], ['salmon', 'Grilled Salmon'], ['rigatoni', 'Rigatoni with Summer Corn Cream Sauce']] },
       { key: 'Dietary',     label: 'Dietary / allergies', type: 'text' },
-      { key: 'Address',     label: 'Mailing address',     type: 'textarea' }
+      { key: 'Address',     label: 'Mailing address',     type: 'textarea' },
+      { key: 'Tags',        label: 'Tags',         type: 'tags' }
     ],
     gift: [
       { key: 'Name',   label: 'Name',   type: 'text' },
@@ -1379,6 +1557,7 @@
   const editCloseBtn   = document.getElementById('edit-modal-close');
 
   let editing = null; // { mode: 'create' | 'edit', sheet, submittedAt }
+  let editTags = [];  // working list of tags for the row being edited
 
   function findRow(sheet, submittedAt) {
     const list = sheet === 'rsvp' ? cache.rsvps
@@ -1396,10 +1575,12 @@
     const fields = EDIT_FIELDS[sheet];
     if (!fields) return;
     editing = { mode: 'edit', sheet, submittedAt };
+    editTags = parseTags(row['Tags']);
     editTitle.textContent = sheet === 'gift' ? 'Edit gift note' : 'Edit RSVP';
     editSub.textContent = row['Name'] ? row['Name'] : '';
     editErr.textContent = '';
     editForm.innerHTML = fields.map(f => renderField(f, row[f.key])).join('');
+    initTagEditor();
     editModal.hidden = false;
     document.body.style.overflow = 'hidden';
     const firstInput = editForm.querySelector('input, select, textarea');
@@ -1410,6 +1591,7 @@
     const fields = EDIT_FIELDS[sheet];
     if (!fields) return;
     editing = { mode: 'create', sheet, submittedAt: null };
+    editTags = [];
     editTitle.textContent = sheet === 'gift' ? 'New gift note' : 'New RSVP';
     editSub.textContent = '';
     editErr.textContent = '';
@@ -1417,6 +1599,7 @@
     fields.forEach(f => { defaults[f.key] = ''; });
     if (sheet === 'rsvp') defaults['Attending'] = 'yes';
     editForm.innerHTML = fields.map(f => renderField(f, defaults[f.key])).join('');
+    initTagEditor();
     editModal.hidden = false;
     document.body.style.overflow = 'hidden';
     const firstInput = editForm.querySelector('input, select, textarea');
@@ -1426,6 +1609,21 @@
   function renderField(field, currentValue) {
     const id = 'edit-field-' + field.key.toLowerCase().replace(/\s+/g, '-');
     const safeVal = escapeHtml(currentValue == null ? '' : String(currentValue));
+    if (field.type === 'tags') {
+      // Interactive widget; state lives in `editTags` and is wired up by
+      // initTagEditor() after the form HTML is inserted.
+      return '<div class="modal-field">' +
+        '<label for="tag-input">' + escapeHtml(field.label) + '</label>' +
+        '<div class="tag-editor" id="tag-editor">' +
+          '<span class="tag-editor-chips" id="tag-editor-chips"></span>' +
+          '<input type="text" id="tag-input" class="tag-input" list="tag-suggestions" ' +
+            'placeholder="Add a tag&hellip;" autocomplete="off">' +
+        '</div>' +
+        '<datalist id="tag-suggestions"></datalist>' +
+        '<div class="tag-suggestions-row" id="tag-suggestions-row"></div>' +
+        '<div class="tag-hint">Press Enter or comma to add. Click a suggestion to reuse an existing tag.</div>' +
+      '</div>';
+    }
     let control = '';
     if (field.type === 'textarea') {
       control = `<textarea id="${id}" name="${escapeHtml(field.key)}">${safeVal}</textarea>`;
@@ -1447,6 +1645,77 @@
     return `<div class="modal-field"><label for="${id}">${escapeHtml(field.label)}</label>${control}</div>`;
   }
 
+  /* Tag editor widget — reads/writes the module-level `editTags` array. */
+  function renderTagEditor() {
+    const chips = document.getElementById('tag-editor-chips');
+    if (!chips) return;
+    chips.innerHTML = editTags.map(t =>
+      '<span class="tag-editor-chip" style="' + tagColorStyle(t) + '">' + escapeHtml(t) +
+      '<button type="button" class="tag-remove" data-remove-tag="' + escapeHtml(t) +
+      '" aria-label="Remove ' + escapeHtml(t) + '">&times;</button></span>'
+    ).join('');
+    const sug = document.getElementById('tag-suggestions-row');
+    if (sug) {
+      const applied = editTags.map(t => t.toLowerCase());
+      const avail = allTags().filter(t => !applied.includes(t.toLowerCase()));
+      sug.innerHTML = avail.length
+        ? '<span class="tag-sug-label">Reuse</span>' + avail.map(t =>
+            '<button type="button" class="tag-sug" data-add-tag="' + escapeHtml(t) +
+            '" style="' + tagColorStyle(t) + '">' + escapeHtml(t) + '</button>').join('')
+        : '';
+    }
+  }
+  function addTag(raw) {
+    const t = String(raw == null ? '' : raw).trim().replace(/\s+/g, ' ');
+    if (!t) return;
+    if (editTags.some(x => x.toLowerCase() === t.toLowerCase())) return;
+    editTags.push(t);
+    renderTagEditor();
+  }
+  function removeTag(raw) {
+    const key = String(raw).toLowerCase();
+    editTags = editTags.filter(x => x.toLowerCase() !== key);
+    renderTagEditor();
+  }
+  function initTagEditor() {
+    const input = document.getElementById('tag-input');
+    if (!input) return; // no tags field on this form (e.g. gifts)
+    const datalist = document.getElementById('tag-suggestions');
+    if (datalist) {
+      datalist.innerHTML = allTags().map(t =>
+        '<option value="' + escapeHtml(t) + '"></option>').join('');
+    }
+    renderTagEditor();
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        addTag(input.value);
+        input.value = '';
+      } else if (e.key === 'Backspace' && !input.value && editTags.length) {
+        editTags.pop();
+        renderTagEditor();
+      }
+    });
+    // Selecting a datalist suggestion fires "change" without a keydown.
+    input.addEventListener('change', () => {
+      if (input.value) { addTag(input.value); input.value = ''; }
+    });
+    input.addEventListener('blur', () => {
+      if (input.value) { addTag(input.value); input.value = ''; }
+    });
+    const editor = document.getElementById('tag-editor');
+    if (editor) editor.addEventListener('click', (e) => {
+      const rm = e.target.closest('[data-remove-tag]');
+      if (rm) { removeTag(rm.getAttribute('data-remove-tag')); return; }
+      if (e.target === editor) input.focus();
+    });
+    const sug = document.getElementById('tag-suggestions-row');
+    if (sug) sug.addEventListener('click', (e) => {
+      const add = e.target.closest('[data-add-tag]');
+      if (add) addTag(add.getAttribute('data-add-tag'));
+    });
+  }
+
   function closeEditModal() {
     editModal.hidden = true;
     editing = null;
@@ -1462,6 +1731,7 @@
     if (!fields) return;
     const updates = {};
     fields.forEach(f => {
+      if (f.type === 'tags') { updates[f.key] = editTags.join(', '); return; }
       const el = editForm.querySelector(`[name="${CSS.escape(f.key)}"]`);
       if (!el) return;
       updates[f.key] = el.value;

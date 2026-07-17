@@ -121,12 +121,7 @@ function doPost(e) {
       if (!config) return jsonOut_({ ok: false, error: 'unknown sheet' });
       const updates = (body.updates && typeof body.updates === 'object') ? body.updates : {};
       const createdAt = new Date();
-      const values = config.headers.map((h, idx) => {
-        if (idx === 0) return createdAt;
-        const v = updates[h];
-        return v == null ? '' : v;
-      });
-      appendRow_(config, values);
+      appendRowByHeader_(config, updates, createdAt);
       return jsonOut_({ ok: true, submittedAt: createdAt.toISOString() });
     }
 
@@ -222,6 +217,32 @@ function appendRow_(config, values) {
   const sheet = ss.getSheetByName(config.name) || ss.insertSheet(config.name);
   ensureHeaders_(sheet, config.headers);
   sheet.appendRow(values);
+}
+
+/**
+ * Appends a row using the sheet's ACTUAL header row so each value lands in the
+ * correct physical column even when the sheet has columns that aren't in
+ * config.headers (e.g. the email-tracking columns) or a newer column such as
+ * "Tags". `updates` is keyed by header name; column A ("Submitted At") is set
+ * from createdAt. Any header referenced in `updates` that doesn't exist yet is
+ * created first. Used by the authenticated admin create path.
+ */
+function appendRowByHeader_(config, updates, createdAt) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(config.name) || ss.insertSheet(config.name);
+  ensureHeaders_(sheet, config.headers);
+  if (updates) ensureHeaders_(sheet, Object.keys(updates));
+  const lastCol = sheet.getLastColumn();
+  const physical = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(h => String(h).trim());
+  const row = physical.map((h, idx) => {
+    if (idx === 0) return createdAt;
+    if (updates && Object.prototype.hasOwnProperty.call(updates, h)) {
+      const val = updates[h];
+      return val == null ? '' : val;
+    }
+    return '';
+  });
+  sheet.appendRow(row);
 }
 
 /**
@@ -473,22 +494,28 @@ function updateRowBySubmittedAt_(sheetName, headers, submittedAtIso, updates) {
   const sheet = ss.getSheetByName(sheetName);
   if (!sheet || sheet.getLastRow() < 2) return false;
   ensureHeaders_(sheet, headers);
+  if (updates) ensureHeaders_(sheet, Object.keys(updates));
+  // Operate against the sheet's ACTUAL header row so edits match columns by
+  // name. This keeps writes correct even when the sheet carries columns that
+  // aren't in config.headers (email-tracking columns) or a newer one (Tags),
+  // and guarantees an update never clobbers an unrelated column by position.
   const lastRow = sheet.getLastRow();
-  const numCols = headers.length;
-  const data = sheet.getRange(2, 1, lastRow - 1, numCols).getValues();
+  const lastCol = sheet.getLastColumn();
+  const physical = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(h => String(h).trim());
+  const data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
   for (let i = data.length - 1; i >= 0; i--) {
     const v = data[i][0];
     const iso = v instanceof Date ? v.toISOString() : String(v);
     if (iso !== submittedAtIso) continue;
-    const newRow = headers.map((h, idx) => {
+    const newRow = physical.map((h, idx) => {
       if (idx === 0) return data[i][0];
-      if (Object.prototype.hasOwnProperty.call(updates, h)) {
+      if (updates && Object.prototype.hasOwnProperty.call(updates, h)) {
         const val = updates[h];
         return val == null ? '' : val;
       }
       return data[i][idx];
     });
-    sheet.getRange(i + 2, 1, 1, numCols).setValues([newRow]);
+    sheet.getRange(i + 2, 1, 1, lastCol).setValues([newRow]);
     return true;
   }
   return false;
@@ -894,11 +921,15 @@ const DINNER = {
   subject:         "Action required: select your dinner for Lydia & Colin's wedding",
   reminderSubject: "Reminder: please pick your dinner for Lydia & Colin's wedding",
   finalSubject:    "Last call: your dinner choice for Lydia & Colin's wedding",
+  defaultSubject:  "Your wedding dinner has defaulted to chicken \u2014 change by Aug 1",
   chickenName:     'Garlic Herb Jidori Chicken',
+  changeDeadline:  'August 1, 2026',
+  contactEmail:    'lydiahongp@gmail.com',
   testRecipient:   'Lydiahongp@gmail.com',
   emailedCol:      'Dinner Emailed At',
   reminderCol:     'Meal Reminder At',
-  finalCol:        'Final Notice At'
+  finalCol:        'Final Notice At',
+  defaultCol:      'Default Notice At'
 };
 
 /** Adds the "Wedding" menu to the spreadsheet UI. */
@@ -916,6 +947,9 @@ function onOpen() {
     .addSeparator()
     .addItem('Final call: preview no-meal-yet', 'finalNoticePreview')
     .addItem('Final call: SEND to no-meal-yet', 'finalNoticeSend')
+    .addSeparator()
+    .addItem('Default notice: preview no-meal-yet', 'defaultNoticePreview')
+    .addItem('Default notice: SEND to no-meal-yet', 'defaultNoticeSend')
     .addToUi();
 }
 
@@ -1296,6 +1330,54 @@ function finalNoticeSend() {
   ui.alert('Final call \u2014 done', summary.join('\n'), ui.ButtonSet.OK);
 }
 
+function defaultNoticePreview() {
+  const info = reminderRecipientInfo_(DINNER.defaultCol);
+  const ui = SpreadsheetApp.getUi();
+  const lines = [
+    'No meal yet + valid email: ' + info.noMealValidEmail,
+    'Already sent default notice: ' + info.alreadyReminded,
+    'Will be sent now: ' + info.pending,
+    'No meal + no reachable email: ' + info.noEmail,
+    'Gmail quota left today: ' + info.quota,
+    '',
+    'Sample of who will receive the default notice now:'
+  ].concat(info.sample.length ? info.sample : ['  (none pending)']);
+  ui.alert('Default notice \u2014 preview', lines.join('\n'), ui.ButtonSet.OK);
+}
+
+function defaultNoticeSend() {
+  const ui = SpreadsheetApp.getUi();
+  const info = reminderRecipientInfo_(DINNER.defaultCol);
+  if (info.pending === 0) {
+    ui.alert('Nothing to send', 'No one is pending a default notice \u2014 everyone with a valid email has either picked a meal or already been sent one.', ui.ButtonSet.OK);
+    return;
+  }
+  const resp = ui.alert(
+    'Send default notice',
+    'Send a \u201cdefaulted to chicken\u201d notice to ' + info.pending + ' guest(s) who have a valid email but haven\u2019t picked a meal yet?\n\n' +
+    'This tells them their entree is now the ' + DINNER.chickenName + ' and to email ' + DINNER.contactEmail + ' before ' + DINNER.changeDeadline + ' to change it.\n\n' +
+    'Gmail quota left today: ' + info.quota,
+    ui.ButtonSet.YES_NO
+  );
+  if (resp !== ui.Button.YES) return;
+
+  const r = sendMealReminders_({
+    onlyUnsent: true,
+    col: DINNER.defaultCol,
+    subject: DINNER.defaultSubject,
+    emailOpts: { defaultNotice: true }
+  });
+  const summary = [
+    'Default notices sent: ' + r.sent,
+    'Skipped (has meal / dup email / already sent): ' + r.skipped,
+    'Failed: ' + r.failed.length,
+    'Gmail quota left: ' + r.remainingQuota
+  ];
+  if (r.failed.length) summary.push('', 'Failures:', ...r.failed.slice(0, 10));
+  if (r.notes.length) summary.push('', ...r.notes);
+  ui.alert('Default notice \u2014 done', summary.join('\n'), ui.ButtonSet.OK);
+}
+
 /* ---- Email template (ported from send_emails.py, Gmail-safe) ---- */
 
 function _dinnerDot_(color) {
@@ -1325,11 +1407,26 @@ function buildDinnerEmail_(firstName, surveyUrl, opts) {
   const ladies = _dinnerSwatchRow_(['#ff7f6b', '#9caf88', '#e8a0b4', '#eaa221', '#b8a4d4', '#3a9a9a', '#c66b4a']);
   const fn = escapeHtml_(firstName);
   const hotelName = escapeHtml_(DINNER.hotelName);
-  const leadText = opts.finalNotice
+  const leadText = opts.defaultNotice
+    ? `Without a response, your dinner entree has been set to the <strong>${escapeHtml_(DINNER.chickenName)}</strong> by default. If you&rsquo;d like a different entree, please email <a href="mailto:${DINNER.contactEmail}" style="color:${BLUE};text-decoration:none;">${DINNER.contactEmail}</a> before <strong>${DINNER.changeDeadline}</strong>.`
+    : opts.finalNotice
     ? `This is a friendly last call. Today is the <strong>last day</strong> to choose your dinner entree. Without a response, your entree will default to the <strong>${escapeHtml_(DINNER.chickenName)}</strong>.`
     : opts.reminder
     ? `Just a friendly reminder that we haven&rsquo;t received your dinner choice yet. Please select your dinner entree by <strong>${DINNER.mealDeadline}</strong> so we can share your preference with our caterer.`
     : `Please select your dinner entree by <strong>${DINNER.mealDeadline}</strong> so we can share your preference with our caterer.`;
+  const eyebrow = opts.defaultNotice ? 'Your dinner selection' : 'One thing we need from you';
+  const ctaLabel = 'Select your dinner';
+  // The default-notice email has no CTA button — the guest is told to email
+  // instead, so the survey button is omitted for that variant only.
+  const ctaButton = opts.defaultNotice ? '' :
+    `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
+          <td style="background:${BLUE};">
+            <a href="${surveyHref}" style="display:inline-block;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BG};text-decoration:none;padding:15px 34px;">${ctaLabel}</a>
+          </td>
+        </tr></table>`;
+  // Default-notice email omits the "don't forward" line (there's no
+  // personalized action to protect); other variants keep it.
+  const forwardLead = opts.defaultNotice ? '' : 'Please don&rsquo;t forward this email. ';
 
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
@@ -1362,14 +1459,10 @@ function buildDinnerEmail_(firstName, surveyUrl, opts) {
   <tr><td style="padding:28px 0 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BAND};">
       <tr><td align="center" style="padding:30px 40px;">
-        <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:12px;">One thing we need from you</div>
+        <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:12px;">${eyebrow}</div>
         <div class="m-lead" style="font-family:${SERIF};font-size:16px;color:${INK};line-height:1.55;margin-bottom:22px;">${leadText}</div>
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
-          <td style="background:${BLUE};">
-            <a href="${surveyHref}" style="display:inline-block;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BG};text-decoration:none;padding:15px 34px;">Select your dinner</a>
-          </td>
-        </tr></table>
-        <div style="font-family:${SERIF};font-size:13px;font-style:italic;color:${MUTED};line-height:1.5;margin-top:18px;">Please don&rsquo;t forward this email. If your plus-one hasn&rsquo;t received an email, please contact <a href="mailto:lydiahongp@gmail.com" style="color:${BLUE};text-decoration:none;">lydiahongp@gmail.com</a>.</div>
+        ${ctaButton}
+        <div style="font-family:${SERIF};font-size:13px;font-style:italic;color:${MUTED};line-height:1.5;margin-top:18px;">${forwardLead}If your plus-one hasn&rsquo;t received an email, please contact <a href="mailto:lydiahongp@gmail.com" style="color:${BLUE};text-decoration:none;">lydiahongp@gmail.com</a>.</div>
       </td></tr>
     </table>
   </td></tr>
@@ -1470,7 +1563,9 @@ function buildDinnerEmail_(firstName, surveyUrl, opts) {
 
 function buildDinnerText_(firstName, surveyUrl, opts) {
   opts = opts || {};
-  const oneThing = opts.finalNotice
+  const oneThing = opts.defaultNotice
+    ? "YOUR DINNER SELECTION: Without a response, your dinner entree has been set to the " + DINNER.chickenName + " by default. If you'd like a different entree, email " + DINNER.contactEmail + " before " + DINNER.changeDeadline + "."
+    : opts.finalNotice
     ? "ONE THING WE NEED FROM YOU: This is a friendly last call. Today is the last day to choose your dinner entree. Without a response, your entree will default to the " + DINNER.chickenName + "."
     : opts.reminder
     ? "ONE THING WE NEED FROM YOU: Just a friendly reminder that we haven't received your dinner choice yet. Please select your dinner entree by " + DINNER.mealDeadline + '.'
@@ -1483,7 +1578,7 @@ function buildDinnerText_(firstName, surveyUrl, opts) {
     oneThing,
     'Select your dinner: ' + surveyUrl,
     '',
-    "Please don't forward this email. If your plus-one hasn't received an email, please contact lydiahongp@gmail.com.",
+    (opts.defaultNotice ? '' : "Please don't forward this email. ") + "If your plus-one hasn't received an email, please contact lydiahongp@gmail.com.",
     '',
     'HOTEL BLOCK: ' + DINNER.hotelName + '. Book by ' + DINNER.hotelDeadline + ': ' + DINNER.hotelLink,
     '',
