@@ -478,6 +478,26 @@
   }
   .tag-sug:hover { opacity: 1; }
   .tag-hint { font-size: 12px; font-style: italic; color: var(--silver); margin-top: 6px; }
+  /* Inline tag editing inside the detail drawer */
+  .detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .detail-tag-select {
+    width: 100%;
+    background: var(--ivory);
+    border: 1px solid var(--line);
+    padding: 8px 10px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    cursor: pointer;
+  }
+  .detail-tag-select:focus { border-color: var(--accent); }
 
   /* Edit modal */
   .modal-overlay {
@@ -1436,7 +1456,6 @@
   let detailAt = null;
 
   const DETAIL_FIELDS = [
-    ['Tags',                r => tagChipsHtml(r['Tags']), true],
     ['Email',               r => r['Email']],
     ['Mailing address',     r => r['Address']],
     ['Plus one',            r => r['Plus One']],
@@ -1447,12 +1466,34 @@
     ['Attending',           r => r['Attending']]
   ];
 
+  // Interactive Tags row for the detail drawer: removable chips + a dropdown
+  // to assign an existing tag (or create a new one) without opening the editor.
+  function detailTagsRowHtml(row) {
+    const tags = parseTags(row['Tags']);
+    const chips = tags.length
+      ? tags.map(t =>
+          '<span class="tag-editor-chip" style="' + tagColorStyle(t) + '">' + escapeHtml(t) +
+          '<button type="button" class="tag-remove" data-detail-remove-tag="' + escapeHtml(t) +
+          '" aria-label="Remove ' + escapeHtml(t) + '">&times;</button></span>').join('')
+      : '<span class="tags-empty">No tags yet</span>';
+    const applied = tags.map(t => t.toLowerCase());
+    const avail = allTags().filter(t => !applied.includes(t.toLowerCase()));
+    const opts = ['<option value="" selected>+ Add tag&hellip;</option>']
+      .concat(avail.map(t => '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>'))
+      .concat(['<option value="__new__">+ New tag&hellip;</option>']);
+    return '<div class="detail-row">' +
+      '<div class="detail-label">Tags</div>' +
+      '<div class="detail-tags">' + chips + '</div>' +
+      '<select class="detail-tag-select" id="detail-tag-select">' + opts.join('') + '</select>' +
+    '</div>';
+  }
+
   function openDetailDrawer(submittedAt) {
     const row = findRow('rsvp', submittedAt);
     if (!row) return;
     detailAt = submittedAt;
     detailTitle.textContent = row['Name'] || 'Guest';
-    detailBody.innerHTML = DETAIL_FIELDS.map(([label, get, isHtml]) => {
+    detailBody.innerHTML = detailTagsRowHtml(row) + DETAIL_FIELDS.map(([label, get, isHtml]) => {
       const raw = get(row);
       if (isHtml) {
         const html = raw || '';
@@ -1488,6 +1529,85 @@
     detailAt = null;
     document.body.style.overflow = '';
   }
+
+  // Persist a guest's tags directly (no edit modal). Reuses the admin-update
+  // endpoint; only the Tags column is sent so nothing else is touched.
+  async function persistTags(submittedAt, tags) {
+    const token = localStorage.getItem(TOKEN_KEY) || '';
+    if (!token) { showLogin(); return false; }
+    const res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        type: 'admin-update', token, sheet: 'rsvp',
+        submittedAt, updates: { Tags: tags.join(', ') }
+      })
+    });
+    const json = await res.json();
+    if (json.error === 'unauthorized') {
+      localStorage.removeItem(TOKEN_KEY);
+      closeDetailDrawer();
+      showLogin();
+      loginErr.textContent = 'Session expired. Sign in again.';
+      return false;
+    }
+    if (json.ok === false || json.updated === false) {
+      throw new Error(json.error || 'Save failed.');
+    }
+    return true;
+  }
+
+  // Optimistically apply the new tag list, then save. Reverts on failure.
+  async function updateGuestTags(submittedAt, newTags) {
+    const row = findRow('rsvp', submittedAt);
+    if (!row) return;
+    const prev = row['Tags'];
+    row['Tags'] = newTags.join(', ');
+    if (detailAt === submittedAt) openDetailDrawer(submittedAt);
+    renderActiveTab();
+    try {
+      const ok = await persistTags(submittedAt, newTags);
+      if (!ok) {
+        row['Tags'] = prev;
+        if (detailAt === submittedAt) openDetailDrawer(submittedAt);
+        renderActiveTab();
+      }
+    } catch (err) {
+      row['Tags'] = prev;
+      if (detailAt === submittedAt) openDetailDrawer(submittedAt);
+      renderActiveTab();
+      alert('Could not save tags: ' + err.message);
+    }
+  }
+
+  detailBody.addEventListener('change', (e) => {
+    const sel = e.target.closest('.detail-tag-select');
+    if (!sel) return;
+    const val = sel.value;
+    sel.value = '';
+    if (!val || detailAt == null) return;
+    const row = findRow('rsvp', detailAt);
+    if (!row) return;
+    const tags = parseTags(row['Tags']);
+    let toAdd = val;
+    if (val === '__new__') {
+      toAdd = (prompt('New tag name:') || '').trim().replace(/\s+/g, ' ');
+      if (!toAdd) return;
+    }
+    if (tags.some(t => t.toLowerCase() === toAdd.toLowerCase())) return;
+    tags.push(toAdd);
+    updateGuestTags(detailAt, tags);
+  });
+
+  detailBody.addEventListener('click', (e) => {
+    const rm = e.target.closest('[data-detail-remove-tag]');
+    if (!rm || detailAt == null) return;
+    const row = findRow('rsvp', detailAt);
+    if (!row) return;
+    const key = rm.getAttribute('data-detail-remove-tag').toLowerCase();
+    const tags = parseTags(row['Tags']).filter(t => t.toLowerCase() !== key);
+    updateGuestTags(detailAt, tags);
+  });
 
   detailCloseBtn.addEventListener('click', closeDetailDrawer);
   detailPrevBtn.addEventListener('click', () => navigateDetail(-1));
