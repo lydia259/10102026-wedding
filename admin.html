@@ -755,6 +755,38 @@
     font-size: 14px;
     letter-spacing: 0.04em;
     color: var(--ink);
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    max-width: 72%;
+  }
+  button.seat-card-name {
+    cursor: text;
+    font: inherit;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+  button.seat-card-name:hover { color: var(--accent); }
+  button.seat-card-name:focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .seat-card-name-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 72%;
+    background: var(--ivory);
+    border: 1px solid var(--accent);
+    padding: 2px 6px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    outline: none;
   }
   .seat-card-count {
     font-family: 'Bodoni Moda', serif;
@@ -1205,6 +1237,7 @@
       cache.rsvps = (Array.isArray(data.rsvps) ? data.rsvps : []).slice().sort(byNewest);
       cache.gifts = (Array.isArray(data.gifts) ? data.gifts : []).slice().sort(byNewest);
       cache.songs = Array.isArray(data.songs) ? data.songs : [];
+      rebuildTableOrder();
       renderStats();
       renderCounts();
       renderActiveTab();
@@ -1319,6 +1352,7 @@
     { name: 'New table', guests: ['Ashlyn Araki','Taryn Araki','Clayton Kodama','Stacey Kodama','Kathie Flinn','Dell Araki','Nancy Araki','Yasuko Nishitani'] }
   ];
   const SEED_TABLE_ORDER = SEATING_SEED.map(t => t.name);
+  let tableOrder = SEED_TABLE_ORDER.slice();
   const SEATING_COUPLES = [
     ['Kevin Kodama', 'Joyce Kodama'],
     ['Qian Qian', 'Wendy Teng'],
@@ -1380,14 +1414,47 @@
   function seatingTableNames() {
     const seen = {};
     const names = [];
-    SEED_TABLE_ORDER.forEach(n => {
-      if (!seen[n]) { seen[n] = true; names.push(n); }
+    tableOrder.forEach(n => {
+      if (n && !seen[n]) { seen[n] = true; names.push(n); }
     });
     seatingGuests().forEach(r => {
       const t = tableOf(r);
       if (t && !seen[t]) { seen[t] = true; names.push(t); }
     });
     return names;
+  }
+
+  function rebuildTableOrder() {
+    const occupiedSet = {};
+    const occupiedList = [];
+    seatingGuests().forEach(r => {
+      const t = tableOf(r);
+      if (t && !occupiedSet[t]) {
+        occupiedSet[t] = true;
+        occupiedList.push(t);
+      }
+    });
+    const extras = occupiedList.filter(t => SEED_TABLE_ORDER.indexOf(t) < 0);
+    const emptySeed = SEED_TABLE_ORDER.filter(n => !occupiedSet[n]);
+    const replace = {};
+    extras.forEach((extra, i) => {
+      if (i < emptySeed.length) replace[emptySeed[i]] = extra;
+    });
+    const next = [];
+    const used = {};
+    SEED_TABLE_ORDER.forEach(n => {
+      const name = replace[n] || n;
+      if (!name || used[name]) return;
+      used[name] = true;
+      next.push(name);
+    });
+    extras.forEach(t => {
+      if (!used[t]) {
+        used[t] = true;
+        next.push(t);
+      }
+    });
+    tableOrder = next;
   }
 
   function guestsAtTable(tableName) {
@@ -1619,6 +1686,93 @@
     }
   }
 
+  function tableTitleHtml(name) {
+    return '<button type="button" class="seat-card-name" data-rename-table="' +
+      escapeHtml(name) + '" title="Rename table">' + escapeHtml(name) + '</button>';
+  }
+
+  async function renameTable(oldName, rawNew) {
+    const next = String(rawNew || '').trim();
+    if (!oldName) return;
+    if (next === oldName) {
+      renderActiveTab();
+      return;
+    }
+    if (!next) {
+      errBanner.hidden = false;
+      errBanner.textContent = 'Table name can\'t be blank.';
+      renderActiveTab();
+      return;
+    }
+    if (seatingTableNames().some(n => n === next && n !== oldName)) {
+      errBanner.hidden = false;
+      errBanner.textContent = 'A table already has that name.';
+      renderActiveTab();
+      return;
+    }
+    const people = guestsAtTable(oldName);
+    people.forEach(r => { r['Table'] = next; });
+    const idx = tableOrder.indexOf(oldName);
+    if (idx >= 0) tableOrder[idx] = next;
+    else tableOrder.push(next);
+    errBanner.hidden = true;
+    if (!people.length) {
+      renderActiveTab();
+      return;
+    }
+    seatingBusy = true;
+    try {
+      renderActiveTab();
+      await saveSeatingPatches(seatingPatchesForRows(people));
+    } catch (err) {
+      errBanner.hidden = false;
+      errBanner.textContent = 'Could not save table name: ' + err.message;
+      await loadDashboard();
+    } finally {
+      seatingBusy = false;
+    }
+  }
+
+  function startTableRename(btn) {
+    if (seatingBusy) return;
+    const oldName = btn.getAttribute('data-rename-table') || '';
+    if (!oldName) return;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'seat-card-name-input';
+    input.value = oldName;
+    input.setAttribute('aria-label', 'Table name');
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    input.setAttribute('data-lpignore', 'true');
+    input.setAttribute('data-1p-ignore', 'true');
+    btn.replaceWith(input);
+    input.focus();
+    input.select();
+    let done = false;
+    function finish(save) {
+      if (done) return;
+      done = true;
+      if (save) renameTable(oldName, input.value);
+      else renderActiveTab();
+    }
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+      if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    });
+    input.addEventListener('blur', () => finish(true));
+  }
+
+  function bindTableRename(root) {
+    root.querySelectorAll('[data-rename-table]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        startTableRename(btn);
+      });
+    });
+  }
+
   function bindSeatCardDrop(card, tableName) {
     card.addEventListener('dragover', e => {
       e.preventDefault();
@@ -1697,7 +1851,7 @@
       const n = allPeople.length;
       cards.push(
         '<div class="seat-card" data-table="' + escapeHtml(name) + '">' +
-          '<div class="seat-card-head"><div class="seat-card-name">' + escapeHtml(name) + '</div>' +
+          '<div class="seat-card-head">' + tableTitleHtml(name) +
           '<span class="seat-card-count ' + countTone(n) + '">' + n + (n === 1 ? ' guest' : ' guests') + '</span></div>' +
           '<div class="seat-chips">' +
             (groups.length ? groups.map(listChipHtml).join('') : '<div class="seat-empty">Drag guests here</div>') +
@@ -1710,6 +1864,7 @@
       bindSeatCardDrop(card, card.getAttribute('data-table') || '');
     });
     bindChipDrag(panelEl);
+    bindTableRename(panelEl);
   }
 
   function buildRoundTable(tableName, people) {
@@ -1770,7 +1925,7 @@
       card.setAttribute('data-table', name);
       const head = document.createElement('div');
       head.className = 'seat-card-head';
-      head.innerHTML = '<div class="seat-card-name">' + escapeHtml(name) + '</div>' +
+      head.innerHTML = tableTitleHtml(name) +
         '<span class="seat-card-count ' + countTone(n) + '">' + n + (n === 1 ? ' guest' : ' guests') + '</span>';
       card.appendChild(head);
       card.appendChild(buildRoundTable(name, people));
@@ -1785,6 +1940,7 @@
     const unseatedBox = wrap.querySelector('.round-unseated');
     if (unseatedBox) bindSeatCardDrop(unseatedBox, '');
     bindChipDrag(panelEl);
+    bindTableRename(panelEl);
   }
 
   async function renderSeatingTab(q) {
