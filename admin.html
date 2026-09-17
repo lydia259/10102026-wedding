@@ -746,7 +746,7 @@
   }
   .seat-card-head {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 10px;
   }
@@ -762,31 +762,28 @@
     text-align: left;
     max-width: 72%;
   }
-  button.seat-card-name {
-    cursor: text;
-    font: inherit;
+  .seat-table-select,
+  .table-cell-select {
     font-family: 'Bodoni Moda', serif;
     font-size: 14px;
     letter-spacing: 0.04em;
     color: var(--ink);
-  }
-  button.seat-card-name:hover { color: var(--accent); }
-  button.seat-card-name:focus-visible {
-    outline: 1px solid var(--accent);
-    outline-offset: 2px;
-  }
-  .seat-card-name-input {
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: 72%;
-    background: var(--ivory);
-    border: 1px solid var(--accent);
-    padding: 2px 6px;
-    font-family: 'Bodoni Moda', serif;
-    font-size: 16px;
-    letter-spacing: 0.04em;
-    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 4px 8px;
+    min-width: 108px;
+    cursor: pointer;
     outline: none;
+    appearance: auto;
+  }
+  .seat-table-select:focus,
+  .table-cell-select:focus { border-color: var(--accent); }
+  .seat-table-select:disabled,
+  .table-cell-select:disabled { cursor: default; }
+  .table-cell-select {
+    font-size: 13px;
+    min-width: 72px;
+    padding: 4px 6px;
   }
   .seat-card-count {
     font-family: 'Bodoni Moda', serif;
@@ -1237,7 +1234,15 @@
       cache.rsvps = (Array.isArray(data.rsvps) ? data.rsvps : []).slice().sort(byNewest);
       cache.gifts = (Array.isArray(data.gifts) ? data.gifts : []).slice().sort(byNewest);
       cache.songs = Array.isArray(data.songs) ? data.songs : [];
-      rebuildTableOrder();
+      const tablePatches = normalizeTableNumbers();
+      if (tablePatches.length) {
+        try {
+          await saveSeatingPatches(tablePatches);
+        } catch (err) {
+          errBanner.hidden = false;
+          errBanner.textContent = 'Could not save table numbers: ' + err.message;
+        }
+      }
       renderStats();
       renderCounts();
       renderActiveTab();
@@ -1406,55 +1411,98 @@
     return String(r['Table'] || '').trim();
   }
 
+  function parseTableNumber(s) {
+    const m = String(s || '').trim().match(/^(?:table\s*)?(\d+)$/i);
+    if (!m) return 0;
+    const n = Number(m[1]);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
+  function formatTable(s) {
+    const n = parseTableNumber(s);
+    return n ? String(n) : String(s || '');
+  }
+
+  function tableNumberSelectHtml(current, submittedAt, className) {
+    const cur = parseTableNumber(current) ? String(parseTableNumber(current)) : '';
+    const opts = [['', 'Unseated']].concat(seatingTableNames().map(id => [id, id]));
+    const optHtml = opts.map(([v, label]) => {
+      const sel = v === cur ? ' selected' : '';
+      return '<option value="' + escapeHtml(v) + '"' + sel + '>' + escapeHtml(label) + '</option>';
+    }).join('');
+    const disabled = seatingBusy ? ' disabled' : '';
+    return '<select class="' + (className || 'table-cell-select') + '" data-guest-table="' +
+      escapeHtml(String(submittedAt || '')) + '" aria-label="Table number"' + disabled + '>' +
+      optHtml + '</select>';
+  }
+
   function seatOf(r) {
     const n = Number(r['Seat']);
     return Number.isFinite(n) && n > 0 ? n : 0;
   }
 
   function seatingTableNames() {
+    return tableOrder.slice();
+  }
+
+  function occupiedTableKeys() {
+    const keys = [];
     const seen = {};
-    const names = [];
+    function add(k) {
+      const t = String(k || '').trim();
+      if (!t || seen[t]) return;
+      seen[t] = true;
+      keys.push(t);
+    }
     tableOrder.forEach(n => {
-      if (n && !seen[n]) { seen[n] = true; names.push(n); }
+      if (n && guestsAtTable(n).length) add(n);
     });
-    seatingGuests().forEach(r => {
-      const t = tableOf(r);
-      if (t && !seen[t]) { seen[t] = true; names.push(t); }
-    });
-    return names;
+    seatingGuests().forEach(r => add(tableOf(r)));
+    return keys;
   }
 
   function rebuildTableOrder() {
-    const occupiedSet = {};
-    const occupiedList = [];
+    let maxN = SEATING_SEED.length;
     seatingGuests().forEach(r => {
-      const t = tableOf(r);
-      if (t && !occupiedSet[t]) {
-        occupiedSet[t] = true;
-        occupiedList.push(t);
-      }
-    });
-    const extras = occupiedList.filter(t => SEED_TABLE_ORDER.indexOf(t) < 0);
-    const emptySeed = SEED_TABLE_ORDER.filter(n => !occupiedSet[n]);
-    const replace = {};
-    extras.forEach((extra, i) => {
-      if (i < emptySeed.length) replace[emptySeed[i]] = extra;
+      const n = parseTableNumber(tableOf(r));
+      if (n > maxN) maxN = n;
     });
     const next = [];
+    for (let i = 1; i <= maxN; i++) next.push(String(i));
+    tableOrder = next;
+  }
+
+  function normalizeTableNumbers() {
+    const keys = occupiedTableKeys();
     const used = {};
-    SEED_TABLE_ORDER.forEach(n => {
-      const name = replace[n] || n;
-      if (!name || used[name]) return;
-      used[name] = true;
-      next.push(name);
-    });
-    extras.forEach(t => {
-      if (!used[t]) {
-        used[t] = true;
-        next.push(t);
+    const map = {};
+    keys.forEach(key => {
+      const n = parseTableNumber(key);
+      if (n && !used[n]) {
+        used[n] = true;
+        map[key] = String(n);
       }
     });
-    tableOrder = next;
+    let next = 1;
+    keys.forEach(key => {
+      if (map[key]) return;
+      while (used[next]) next += 1;
+      used[next] = true;
+      map[key] = String(next);
+      next += 1;
+    });
+    const changed = [];
+    seatingGuests().forEach(r => {
+      const t = tableOf(r);
+      if (!t) return;
+      const neu = map[t];
+      if (neu && t !== neu) {
+        r['Table'] = neu;
+        changed.push(r);
+      }
+    });
+    rebuildTableOrder();
+    return seatingPatchesForRows(changed);
   }
 
   function guestsAtTable(tableName) {
@@ -1550,7 +1598,7 @@
       r['Seat'] = '';
     });
     const used = {};
-    SEATING_SEED.forEach(table => {
+    SEATING_SEED.forEach((table, i) => {
       let seat = 1;
       table.guests.forEach(name => {
         const row = matchGuestRow(name);
@@ -1558,7 +1606,7 @@
         const at = String(row['Submitted At'] || '');
         if (!at || used[at]) return;
         used[at] = true;
-        row['Table'] = table.name;
+        row['Table'] = String(i + 1);
         row['Seat'] = seat;
         seat += 1;
       });
@@ -1687,88 +1735,62 @@
   }
 
   function tableTitleHtml(name) {
-    return '<button type="button" class="seat-card-name" data-rename-table="' +
-      escapeHtml(name) + '" title="Rename table">' + escapeHtml(name) + '</button>';
+    const current = String(name || '');
+    const opts = seatingTableNames().map(id => {
+      const sel = id === current ? ' selected' : '';
+      return '<option value="' + escapeHtml(id) + '"' + sel + '>Table ' + escapeHtml(id) + '</option>';
+    }).join('');
+    const disabled = seatingBusy ? ' disabled' : '';
+    return '<select class="seat-table-select" data-table-select="' + escapeHtml(current) +
+      '" aria-label="Table number"' + disabled + '>' + opts + '</select>';
   }
 
-  async function renameTable(oldName, rawNew) {
-    const next = String(rawNew || '').trim();
-    if (!oldName) return;
-    if (next === oldName) {
+  async function assignTableNumber(oldKey, newKey) {
+    const from = String(oldKey || '').trim();
+    const to = String(newKey || '').trim();
+    if (!from || !to || from === to) {
       renderActiveTab();
       return;
     }
-    if (!next) {
-      errBanner.hidden = false;
-      errBanner.textContent = 'Table name can\'t be blank.';
-      renderActiveTab();
-      return;
-    }
-    if (seatingTableNames().some(n => n === next && n !== oldName)) {
-      errBanner.hidden = false;
-      errBanner.textContent = 'A table already has that name.';
-      renderActiveTab();
-      return;
-    }
-    const people = guestsAtTable(oldName);
-    people.forEach(r => { r['Table'] = next; });
-    const idx = tableOrder.indexOf(oldName);
-    if (idx >= 0) tableOrder[idx] = next;
-    else tableOrder.push(next);
+    const fromPeople = guestsAtTable(from);
+    const toPeople = guestsAtTable(to);
+    fromPeople.forEach(r => { r['Table'] = to; });
+    toPeople.forEach(r => { r['Table'] = from; });
     errBanner.hidden = true;
-    if (!people.length) {
-      renderActiveTab();
-      return;
-    }
+    const touched = fromPeople.concat(toPeople);
     seatingBusy = true;
     try {
+      rebuildTableOrder();
       renderActiveTab();
-      await saveSeatingPatches(seatingPatchesForRows(people));
+      if (touched.length) await saveSeatingPatches(seatingPatchesForRows(touched));
     } catch (err) {
       errBanner.hidden = false;
-      errBanner.textContent = 'Could not save table name: ' + err.message;
+      errBanner.textContent = 'Could not save table number: ' + err.message;
       await loadDashboard();
     } finally {
       seatingBusy = false;
     }
   }
 
-  function startTableRename(btn) {
-    if (seatingBusy) return;
-    const oldName = btn.getAttribute('data-rename-table') || '';
-    if (!oldName) return;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'seat-card-name-input';
-    input.value = oldName;
-    input.setAttribute('aria-label', 'Table name');
-    input.autocomplete = 'off';
-    input.spellcheck = false;
-    input.setAttribute('data-lpignore', 'true');
-    input.setAttribute('data-1p-ignore', 'true');
-    btn.replaceWith(input);
-    input.focus();
-    input.select();
-    let done = false;
-    function finish(save) {
-      if (done) return;
-      done = true;
-      if (save) renameTable(oldName, input.value);
-      else renderActiveTab();
-    }
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); finish(true); }
-      if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+  function bindTableNumberSelect(root) {
+    root.querySelectorAll('[data-table-select]').forEach(sel => {
+      sel.addEventListener('click', e => e.stopPropagation());
+      sel.addEventListener('mousedown', e => e.stopPropagation());
+      sel.addEventListener('change', () => {
+        if (seatingBusy) return;
+        assignTableNumber(sel.getAttribute('data-table-select'), sel.value);
+      });
     });
-    input.addEventListener('blur', () => finish(true));
   }
 
-  function bindTableRename(root) {
-    root.querySelectorAll('[data-rename-table]').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.preventDefault();
-        e.stopPropagation();
-        startTableRename(btn);
+  function bindGuestTableSelect(root) {
+    root.querySelectorAll('[data-guest-table]').forEach(sel => {
+      sel.addEventListener('click', e => e.stopPropagation());
+      sel.addEventListener('mousedown', e => e.stopPropagation());
+      sel.addEventListener('change', () => {
+        const at = sel.getAttribute('data-guest-table') || '';
+        if (!at || seatingBusy) return;
+        moveGuestToTable(at, sel.value, null);
       });
     });
   }
@@ -1864,7 +1886,7 @@
       bindSeatCardDrop(card, card.getAttribute('data-table') || '');
     });
     bindChipDrag(panelEl);
-    bindTableRename(panelEl);
+    bindTableNumberSelect(panelEl);
   }
 
   function buildRoundTable(tableName, people) {
@@ -1940,7 +1962,7 @@
     const unseatedBox = wrap.querySelector('.round-unseated');
     if (unseatedBox) bindSeatCardDrop(unseatedBox, '');
     bindChipDrag(panelEl);
-    bindTableRename(panelEl);
+    bindTableNumberSelect(panelEl);
   }
 
   async function renderSeatingTab(q) {
@@ -1948,6 +1970,7 @@
     seatingViewWrap.hidden = false;
     addBtn.hidden = true;
     await ensureSeatingSeed();
+    rebuildTableOrder();
     if (seatingView === 'round') renderSeatingRound(q);
     else renderSeatingList(q);
   }
@@ -1987,6 +2010,13 @@
       if (mealMode === 'has') {
         const mealTime = r => new Date(r['Meal Submitted At'] || r['Submitted At']).getTime() || 0;
         baseRows = baseRows.slice().sort((a, b) => mealTime(b) - mealTime(a));
+      } else {
+        baseRows = baseRows.slice().sort((a, b) => {
+          const na = parseTableNumber(tableOf(a)) || 9999;
+          const nb = parseTableNumber(tableOf(b)) || 9999;
+          if (na !== nb) return na - nb;
+          return guestName(a).localeCompare(guestName(b));
+        });
       }
       const rows = filterRows(baseRows, q);
       detailList = rows.map(r => String(r['Submitted At'] || ''));
@@ -2021,7 +2051,7 @@
                     <td>${attending ? '<span class="party-size">' + partySize + '</span>' : '<span class="muted">—</span>'}</td>
                     <td class="tags-cell">${tagChipsHtml(r['Tags'])}</td>
                     <td class="muted">${escapeHtml(r['Email'] || '')}</td>
-                    <td>${escapeHtml(tableOf(r) || '')}</td>
+                    <td>${tableNumberSelectHtml(tableOf(r), r['Submitted At'])}</td>
                     <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeShort(r['Entree'])) + '</span>' : ''}</td>
                     <td>${escapeHtml(r['Dietary'] || '')}</td>
                     <td>${escapeHtml(r['Transport'] || '')}</td>
@@ -2045,7 +2075,7 @@
                   <td class="sticky-col-left">${escapeHtml(guestName(r) || '')}</td>
                   <td class="tags-cell">${tagChipsHtml(r['Tags'])}</td>
                   <td class="muted">${escapeHtml(r['Email'] || '')}</td>
-                  <td>${escapeHtml(tableOf(r) || '')}</td>
+                  <td>${tableNumberSelectHtml(tableOf(r), r['Submitted At'])}</td>
                   <td>${plusOneDisplay(r['Plus One'])}</td>
                   <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeShort(r['Entree'])) + '</span>' : ''}</td>
                   <td>${escapeHtml(r['Dietary'] || '')}</td>
@@ -2057,6 +2087,7 @@
             </tbody>
           </table>`;
       }
+      bindGuestTableSelect(panelEl);
     } else if (activeTab === 'gifts') {
       const rows = filterRows(cache.gifts, q);
       if (!rows.length) { panelEl.innerHTML = '<div class="empty">No gift notes yet.</div>'; return; }
@@ -2182,7 +2213,7 @@
     else if (activeTab === 'seating') {
       rows = seatingGuests().map(r => ({
         Name: guestName(r),
-        Table: tableOf(r),
+        Table: formatTable(tableOf(r)),
         Seat: tableOf(r) ? seatOf(r) : ''
       }));
       filename = 'seating.csv';
@@ -2290,6 +2321,7 @@
       deleteEntry(sheet, at, label);
       return;
     }
+    if (e.target.closest('select')) return;
     // Otherwise: clicking anywhere on an RSVP row opens the detail panel.
     if (activeTab === 'rsvps') {
       const tr = e.target.closest('tr[data-at]');
@@ -2319,7 +2351,7 @@
   const DETAIL_FIELDS = [
     ['Email',               r => r['Email']],
     ['Mailing address',     r => r['Address']],
-    ['Table',                r => r['Table']],
+    ['Table',                r => formatTable(r['Table'])],
     ['Seat',                 r => r['Seat']],
     ['Plus one',            r => r['Plus One']],
     ['Entree',              r => entreeLabel(r['Entree'])],
@@ -2521,8 +2553,8 @@
       { key: 'Dietary',     label: 'Dietary / allergies', type: 'text' },
       { key: 'Address',     label: 'Mailing address',     type: 'textarea' },
       { key: 'Tags',        label: 'Tags',         type: 'tags' },
-      { key: 'Table',       label: 'Table',        type: 'text',
-        placeholder: 'Dining table name' },
+      { key: 'Table',       label: 'Table',        type: 'select',
+        options: [] },
       { key: 'Seat',        label: 'Seat',         type: 'number' }
     ],
     gift: [
@@ -2614,10 +2646,13 @@
     if (field.type === 'textarea') {
       control = `<textarea id="${id}" name="${escapeHtml(field.key)}">${safeVal}</textarea>`;
     } else if (field.type === 'select') {
-      const opts = field.options.slice();
-      const cur = currentValue == null ? '' : String(currentValue);
+      const raw = currentValue == null ? '' : String(currentValue).trim();
+      const cur = field.key === 'Table' ? (parseTableNumber(raw) ? String(parseTableNumber(raw)) : raw) : raw;
+      const opts = field.key === 'Table'
+        ? [['', 'Unseated']].concat(seatingTableNames().map(id => [id, 'Table ' + id]))
+        : field.options.slice();
       const has = opts.some(([v]) => v === cur);
-      if (!has && cur) opts.push([cur, cur]);
+      if (!has && cur) opts.push([cur, field.key === 'Table' && parseTableNumber(cur) ? 'Table ' + cur : cur]);
       const optHtml = opts.map(([v, label]) => {
         const sel = v === cur ? ' selected' : '';
         return `<option value="${escapeHtml(v)}"${sel}>${escapeHtml(label)}</option>`;
