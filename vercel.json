@@ -6,7 +6,16 @@
       "source": "/admin",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
-        { "key": "Referrer-Policy", "value": "no-referrer" }
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/admin.html",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Cache-Control", "value": "no-store" }
       ]
     },
     {
