@@ -813,6 +813,8 @@
     font-size: 16px;
     color: var(--ink);
     line-height: 1.35;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .seat-chip:active { cursor: grabbing; }
   .seat-chip.dragging { opacity: 0.4; }
@@ -861,6 +863,7 @@
     top: 50%;
     width: 0;
     height: 0;
+    z-index: 2;
   }
   .round-place .seat-chip {
     position: absolute;
@@ -872,6 +875,11 @@
     font-size: 14px;
     padding: 2px 6px;
     line-height: 1.25;
+    z-index: 2;
+  }
+  .seating-dragging .seat-table-select,
+  .seating-dragging .table-cell-select {
+    pointer-events: none;
   }
   .round-unseated {
     grid-column: 1 / -1;
@@ -1798,6 +1806,7 @@
   function bindSeatCardDrop(card, tableName) {
     card.addEventListener('dragover', e => {
       e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
       card.classList.add('dragover');
     });
     card.addEventListener('dragleave', e => {
@@ -1812,16 +1821,36 @@
       const place = e.target.closest('.round-place');
       let destIndex = null;
       const chipAt = chip ? (chip.getAttribute('data-at') || '') : '';
-      if (chip && chipAt && chipAt !== at) {
+      if (place) {
+        const idx = Number(place.getAttribute('data-index'));
+        destIndex = Number.isFinite(idx) ? idx : null;
+      } else if (chip && chipAt && chipAt !== at) {
         const list = tableName ? guestsAtTable(tableName) : unseatedGuests();
         const targetAt = chipAt.split(',')[0];
         destIndex = list.findIndex(r => String(r['Submitted At'] || '') === targetAt);
         if (destIndex < 0) destIndex = null;
-      } else if (place) {
-        const idx = Number(place.getAttribute('data-index'));
-        destIndex = Number.isFinite(idx) ? idx : null;
       }
       moveGuestToTable(at, tableName, destIndex);
+    });
+  }
+
+  function bindRoundPlaceDrop(place, tableName) {
+    place.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = 'move';
+      const card = place.closest('.round-card');
+      if (card) card.classList.add('dragover');
+    });
+    place.addEventListener('drop', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const card = place.closest('.round-card');
+      if (card) card.classList.remove('dragover');
+      const at = e.dataTransfer.getData('text/seat-at') || e.dataTransfer.getData('text/plain');
+      if (!at) return;
+      const idx = Number(place.getAttribute('data-index'));
+      moveGuestToTable(at, tableName, Number.isFinite(idx) ? idx : null);
     });
   }
 
@@ -1833,7 +1862,7 @@
     const ats = rows.map(r => String(r['Submitted At'] || '')).filter(Boolean).join(',');
     const label = rows.map(r => escapeHtml(guestName(r) || 'Guest'))
       .join('<span class="couple-plus"> + </span>');
-    return '<div class="seat-chip" draggable="true" data-at="' +
+    return '<div class="seat-chip" draggable="true" role="button" data-at="' +
       escapeHtml(ats) + '">' + label + '</div>';
   }
 
@@ -1841,11 +1870,19 @@
     root.querySelectorAll('.seat-chip').forEach(chip => {
       chip.addEventListener('dragstart', e => {
         chip.classList.add('dragging');
+        panelEl.classList.add('seating-dragging');
         e.dataTransfer.setData('text/plain', chip.getAttribute('data-at') || '');
         e.dataTransfer.setData('text/seat-at', chip.getAttribute('data-at') || '');
         e.dataTransfer.effectAllowed = 'move';
       });
-      chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
+      chip.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      });
+      chip.addEventListener('dragend', () => {
+        chip.classList.remove('dragging');
+        panelEl.classList.remove('seating-dragging');
+      });
     });
   }
 
@@ -1957,7 +1994,9 @@
     panelEl.innerHTML = '';
     panelEl.appendChild(wrap);
     wrap.querySelectorAll('.round-card').forEach(card => {
-      bindRoundCardDrop(card, card.getAttribute('data-table') || '');
+      const tableName = card.getAttribute('data-table') || '';
+      bindRoundCardDrop(card, tableName);
+      card.querySelectorAll('.round-place').forEach(place => bindRoundPlaceDrop(place, tableName));
     });
     const unseatedBox = wrap.querySelector('.round-unseated');
     if (unseatedBox) bindSeatCardDrop(unseatedBox, '');
