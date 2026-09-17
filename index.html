@@ -469,38 +469,6 @@
     text-align: center;
     margin-top: 72px;
   }
-  .details-rsvp-btn {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 22px 64px;
-    background: var(--accent);
-    color: #f8f4ec;
-    text-decoration: none;
-    border: 1px solid var(--accent);
-    transition: all 300ms ease;
-    cursor: pointer;
-  }
-  .details-rsvp-btn:hover {
-    background: var(--accent-soft);
-    transform: translateY(-2px);
-    box-shadow: 0 14px 30px -14px rgba(30,58,138,0.45);
-  }
-  .details-rsvp-btn .lbl {
-    font-family: 'Bodoni Moda', serif;
-    font-weight: 500;
-    font-size: 13px;
-    letter-spacing: 0.55em;
-    text-transform: uppercase;
-  }
-  .details-rsvp-btn .sub {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 14px;
-    letter-spacing: 0.02em;
-    opacity: 0.9;
-  }
 
   .details-grid {
     display: grid;
@@ -655,10 +623,9 @@
     transform: translateY(-2px);
   }
   .details-link-icon { width: 16px; height: 16px; flex: 0 0 auto; }
-  .details-actions .details-link span,
-  .details-actions .details-rsvp-btn .lbl { white-space: nowrap; }
+  .details-actions .details-link span { white-space: nowrap; }
 
-  /* Action row: What to Wear · Where to Stay · RSVP (equal height) */
+  /* Action row: What to Wear · Where to Stay (equal height) */
   .details-actions {
     display: flex;
     flex-wrap: nowrap;
@@ -667,23 +634,13 @@
     gap: 16px;
     margin-top: 56px;
   }
-  .details-actions .details-link,
-  .details-actions .details-rsvp-btn {
+  .details-actions .details-link {
     margin: 0;
     flex: 1 1 0;
     min-width: 0;
     justify-content: center;
-  }
-  .details-actions .details-link {
     padding-left: 20px;
     padding-right: 20px;
-  }
-  .details-actions .details-rsvp-btn {
-    padding-top: 0;
-    padding-bottom: 0;
-    padding-left: 20px;
-    padding-right: 20px;
-    justify-content: center;
   }
 
   /* ===================== SECTION NAV ===================== */
@@ -761,7 +718,7 @@
   }
   .attire-dress {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 0;
     width: 100%;
     margin: 0 auto 40px;
@@ -770,9 +727,12 @@
   .attire-dress-block {
     padding: 30px 28px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   .attire-dress-block + .attire-dress-block {
-    border-left: 1px solid var(--line-soft);
+    border-top: 1px solid var(--line-soft);
   }
   .attire-dress-label {
     display: block;
@@ -802,12 +762,40 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 12px;
-    margin-top: 16px;
+    margin-top: 12px;
   }
   .attire-swatch-dot {
     width: 20px;
     height: 20px;
     border-radius: 50%;
+  }
+  .attire-swatch-dot--bordered {
+    border: 1px solid var(--line-soft);
+  }
+  .attire-color-section {
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+  }
+  .attire-color-section + .attire-color-section {
+    margin-top: 22px;
+  }
+  .attire-swatch-sublabel {
+    display: block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .attire-swatch-subtext {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--silver);
+    margin: 0 0 4px;
   }
   .attire-rule {
     width: 48px; height: 1px;
@@ -1809,7 +1797,7 @@
   }
   .stay-detail-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     border: 1px solid var(--line-soft);
     background: rgba(255,255,255,0.45);
   }
@@ -1842,36 +1830,22 @@
     text-decoration: none;
   }
   .stay-detail-value a:hover { color: var(--accent); }
-  .stay-code {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  .stay-copy-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    border: 1px solid var(--line-soft);
-    background: transparent;
+  .stay-detail-address {
+    display: block;
+    margin-top: 10px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.4;
     color: var(--silver);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: color 200ms ease, border-color 200ms ease, background 200ms ease;
+    letter-spacing: 0;
+    text-transform: none;
   }
-  .stay-copy-btn:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-    background: rgba(30,58,138,0.06);
+  .stay-detail-address a {
+    color: var(--silver);
+    text-decoration: none;
   }
-  .stay-copy-btn svg { width: 15px; height: 15px; display: block; }
-  .stay-copy-btn .icon-check { display: none; }
-  .stay-copy-btn.copied { color: var(--accent); border-color: var(--accent); }
-  .stay-copy-btn.copied .icon-copy { display: none; }
-  .stay-copy-btn.copied .icon-check { display: block; }
+  .stay-detail-address a:hover { color: var(--accent); }
   .stay-book-btn {
     display: inline-block;
     margin-top: 36px;
@@ -1898,8 +1872,7 @@
     line-height: 1.6;
     color: var(--silver);
     margin: 28px auto 0;
-    max-width: none;
-    white-space: nowrap;
+    max-width: 520px;
   }
   @media (max-width: 600px) {
     .stay-detail-grid { grid-template-columns: 1fr; }
@@ -2018,8 +1991,6 @@
     .details-actions { gap: 8px; margin-top: 40px; }
     .details-actions .details-link { padding: 14px 8px; font-size: 9px; letter-spacing: 0.12em; gap: 0; }
     .details-actions .details-link-icon { display: none; }
-    .details-actions .details-rsvp-btn { padding-left: 10px; padding-right: 10px; }
-    .details-actions .details-rsvp-btn .lbl { font-size: 11px; letter-spacing: 0.28em; }
     .detail-card .big { font-size: 20px; }
     .detail-card h3 { font-size: 11px; letter-spacing: 0.3em; }
     .detail-card .sub { font-size: 14px; }
@@ -2028,9 +1999,8 @@
     .attire-wrap { padding: 0 4px; }
     .attire-chic { font-size: clamp(48px, 14vw, 80px); margin-bottom: 14px; }
     .attire-lead { font-size: 17px; line-height: 1.6; margin-bottom: 30px; padding: 0 4px; }
-    .attire-dress { grid-template-columns: 1fr; margin-bottom: 30px; }
+    .attire-dress { margin-bottom: 30px; }
     .attire-dress-block { padding: 24px 20px; }
-    .attire-dress-block + .attire-dress-block { border-left: none; border-top: 1px solid var(--line-soft); }
     .attire-dress-text { font-size: 20px; }
     .attire-rule { margin-bottom: 30px; }
     .attire-gallery { gap: 10px; margin-bottom: 14px; }
@@ -2889,9 +2859,6 @@
     <div class="details-actions reveal in">
       <a class="details-link" href="#attire"><svg class="details-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6a2 2 0 1 0-1.4-3.4"></path><path d="M12 6c0 1-1 1.5-1 2.2 0 .5.4.8 1 1.1l8.3 4.2c.7.4 1.2.9 1.2 1.7v0c0 1-.8 1.6-1.8 1.6H4c-1 0-1.8-.6-1.8-1.6v0c0-.8.5-1.3 1.2-1.7L11 9.3"></path></svg><span>What to Wear</span></a>
       <a class="details-link" href="#stay"><svg class="details-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4v16"></path><path d="M2 8h18a2 2 0 0 1 2 2v10"></path><path d="M2 17h20"></path><path d="M6 8v9"></path></svg><span>Where to Stay</span></a>
-      <a href="RSVP.html" class="details-rsvp-btn">
-        <span class="lbl">RSVP</span>
-      </a>
     </div>
   </div>
 </section>
@@ -2911,64 +2878,28 @@
     <h2 class="section-title reveal in">Where to <em>stay</em></h2>
 
     <div class="stay-block reveal in">
-      <p class="stay-block-intro">We&rsquo;ve reserved a block of rooms at Hilton for our guests. Book early &mdash; the group rate is held until the cut-off date below.</p>
+      <p class="stay-block-intro">We recommend the Hilton near Calamigos Ranch so you are not driving the canyon late at night.</p>
 
       <div class="stay-detail-grid">
         <div class="stay-detail">
-          <span class="stay-detail-label">Group Code</span>
-          <span class="stay-detail-value stay-code">
-            <span>90B</span>
-            <button type="button" class="stay-copy-btn" data-copy="90B" aria-label="Copy group code">
-              <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </button>
+          <span class="stay-detail-label">Hotel</span>
+          <span class="stay-detail-value">Hilton</span>
+          <span class="stay-detail-address">
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=1012+S+Westlake+Blvd+Westlake+Village+CA+91361" target="_blank" rel="noopener">1012 S Westlake Blvd<br>Westlake Village, CA 91361</a>
           </span>
         </div>
         <div class="stay-detail">
-          <span class="stay-detail-label">Book by Phone</span>
+          <span class="stay-detail-label">Phone</span>
           <span class="stay-detail-value"><a href="tel:+18188651000">818.865.1000</a></span>
-        </div>
-        <div class="stay-detail">
-          <span class="stay-detail-label">Cut-off Date</span>
-          <span class="stay-detail-value">Sep 9</span>
         </div>
       </div>
 
       <a href="https://www.hilton.com/en/attend-my-event/agohwhw-90b-1879cb72-dad9-4e7a-9a57-42c2a1c665e1/" class="stay-book-btn" target="_blank" rel="noopener">Book Your Room</a>
 
-      <p class="stay-block-note">Booking by phone? Just reference the dates of your stay and our wedding group code <strong>90B</strong>.</p>
+      <p class="stay-block-note">Call the hotel directly if you have questions about dates or availability.</p>
     </div>
   </div>
 </section>
-
-<script>
-  (function() {
-    document.querySelectorAll('.stay-copy-btn').forEach(function(btn) {
-      btn.addEventListener('click', async function() {
-        const text = btn.getAttribute('data-copy') || '';
-        try {
-          await navigator.clipboard.writeText(text);
-        } catch (err) {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          try { document.execCommand('copy'); } catch (e) {}
-          document.body.removeChild(ta);
-        }
-        btn.classList.add('copied');
-        btn.setAttribute('aria-label', 'Copied');
-        clearTimeout(btn._copyTimer);
-        btn._copyTimer = setTimeout(function() {
-          btn.classList.remove('copied');
-          btn.setAttribute('aria-label', 'Copy group code');
-        }, 1600);
-      });
-    });
-  })();
-</script>
 
 <!-- DETAILS MOVED UNDER HERO -->
 
@@ -2983,30 +2914,47 @@
     <h2 class="section-title reveal in" data-cc-id="cc-13">The <em>attire</em></h2>
 
     <div class="attire-wrap reveal in" data-cc-id="cc-10">
-      <p class="attire-chic reveal in" data-cc-id="cc-2">Please <em>dress up.</em></p>
-      <p class="attire-lead reveal in" data-cc-id="cc-12">Bring your most chic, most joyful self. The ceremony is outdoor, the reception is indoor, and the evening runs from golden hour into candlelight — dress for all three.</p>
+      <p class="attire-chic reveal in" data-cc-id="cc-2"><em>Formal</em></p>
+      <p class="attire-lead reveal in" data-cc-id="cc-12">We've been getting a lot of questions about what to wear — here's a quick guide for the evening.</p>
 
       <div class="attire-dress reveal in">
         <div class="attire-dress-block">
-          <span class="attire-dress-label">Gentlemen</span>
-          <p class="attire-dress-text">A <em>dark suit</em></p>
-          <div class="attire-swatches">
-            <span class="attire-swatch-dot" style="background:#1b2a4a;" title="Navy" aria-label="Navy"></span>
-            <span class="attire-swatch-dot" style="background:#111418;" title="Black" aria-label="Black"></span>
-            <span class="attire-swatch-dot" style="background:#36454f;" title="Charcoal" aria-label="Charcoal"></span>
+          <span class="attire-dress-label">Ladies</span>
+          <p class="attire-dress-text">Please wear a <em>floor-length dress</em> with vibrant summer colors.</p>
+          <div class="attire-color-section">
+            <span class="attire-swatch-sublabel">Recommended colors</span>
+            <div class="attire-swatches">
+              <span class="attire-swatch-dot" style="background:#ff7f6b;" title="Coral" aria-label="Coral"></span>
+              <span class="attire-swatch-dot" style="background:#9caf88;" title="Sage" aria-label="Sage"></span>
+              <span class="attire-swatch-dot" style="background:#e8a0b4;" title="Rose" aria-label="Rose"></span>
+              <span class="attire-swatch-dot" style="background:#eaa221;" title="Marigold" aria-label="Marigold"></span>
+              <span class="attire-swatch-dot" style="background:#b8a4d4;" title="Lavender" aria-label="Lavender"></span>
+              <span class="attire-swatch-dot" style="background:#3a9a9a;" title="Teal" aria-label="Teal"></span>
+              <span class="attire-swatch-dot" style="background:#c66b4a;" title="Terracotta" aria-label="Terracotta"></span>
+            </div>
           </div>
         </div>
         <div class="attire-dress-block">
-          <span class="attire-dress-label">Ladies</span>
-          <p class="attire-dress-text">A long dress in a <em>summer color</em></p>
+          <span class="attire-dress-label">Gentlemen</span>
+          <p class="attire-dress-text">Please wear a <em>dark suit</em>.</p>
+          <div class="attire-color-section">
+            <span class="attire-swatch-sublabel">Recommended colors</span>
+            <p class="attire-swatch-subtext">Navy, black, and charcoal</p>
+            <div class="attire-swatches">
+              <span class="attire-swatch-dot" style="background:#1b2a4a;" title="Navy" aria-label="Navy"></span>
+              <span class="attire-swatch-dot" style="background:#111418;" title="Black" aria-label="Black"></span>
+              <span class="attire-swatch-dot" style="background:#36454f;" title="Charcoal" aria-label="Charcoal"></span>
+            </div>
+          </div>
+        </div>
+        <div class="attire-dress-block">
+          <span class="attire-dress-label">Please avoid</span>
+          <p class="attire-swatch-subtext">Champagne, ivory, white, and tan</p>
           <div class="attire-swatches">
-            <span class="attire-swatch-dot" style="background:#ff7f6b;" title="Coral" aria-label="Coral"></span>
-            <span class="attire-swatch-dot" style="background:#9caf88;" title="Sage" aria-label="Sage"></span>
-            <span class="attire-swatch-dot" style="background:#e8a0b4;" title="Rose" aria-label="Rose"></span>
-            <span class="attire-swatch-dot" style="background:#eaa221;" title="Marigold" aria-label="Marigold"></span>
-            <span class="attire-swatch-dot" style="background:#b8a4d4;" title="Lavender" aria-label="Lavender"></span>
-            <span class="attire-swatch-dot" style="background:#3a9a9a;" title="Teal" aria-label="Teal"></span>
-            <span class="attire-swatch-dot" style="background:#c66b4a;" title="Terracotta" aria-label="Terracotta"></span>
+            <span class="attire-swatch-dot" style="background:#f7e7ce;" title="Champagne" aria-label="Champagne"></span>
+            <span class="attire-swatch-dot attire-swatch-dot--bordered" style="background:#fffff0;" title="Ivory" aria-label="Ivory"></span>
+            <span class="attire-swatch-dot attire-swatch-dot--bordered" style="background:#ffffff;" title="White" aria-label="White"></span>
+            <span class="attire-swatch-dot" style="background:#d2b48c;" title="Tan" aria-label="Tan"></span>
           </div>
         </div>
       </div>

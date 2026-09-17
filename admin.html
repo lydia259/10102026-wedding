@@ -701,6 +701,172 @@
     font-size: 14px;
   }
 
+  /* Seating */
+  .view-toggle {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .view-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 9px 16px;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--silver);
+    cursor: pointer;
+  }
+  .view-toggle-btn.active {
+    background: var(--accent);
+    color: var(--ivory);
+  }
+  .seat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .seat-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 16px 16px 14px;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .seat-card.unseated {
+    background: transparent;
+    border-style: dashed;
+  }
+  .seat-card.dragover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(30,58,138,0.12);
+  }
+  .seat-card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .seat-card-name {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+  .seat-card-count {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--silver);
+    white-space: nowrap;
+  }
+  .seat-card-count.warn { color: #a8623f; }
+  .seat-card-count.ok { color: var(--accent); }
+  .seat-chips {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 28px;
+  }
+  .seat-chip {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px 8px;
+    border: 1px solid var(--line-soft);
+    background: var(--ivory);
+    cursor: grab;
+    font-size: 16px;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+  .seat-chip:active { cursor: grabbing; }
+  .seat-chip.dragging { opacity: 0.4; }
+  .seat-chip .couple-plus {
+    color: var(--silver);
+    font-style: italic;
+    padding: 0 2px;
+  }
+  .seat-empty {
+    font-style: italic;
+    color: var(--silver);
+    font-size: 14px;
+    padding: 8px 0;
+  }
+  .round-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  .round-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 12px 12px 8px;
+  }
+  .round-card.dragover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(30,58,138,0.12);
+  }
+  .round-card .seat-card-head { padding: 4px 6px 8px; }
+  .round-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    min-height: 280px;
+  }
+  .round-stage svg.round-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .round-place {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+  }
+  .round-place .seat-chip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    min-width: 0;
+    justify-content: center;
+    font-size: 14px;
+    padding: 2px 6px;
+    line-height: 1.25;
+  }
+  .round-unseated {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 14px;
+    border: 1px dashed var(--line);
+  }
+  .round-unseated .label {
+    width: 100%;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .seating-status {
+    font-style: italic;
+    color: var(--silver);
+    font-size: 14px;
+    min-height: 20px;
+  }
+
   @media (max-width: 720px) {
     .page { padding: 32px 18px 60px; }
     .stats { grid-template-columns: repeat(2, 1fr); }
@@ -719,7 +885,7 @@
     <p>Enter the admin token to view RSVPs and gift notes.</p>
     <form id="login-form">
       <label for="token">Admin token</label>
-      <input type="password" id="token" autocomplete="current-password" required>
+      <input type="password" id="token" name="wedding-admin-token" autocomplete="off" spellcheck="false" required>
       <button type="submit" class="btn solid">Sign in</button>
       <div class="err" id="login-err"></div>
     </form>
@@ -741,6 +907,7 @@
 
   <div class="tabs" id="tabs">
     <button class="tab active" data-tab="rsvps">RSVPs <span class="count" id="count-rsvps">0</span></button>
+    <button class="tab" data-tab="seating">Seating <span class="count" id="count-seating">0</span></button>
     <button class="tab" data-tab="gifts">Gifts <span class="count" id="count-gifts">0</span></button>
     <button class="tab" data-tab="songs">Songs <span class="count" id="count-songs">0</span></button>
     <button class="btn" id="reset-filters-btn">Reset filters</button>
@@ -752,6 +919,10 @@
       <input type="checkbox" id="couples-toggle">
       <span>Couples</span>
     </label>
+    <div class="view-toggle" id="seating-view-wrap" hidden>
+      <button type="button" class="view-toggle-btn active" data-seating-view="list">List</button>
+      <button type="button" class="view-toggle-btn" data-seating-view="round">Round</button>
+    </div>
     <button class="btn" id="add-btn" hidden>New entry</button>
     <button class="btn" id="export-btn">Export CSV</button>
   </div>
@@ -823,12 +994,16 @@
   const errBanner   = document.getElementById('err-banner');
   const couplesToggleWrap = document.getElementById('couples-toggle-wrap');
   const couplesToggle     = document.getElementById('couples-toggle');
+  const seatingViewWrap   = document.getElementById('seating-view-wrap');
+  let seatingView = localStorage.getItem('cl_admin_seating_view_v1') || 'list';
+  let seatingBusy = false;
   let emailMode = localStorage.getItem('cl_admin_email_filter_v1') || 'all';
   let mealMode  = localStorage.getItem('cl_admin_meal_filter_v1') || 'all';
   let tagMode   = localStorage.getItem('cl_admin_tag_filter_v1') || 'all';
   let detailList = []; // Submitted-At keys in current display order (for drawer prev/next)
   const countEls = {
     rsvps: document.getElementById('count-rsvps'),
+    seating: document.getElementById('count-seating'),
     gifts: document.getElementById('count-gifts'),
     songs: document.getElementById('count-songs')
   };
@@ -840,6 +1015,17 @@
     if (!v) return false;
     const s = String(v).trim().toLowerCase();
     return s !== '' && s !== 'yes' && s !== 'true';
+  }
+
+  function guestName(r) {
+    const n = String((r && r['Name']) || '').trim();
+    if (n) return n;
+    return [r && r['First Name'], r && r['Last Name']].filter(Boolean).join(' ').trim();
+  }
+
+  function isCoupleHost(r) {
+    const n = guestName(r).toLowerCase();
+    return n === 'colin kodama' || n === 'lydia hong';
   }
 
   function deleteBtnHtml(sheet, submittedAt, label) {
@@ -1026,7 +1212,7 @@
       if (/unauthorized|wrong/i.test(err.message)) {
         localStorage.removeItem(TOKEN_KEY);
         showLogin();
-        loginErr.textContent = 'That token was rejected.';
+        loginErr.textContent = 'That token was rejected. Use the same ADMIN_TOKEN from Apps Script (Project Settings → Script Properties), not a saved browser password.';
       } else {
         errBanner.textContent = err.message;
         errBanner.hidden = false;
@@ -1062,6 +1248,7 @@
 
   function renderCounts() {
     countEls.rsvps.textContent = cache.rsvps.length;
+    if (countEls.seating) countEls.seating.textContent = seatingGuests().length;
     countEls.gifts.textContent = cache.gifts.length;
     countEls.songs.textContent = cache.songs.length;
   }
@@ -1118,10 +1305,506 @@
        ['missing', 'No meal yet (' + missing + ')']], 'sticky-col-left');
   }
 
+  const SEATING_SEED = [
+    { name: 'Kodama Family', guests: ['Kevin Kodama','Joyce Kodama','Qian Qian','Wendy Teng','Max Zhang','Yuling Hong','Elaine Kodama','Sarah Kodama','Itoko Kodama','Miya Kodama'] },
+    { name: 'Colin - High School A', guests: ['Grace Kim','Suhas Nareddy','Andrei Caprau','Addison Weil','Gabriela Santellano','Justin Babauta','Noor Chahal','Samuel Vydro','Patrick Zhang'] },
+    { name: 'Colin - MBA', guests: ['Andrea Villa','John Culver','Nina Allison','Jeffrey Carrillo','Julian Garcia','Derek Huang','Annie Zhou','Kaila Reyes','Aaron Reyes','Ali Karandish'] },
+    { name: 'Colin - High School C', guests: ['Stephanie Davis','Alex Applegate','Arielle McNutt','Jake McNutt','Manvi Mahajan','Akash Kakkar','Jessica Manske','Giorgi Chinchaladze'] },
+    { name: 'Colin - Family A', guests: ['Daisy Cervera','Casey Hashimoto','James Hashimoto','Shirley Kodama-Yamazaki','Russell Yamazaki','Tim Koyama','Jodi Koyama','Troy Koyama','Breanne Yamazaki'] },
+    { name: 'Colin - MBA A', guests: ['Logan Hernandez','Malia Yamamura','Sawyer Brunn','Annie Chang','Beshoy Gabriel','Michael Pappace','Ryan Lauri','Milton Zhang'] },
+    { name: 'Sofamon & Friends', guests: ['Jiaqi Ling','Peter Li','Cindy Chen','Bria Han','Frank Geng','Angela Li','Thomas Yu','Shanting Hou'] },
+    { name: 'Lydia - Friends', guests: ['Jimin (Anna) Yoon','Markus Handel','April Yang','Nick Capdevila','Tifa Tan','Lindsay Cai','Nicole Liu','Fiona Yin'] },
+    { name: 'Lydia - Family & Friends', guests: ['Helen Huang','Zhuoran Han','Yang Luo','Jason Zhang','Jonathan Luu','Nelson Wong','Melody Yao','Tianqin Li','Nan Abushami','Roberto Acero'] },
+    { name: 'Lydia - Friends A', guests: ['Matthew Nightingale','Abby Chen','Conan Zhou','Claudia Shao','Claire Toh','Joanna Wang','Gemma Sun','Vivian Yuan','EnYu Huang'] },
+    { name: 'New table', guests: ['Ashlyn Araki','Taryn Araki','Clayton Kodama','Stacey Kodama','Kathie Flinn','Dell Araki','Nancy Araki','Yasuko Nishitani'] }
+  ];
+  const SEED_TABLE_ORDER = SEATING_SEED.map(t => t.name);
+  const SEATING_COUPLES = [
+    ['Kevin Kodama', 'Joyce Kodama'],
+    ['Qian Qian', 'Wendy Teng'],
+    ['Itoko Kodama', 'Miya Kodama'],
+    ['Grace Kim', 'Suhas Nareddy'],
+    ['Gabriela Santellano', 'Justin Babauta'],
+    ['Andrea Villa', 'John Culver'],
+    ['Nina Allison', 'Jeffrey Carrillo'],
+    ['Derek Huang', 'Annie Zhou'],
+    ['Kaila Reyes', 'Aaron Reyes'],
+    ['Stephanie Davis', 'Alex Applegate'],
+    ['Arielle McNutt', 'Jake McNutt'],
+    ['Manvi Mahajan', 'Akash Kakkar'],
+    ['Daisy Cervera', 'Casey Hashimoto'],
+    ['Shirley Kodama-Yamazaki', 'Russell Yamazaki'],
+    ['Tim Koyama', 'Jodi Koyama'],
+    ['Malia Yamamura', 'Sawyer Brunn'],
+    ['Annie Chang', 'Beshoy Gabriel'],
+    ['Frank Geng', 'Angela Li'],
+    ['Markus Handel', 'April Yang'],
+    ['Nick Capdevila', 'Tifa Tan'],
+    ['Yang Luo', 'Jason Zhang'],
+    ['Melody Yao', 'Tianqin Li'],
+    ['Nan Abushami', 'Roberto Acero'],
+    ['Matthew Nightingale', 'Abby Chen'],
+    ['Conan Zhou', 'Claudia Shao'],
+    ['Vivian Yuan', 'EnYu Huang'],
+    ['Clayton Kodama', 'Stacey Kodama'],
+    ['Dell Araki', 'Nancy Araki']
+  ];
+
+  function namesMatch(a, b) {
+    const na = normGuestName(a);
+    const nb = normGuestName(b);
+    return !!(na && nb && (na === nb || na.startsWith(nb + ' ') || nb.startsWith(na + ' ')));
+  }
+
+  function normGuestName(s) {
+    return String(s || '').toLowerCase()
+      .replace(/\(anna\)/g, ' ')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function seatingGuests() {
+    return (cache.rsvps || []).filter(r => !isCoupleHost(r));
+  }
+
+  function tableOf(r) {
+    return String(r['Table'] || '').trim();
+  }
+
+  function seatOf(r) {
+    const n = Number(r['Seat']);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
+  function seatingTableNames() {
+    const seen = {};
+    const names = [];
+    SEED_TABLE_ORDER.forEach(n => {
+      if (!seen[n]) { seen[n] = true; names.push(n); }
+    });
+    seatingGuests().forEach(r => {
+      const t = tableOf(r);
+      if (t && !seen[t]) { seen[t] = true; names.push(t); }
+    });
+    return names;
+  }
+
+  function guestsAtTable(tableName) {
+    const rows = seatingGuests().filter(r => tableOf(r) === tableName);
+    rows.sort((a, b) => {
+      const sa = seatOf(a);
+      const sb = seatOf(b);
+      if (sa && sb && sa !== sb) return sa - sb;
+      if (sa && !sb) return -1;
+      if (!sa && sb) return 1;
+      return guestName(a).localeCompare(guestName(b));
+    });
+    return rows;
+  }
+
+  function unseatedGuests() {
+    return seatingGuests().filter(r => !tableOf(r))
+      .sort((a, b) => guestName(a).localeCompare(guestName(b)));
+  }
+
+  function findCouplePartner(row, pool) {
+    const others = (pool || []).filter(r => r !== row);
+    if (!others.length) return null;
+    const plus = String(row['Plus One'] || '').trim();
+    if (isPlusOneNamed(plus)) {
+      const hit = others.find(r => namesMatch(guestName(r), plus));
+      if (hit) return hit;
+    }
+    const listedBy = others.find(r =>
+      isPlusOneNamed(r['Plus One']) && namesMatch(guestName(row), r['Plus One'])
+    );
+    if (listedBy) return listedBy;
+    const name = guestName(row);
+    for (let i = 0; i < SEATING_COUPLES.length; i++) {
+      const pair = SEATING_COUPLES[i];
+      if (namesMatch(name, pair[0])) {
+        const hit = others.find(r => namesMatch(guestName(r), pair[1]));
+        if (hit) return hit;
+      }
+      if (namesMatch(name, pair[1])) {
+        const hit = others.find(r => namesMatch(guestName(r), pair[0]));
+        if (hit) return hit;
+      }
+    }
+    return null;
+  }
+
+  function groupPeopleForList(people) {
+    const used = {};
+    const groups = [];
+    people.forEach(r => {
+      const at = String(r['Submitted At'] || '');
+      if (!at || used[at]) return;
+      const partner = findCouplePartner(r, people);
+      const partnerAt = partner ? String(partner['Submitted At'] || '') : '';
+      if (partner && partnerAt && !used[partnerAt]) {
+        used[at] = true;
+        used[partnerAt] = true;
+        const ir = people.indexOf(r);
+        const ip = people.indexOf(partner);
+        groups.push(ir <= ip ? [r, partner] : [partner, r]);
+        return;
+      }
+      used[at] = true;
+      groups.push([r]);
+    });
+    return groups;
+  }
+
+  function countTone(n) {
+    if (n >= 6 && n <= 9) return 'ok';
+    return 'warn';
+  }
+
+  function matchGuestRow(name) {
+    const want = normGuestName(name);
+    const rows = seatingGuests();
+    let hit = rows.find(r => normGuestName(guestName(r)) === want);
+    if (hit) return hit;
+    return rows.find(r => {
+      const g = normGuestName(guestName(r));
+      return g === want || g.startsWith(want + ' ') || want.startsWith(g + ' ');
+    });
+  }
+
+  function needsSeatingSeed() {
+    return seatingGuests().every(r => !tableOf(r));
+  }
+
+  function applySeatingSeedLocal() {
+    seatingGuests().forEach(r => {
+      r['Table'] = '';
+      r['Seat'] = '';
+    });
+    const used = {};
+    SEATING_SEED.forEach(table => {
+      let seat = 1;
+      table.guests.forEach(name => {
+        const row = matchGuestRow(name);
+        if (!row) return;
+        const at = String(row['Submitted At'] || '');
+        if (!at || used[at]) return;
+        used[at] = true;
+        row['Table'] = table.name;
+        row['Seat'] = seat;
+        seat += 1;
+      });
+    });
+  }
+
+  function patchesFromSeatingGuests() {
+    return seatingGuests().map(r => ({
+      submittedAt: String(r['Submitted At'] || ''),
+      updates: { Table: tableOf(r), Seat: tableOf(r) ? seatOf(r) : '' }
+    })).filter(p => p.submittedAt);
+  }
+
+  async function saveSeatingPatches(patches) {
+    const token = localStorage.getItem(TOKEN_KEY) || '';
+    if (!token) { showLogin(); return false; }
+    if (!patches.length) return true;
+    const res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ type: 'admin-bulk-update', token, sheet: 'rsvp', rows: patches })
+    });
+    const json = await res.json();
+    if (json.error === 'unauthorized') {
+      localStorage.removeItem(TOKEN_KEY);
+      showLogin();
+      loginErr.textContent = 'Session expired. Sign in again.';
+      return false;
+    }
+    if (json.ok === false) throw new Error(json.error || 'Could not save seating.');
+    return true;
+  }
+
+  async function ensureSeatingSeed() {
+    if (!needsSeatingSeed()) return;
+    applySeatingSeedLocal();
+    try {
+      await saveSeatingPatches(patchesFromSeatingGuests());
+    } catch (err) {
+      errBanner.hidden = false;
+      errBanner.textContent = 'Could not save seating seed: ' + err.message;
+    }
+  }
+
+  function reindexTable(tableName, ordered) {
+    ordered.forEach((r, i) => {
+      if (tableName) {
+        r['Table'] = tableName;
+        r['Seat'] = i + 1;
+      } else {
+        r['Table'] = '';
+        r['Seat'] = '';
+      }
+    });
+  }
+
+  function seatingPatchesForRows(rows) {
+    const seen = {};
+    const patches = [];
+    rows.forEach(r => {
+      const at = String(r['Submitted At'] || '');
+      if (!at || seen[at]) return;
+      seen[at] = true;
+      patches.push({
+        submittedAt: at,
+        updates: { Table: tableOf(r), Seat: tableOf(r) ? seatOf(r) : '' }
+      });
+    });
+    return patches;
+  }
+
+  async function moveGuestToTable(submittedAt, destTable, destIndex) {
+    if (seatingBusy) return;
+    const ats = String(submittedAt || '').split(',').map(s => s.trim()).filter(Boolean);
+    const seen = {};
+    const guests = [];
+    ats.forEach(at => {
+      if (seen[at]) return;
+      const guest = seatingGuests().find(r => String(r['Submitted At'] || '') === at);
+      if (!guest) return;
+      seen[at] = true;
+      guests.push(guest);
+    });
+    if (!guests.length) return;
+
+    const dest = String(destTable || '').trim();
+    const fromTables = [];
+    guests.forEach(g => {
+      const t = tableOf(g);
+      if (fromTables.indexOf(t) < 0) fromTables.push(t);
+    });
+    if (fromTables.length === 1 && fromTables[0] === dest && destIndex == null) return;
+
+    const origDest = dest ? guestsAtTable(dest) : unseatedGuests();
+    const destWithout = origDest.filter(r => !seen[String(r['Submitted At'] || '')]);
+    let idx;
+    if (destIndex == null || destIndex < 0) {
+      idx = destWithout.length;
+    } else {
+      const removedBefore = origDest.slice(0, destIndex).filter(r => seen[String(r['Submitted At'] || '')]).length;
+      idx = Math.max(0, Math.min(destIndex - removedBefore, destWithout.length));
+    }
+    const destList = destWithout.slice(0, idx).concat(guests, destWithout.slice(idx));
+
+    const touched = destList.slice();
+    fromTables.forEach(t => {
+      if (t === dest) return;
+      const remaining = (t ? guestsAtTable(t) : unseatedGuests())
+        .filter(r => !seen[String(r['Submitted At'] || '')]);
+      reindexTable(t, remaining);
+      remaining.forEach(r => touched.push(r));
+    });
+    reindexTable(dest, destList);
+
+    seatingBusy = true;
+    try {
+      renderActiveTab();
+      await saveSeatingPatches(seatingPatchesForRows(touched));
+    } catch (err) {
+      errBanner.hidden = false;
+      errBanner.textContent = 'Could not save seating: ' + err.message;
+      await loadDashboard();
+    } finally {
+      seatingBusy = false;
+    }
+  }
+
+  function bindSeatCardDrop(card, tableName) {
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      card.classList.add('dragover');
+    });
+    card.addEventListener('dragleave', e => {
+      if (!card.contains(e.relatedTarget)) card.classList.remove('dragover');
+    });
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      card.classList.remove('dragover');
+      const at = e.dataTransfer.getData('text/seat-at') || e.dataTransfer.getData('text/plain');
+      if (!at) return;
+      const chip = e.target.closest('.seat-chip');
+      const place = e.target.closest('.round-place');
+      let destIndex = null;
+      const chipAt = chip ? (chip.getAttribute('data-at') || '') : '';
+      if (chip && chipAt && chipAt !== at) {
+        const list = tableName ? guestsAtTable(tableName) : unseatedGuests();
+        const targetAt = chipAt.split(',')[0];
+        destIndex = list.findIndex(r => String(r['Submitted At'] || '') === targetAt);
+        if (destIndex < 0) destIndex = null;
+      } else if (place) {
+        const idx = Number(place.getAttribute('data-index'));
+        destIndex = Number.isFinite(idx) ? idx : null;
+      }
+      moveGuestToTable(at, tableName, destIndex);
+    });
+  }
+
+  function seatChipHtml(r) {
+    return listChipHtml([r]);
+  }
+
+  function listChipHtml(rows) {
+    const ats = rows.map(r => String(r['Submitted At'] || '')).filter(Boolean).join(',');
+    const label = rows.map(r => escapeHtml(guestName(r) || 'Guest'))
+      .join('<span class="couple-plus"> + </span>');
+    return '<div class="seat-chip" draggable="true" data-at="' +
+      escapeHtml(ats) + '">' + label + '</div>';
+  }
+
+  function bindChipDrag(root) {
+    root.querySelectorAll('.seat-chip').forEach(chip => {
+      chip.addEventListener('dragstart', e => {
+        chip.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', chip.getAttribute('data-at') || '');
+        e.dataTransfer.setData('text/seat-at', chip.getAttribute('data-at') || '');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
+    });
+  }
+
+  function renderSeatingList(q) {
+    const needle = q.toLowerCase();
+    const match = r => !needle || guestName(r).toLowerCase().includes(needle);
+    const tables = seatingTableNames();
+    const unseatedGroups = groupPeopleForList(unseatedGuests())
+      .filter(rows => rows.some(match));
+    const unseatedCount = unseatedGuests().length;
+    const cards = [];
+
+    cards.push(
+      '<div class="seat-card unseated" data-table="">' +
+        '<div class="seat-card-head"><div class="seat-card-name">Unseated</div>' +
+        '<span class="seat-card-count">' + unseatedCount + '</span></div>' +
+        '<div class="seat-chips">' +
+          (unseatedGroups.length ? unseatedGroups.map(listChipHtml).join('') : '<div class="seat-empty">Everyone has a table.</div>') +
+        '</div></div>'
+    );
+
+    tables.forEach(name => {
+      const allPeople = guestsAtTable(name);
+      const groups = groupPeopleForList(allPeople).filter(rows => rows.some(match));
+      const n = allPeople.length;
+      cards.push(
+        '<div class="seat-card" data-table="' + escapeHtml(name) + '">' +
+          '<div class="seat-card-head"><div class="seat-card-name">' + escapeHtml(name) + '</div>' +
+          '<span class="seat-card-count ' + countTone(n) + '">' + n + (n === 1 ? ' guest' : ' guests') + '</span></div>' +
+          '<div class="seat-chips">' +
+            (groups.length ? groups.map(listChipHtml).join('') : '<div class="seat-empty">Drag guests here</div>') +
+          '</div></div>'
+      );
+    });
+
+    panelEl.innerHTML = '<div class="seat-grid">' + cards.join('') + '</div>';
+    panelEl.querySelectorAll('.seat-card').forEach(card => {
+      bindSeatCardDrop(card, card.getAttribute('data-table') || '');
+    });
+    bindChipDrag(panelEl);
+  }
+
+  function buildRoundTable(tableName, people) {
+    const stage = document.createElement('div');
+    stage.className = 'round-stage';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.classList.add('round-svg');
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', '50');
+    circle.setAttribute('cy', '50');
+    circle.setAttribute('r', '28');
+    circle.setAttribute('fill', 'none');
+    circle.setAttribute('stroke', 'rgba(30,58,138,0.35)');
+    circle.setAttribute('stroke-width', '0.7');
+    svg.appendChild(circle);
+    stage.appendChild(svg);
+    const n = Math.max(people.length, 1);
+    people.forEach((r, i) => {
+      const angle = (360 * i) / n - 90;
+      const place = document.createElement('div');
+      place.className = 'round-place';
+      place.style.transform = 'rotate(' + angle + 'deg)';
+      place.setAttribute('data-index', String(i));
+      place.innerHTML = seatChipHtml(r);
+      const chip = place.querySelector('.seat-chip');
+      if (chip) chip.style.transform = 'translate(-50%, -50%) translateY(-114px) rotate(' + (-angle) + 'deg)';
+      stage.appendChild(place);
+    });
+    return stage;
+  }
+
+  function bindRoundCardDrop(card, tableName) {
+    bindSeatCardDrop(card, tableName);
+  }
+
+  function renderSeatingRound(q) {
+    const needle = q.toLowerCase();
+    const match = r => !needle || guestName(r).toLowerCase().includes(needle);
+    const tables = seatingTableNames();
+    const wrap = document.createElement('div');
+    wrap.className = 'round-grid';
+
+    const unseated = unseatedGuests().filter(match);
+    if (unseated.length) {
+      const un = document.createElement('div');
+      un.className = 'round-unseated seat-card unseated';
+      un.setAttribute('data-table', '');
+      un.innerHTML = '<div class="label">Unseated</div>' + unseated.map(seatChipHtml).join('');
+      wrap.appendChild(un);
+    }
+
+    tables.forEach(name => {
+      const people = guestsAtTable(name).filter(match);
+      const n = guestsAtTable(name).length;
+      const card = document.createElement('div');
+      card.className = 'round-card';
+      card.setAttribute('data-table', name);
+      const head = document.createElement('div');
+      head.className = 'seat-card-head';
+      head.innerHTML = '<div class="seat-card-name">' + escapeHtml(name) + '</div>' +
+        '<span class="seat-card-count ' + countTone(n) + '">' + n + (n === 1 ? ' guest' : ' guests') + '</span>';
+      card.appendChild(head);
+      card.appendChild(buildRoundTable(name, people));
+      wrap.appendChild(card);
+    });
+
+    panelEl.innerHTML = '';
+    panelEl.appendChild(wrap);
+    wrap.querySelectorAll('.round-card').forEach(card => {
+      bindRoundCardDrop(card, card.getAttribute('data-table') || '');
+    });
+    const unseatedBox = wrap.querySelector('.round-unseated');
+    if (unseatedBox) bindSeatCardDrop(unseatedBox, '');
+    bindChipDrag(panelEl);
+  }
+
+  async function renderSeatingTab(q) {
+    couplesToggleWrap.hidden = true;
+    seatingViewWrap.hidden = false;
+    addBtn.hidden = true;
+    await ensureSeatingSeed();
+    if (seatingView === 'round') renderSeatingRound(q);
+    else renderSeatingList(q);
+  }
+
   function renderActiveTab() {
     const q = searchEl.value.trim();
     couplesToggleWrap.hidden = activeTab !== 'rsvps';
-    addBtn.hidden = activeTab === 'songs';
+    seatingViewWrap.hidden = activeTab !== 'seating';
+    addBtn.hidden = activeTab === 'songs' || activeTab === 'seating';
+    if (activeTab === 'seating') {
+      renderSeatingTab(q);
+      return;
+    }
     if (activeTab === 'rsvps') {
       const couplesView = !!couplesToggle.checked;
       let baseRows = cache.rsvps;
@@ -1161,7 +1844,7 @@
         panelEl.innerHTML = `
           <table>
             <thead><tr>
-              ${mealFilterTh('Party')}<th>Size</th>${tagFilterTh()}${emailFilterTh()}<th>Entree</th><th>Dietary</th>
+              ${mealFilterTh('Party')}<th>Size</th>${tagFilterTh()}${emailFilterTh()}<th>Table</th><th>Entree</th><th>Dietary</th>
               <th>Transport</th><th>Address</th><th>Attending</th><th class="sticky-col"></th>
             </tr></thead>
             <tbody>
@@ -1171,7 +1854,7 @@
                 const partySize = (named || plusYes) ? 2 : 1;
                 const attending = String(r['Attending']).toLowerCase() === 'yes';
                 const partyHtml = `
-                  <span class="primary">${escapeHtml(r['Name'] || '')}</span>
+                  <span class="primary">${escapeHtml(guestName(r) || '')}</span>
                   ${named
                     ? '<span class="plus">&amp; ' + escapeHtml(r['Plus One']) + '</span>'
                     : (plusYes ? '<span class="plus">&amp; plus-one (unnamed)</span>' : '')}
@@ -1182,12 +1865,13 @@
                     <td>${attending ? '<span class="party-size">' + partySize + '</span>' : '<span class="muted">—</span>'}</td>
                     <td class="tags-cell">${tagChipsHtml(r['Tags'])}</td>
                     <td class="muted">${escapeHtml(r['Email'] || '')}</td>
+                    <td>${escapeHtml(tableOf(r) || '')}</td>
                     <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeShort(r['Entree'])) + '</span>' : ''}</td>
                     <td>${escapeHtml(r['Dietary'] || '')}</td>
                     <td>${escapeHtml(r['Transport'] || '')}</td>
                     <td class="muted addr">${escapeHtml(r['Address'] || '')}</td>
                     <td>${attendingPill(r['Attending'])}</td>
-                    <td class="row-actions sticky-col">${rowActionsHtml('rsvp', r['Submitted At'], r['Name'])}</td>
+                    <td class="row-actions sticky-col">${rowActionsHtml('rsvp', r['Submitted At'], guestName(r))}</td>
                   </tr>`;
               }).join('')}
             </tbody>
@@ -1196,22 +1880,23 @@
         panelEl.innerHTML = `
           <table>
             <thead><tr>
-              ${mealFilterTh('Name')}${tagFilterTh()}${emailFilterTh()}<th>Plus One</th><th>Entree</th><th>Dietary</th>
+              ${mealFilterTh('Name')}${tagFilterTh()}${emailFilterTh()}<th>Table</th><th>Plus One</th><th>Entree</th><th>Dietary</th>
               <th>Transport</th><th>Address</th><th>Attending</th><th class="sticky-col"></th>
             </tr></thead>
             <tbody>
               ${rows.map(r => `
                 <tr class="row-clickable" data-at="${escapeHtml(String(r['Submitted At'] || ''))}">
-                  <td class="sticky-col-left">${escapeHtml(r['Name'] || '')}</td>
+                  <td class="sticky-col-left">${escapeHtml(guestName(r) || '')}</td>
                   <td class="tags-cell">${tagChipsHtml(r['Tags'])}</td>
                   <td class="muted">${escapeHtml(r['Email'] || '')}</td>
+                  <td>${escapeHtml(tableOf(r) || '')}</td>
                   <td>${plusOneDisplay(r['Plus One'])}</td>
                   <td>${r['Entree'] ? '<span class="pill">' + escapeHtml(entreeShort(r['Entree'])) + '</span>' : ''}</td>
                   <td>${escapeHtml(r['Dietary'] || '')}</td>
                   <td>${escapeHtml(r['Transport'] || '')}</td>
                   <td class="muted addr">${escapeHtml(r['Address'] || '')}</td>
                   <td>${attendingPill(r['Attending'])}</td>
-                  <td class="row-actions sticky-col">${rowActionsHtml('rsvp', r['Submitted At'], r['Name'])}</td>
+                  <td class="row-actions sticky-col">${rowActionsHtml('rsvp', r['Submitted At'], guestName(r))}</td>
                 </tr>`).join('')}
             </tbody>
           </table>`;
@@ -1338,6 +2023,14 @@
     let rows = [];
     let filename = 'export.csv';
     if (activeTab === 'rsvps') { rows = expandNameColumns(cache.rsvps, 'Name'); filename = 'rsvps.csv'; }
+    else if (activeTab === 'seating') {
+      rows = seatingGuests().map(r => ({
+        Name: guestName(r),
+        Table: tableOf(r),
+        Seat: tableOf(r) ? seatOf(r) : ''
+      }));
+      filename = 'seating.csv';
+    }
     else if (activeTab === 'gifts') { rows = expandNameColumns(cache.gifts, 'Name'); filename = 'gifts.csv'; }
     else if (activeTab === 'songs') {
       rows = aggregateSongs(cache.songs).map(s => ({
@@ -1362,6 +2055,18 @@
   couplesToggle.addEventListener('change', () => {
     localStorage.setItem('cl_admin_couples_v1', couplesToggle.checked ? '1' : '0');
     renderActiveTab();
+  });
+
+  seatingViewWrap.querySelectorAll('[data-seating-view]').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-seating-view') === seatingView);
+    btn.addEventListener('click', () => {
+      seatingView = btn.getAttribute('data-seating-view') || 'list';
+      localStorage.setItem('cl_admin_seating_view_v1', seatingView);
+      seatingViewWrap.querySelectorAll('[data-seating-view]').forEach(b => {
+        b.classList.toggle('active', b === btn);
+      });
+      renderActiveTab();
+    });
   });
 
   resetFiltersBtn.addEventListener('click', () => {
@@ -1458,6 +2163,8 @@
   const DETAIL_FIELDS = [
     ['Email',               r => r['Email']],
     ['Mailing address',     r => r['Address']],
+    ['Table',                r => r['Table']],
+    ['Seat',                 r => r['Seat']],
     ['Plus one',            r => r['Plus One']],
     ['Entree',              r => entreeLabel(r['Entree'])],
     ['Dietary / allergies', r => r['Dietary']],
@@ -1492,7 +2199,7 @@
     const row = findRow('rsvp', submittedAt);
     if (!row) return;
     detailAt = submittedAt;
-    detailTitle.textContent = row['Name'] || 'Guest';
+    detailTitle.textContent = guestName(row) || row['Name'] || 'Guest';
     detailBody.innerHTML = detailTagsRowHtml(row) + DETAIL_FIELDS.map(([label, get, isHtml]) => {
       const raw = get(row);
       if (isHtml) {
@@ -1657,7 +2364,10 @@
         options: [['', '—'], ['chicken', 'Garlic Herb Jidori Chicken'], ['salmon', 'Grilled Salmon'], ['rigatoni', 'Rigatoni with Summer Corn Cream Sauce']] },
       { key: 'Dietary',     label: 'Dietary / allergies', type: 'text' },
       { key: 'Address',     label: 'Mailing address',     type: 'textarea' },
-      { key: 'Tags',        label: 'Tags',         type: 'tags' }
+      { key: 'Tags',        label: 'Tags',         type: 'tags' },
+      { key: 'Table',       label: 'Table',        type: 'text',
+        placeholder: 'Dining table name' },
+      { key: 'Seat',        label: 'Seat',         type: 'number' }
     ],
     gift: [
       { key: 'Name',   label: 'Name',   type: 'text' },
@@ -1697,7 +2407,7 @@
     editing = { mode: 'edit', sheet, submittedAt };
     editTags = parseTags(row['Tags']);
     editTitle.textContent = sheet === 'gift' ? 'Edit gift note' : 'Edit RSVP';
-    editSub.textContent = row['Name'] ? row['Name'] : '';
+    editSub.textContent = guestName(row) || (row['Name'] ? row['Name'] : '');
     editErr.textContent = '';
     editForm.innerHTML = fields.map(f => renderField(f, row[f.key])).join('');
     initTagEditor();

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carpool · Colin &amp; Lydia · October 10, 2026</title>
+<meta name="description" content="Opt into a wedding carpool for Colin and Lydia, October 10, 2026.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #f8f4ec;
+    --band: #efe8d9;
+    --card: #faf7f0;
+    --card-border: #ddd6c8;
+    --ink: #0f1a33;
+    --silver: #5a6476;
+    --muted: #8a8070;
+    --accent: #1e3a8a;
+    --accent-soft: #2c4ba0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--ivory); }
+  body {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 20px 64px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 500px; margin: 0 auto; }
+
+  .eyebrow {
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-align: center;
+  }
+  .monogram {
+    font-family: 'Bodoni Moda', 'Didot', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 44px;
+    line-height: 1.1;
+    color: var(--ink);
+    text-align: center;
+    margin-top: 14px;
+    letter-spacing: -0.01em;
+  }
+  .rule { width: 48px; height: 1px; background: var(--accent); opacity: 0.3; margin: 22px auto; }
+  .lead {
+    font-size: 19px;
+    color: #2a3347;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .lead-sub {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    color: var(--silver);
+    text-align: center;
+    line-height: 1.55;
+    margin: -18px 0 28px;
+  }
+
+  .progress {
+    height: 2px;
+    background: rgba(30,58,138,0.12);
+    margin: 0 0 28px;
+  }
+  .progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--accent);
+    transition: width 280ms ease;
+  }
+
+  .step-eyebrow {
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .step-title {
+    font-family: 'Bodoni Moda', 'Didot', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .step-sub {
+    font-size: 17px;
+    color: var(--silver);
+    margin-bottom: 22px;
+  }
+
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 7px;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 17px;
+    color: var(--ink);
+    outline: none;
+    appearance: none;
+    border-radius: 0;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field input::placeholder {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    color: #9a9384;
+  }
+  .field-hint {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    color: var(--silver);
+    margin-top: 8px;
+  }
+  .field-row { display: flex; gap: 12px; }
+  .field-row .field { flex: 1 1 0; }
+  @media (max-width: 520px) {
+    .field-row { flex-direction: column; gap: 0; }
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .stepper button {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .stepper button:hover { background: var(--accent); color: var(--ivory); }
+  .stepper .val {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 24px;
+    min-width: 28px;
+    text-align: center;
+  }
+
+  .choice {
+    display: block;
+    width: 100%;
+    position: relative;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    padding: 18px 18px 18px 52px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+    transition: border-color 200ms ease, background 200ms ease;
+  }
+  .choice input {
+    position: absolute;
+    left: 20px;
+    top: 22px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+  .choice:hover { border-color: var(--accent); }
+  .choice .dot {
+    position: absolute;
+    left: 20px;
+    top: 22px;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #b9b1a0;
+    border-radius: 50%;
+    background: #fff;
+  }
+  .choice .dot::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: scale(0);
+    transition: transform 160ms ease;
+  }
+  .choice.selected,
+  .choice:has(input:checked) { border-color: var(--accent); background: #f3f0e6; }
+  .choice.selected .dot,
+  .choice:has(input:checked) .dot { border-color: var(--accent); }
+  .choice.selected .dot::after,
+  .choice:has(input:checked) .dot::after { transform: scale(1); }
+  .choice strong {
+    display: block;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .choice span {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    color: var(--silver);
+  }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    gap: 12px;
+  }
+  .btn-back {
+    background: none;
+    border: none;
+    color: var(--silver);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 17px;
+    cursor: pointer;
+    padding: 8px 0;
+  }
+  .btn-back:hover { color: var(--accent); }
+  .btn-next {
+    margin-left: auto;
+    padding: 14px 22px;
+    background: var(--accent);
+    color: var(--ivory);
+    border: none;
+    cursor: pointer;
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .btn-next:hover { background: var(--accent-soft); }
+  .btn-next[disabled] { opacity: 0.45; cursor: default; }
+
+  .step-title + .trip-card { margin-top: 18px; }
+  .trip-card {
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    padding: 16px 16px 6px;
+    margin-bottom: 14px;
+  }
+  .trip-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .trip-card-title {
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .trip-remove {
+    background: none;
+    border: none;
+    color: var(--silver);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 0;
+  }
+  .trip-remove:hover { color: var(--accent); }
+  .btn-add {
+    display: block;
+    width: 100%;
+    margin: 4px 0 18px;
+    padding: 13px 16px;
+    border: 1px dashed var(--card-border);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  .btn-add:hover { border-color: var(--accent); }
+
+  .review {
+    border: 1px solid var(--card-border);
+    background: var(--band);
+    padding: 8px 18px;
+    margin-bottom: 20px;
+  }
+  .review-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--card-border);
+    font-size: 17px;
+  }
+  .review-line:last-child { border-bottom: none; }
+  .review-line .k { color: var(--silver); }
+  .review-line .v { color: var(--ink); text-align: right; max-width: 62%; }
+
+  .error {
+    color: #9a2c2c;
+    font-size: 16px;
+    text-align: center;
+    margin: 12px 0 0;
+    min-height: 20px;
+  }
+
+  .confirm { display: none; text-align: center; padding: 12px 0 8px; }
+  .confirm.show { display: block; }
+  .confirm .check {
+    width: 56px; height: 56px; margin: 0 auto 24px;
+    border-radius: 50%; border: 1px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .confirm .check svg { width: 26px; height: 26px; stroke: var(--accent); }
+  .confirm h2 {
+    font-family: 'Bodoni Moda', 'Didot', Georgia, serif;
+    font-style: italic; font-weight: 500; font-size: 34px;
+    color: var(--ink); margin-bottom: 14px; line-height: 1.15;
+  }
+  .confirm p { font-size: 19px; color: var(--silver); max-width: 380px; margin: 0 auto; }
+  .form-area.hidden { display: none; }
+
+  footer {
+    text-align: center;
+    margin-top: 54px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(30,58,138,0.14);
+  }
+  footer .love { font-style: italic; font-size: 20px; }
+  footer .stamp {
+    font-family: 'Bodoni Moda', Arial, sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">October 10, 2026 · Calamigos Ranch, Malibu</div>
+    <div class="monogram">Colin &amp; Lydia</div>
+    <div class="rule"></div>
+
+    <div class="form-area" id="formArea">
+      <p class="lead">Carpool survey</p>
+      <p class="lead-sub">About two minutes. One response per travel party. This is optional and it helps you to find your carpool group.</p>
+      <div class="progress"><span id="progressFill"></span></div>
+      <div id="cardRoot"></div>
+      <p class="error" id="errorMsg"></p>
+    </div>
+
+    <div class="confirm" id="confirm">
+      <div class="check">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+      </div>
+      <h2>You&rsquo;re all set</h2>
+      <p>We&rsquo;ll follow up if we need anything else before we match carpool groups.</p>
+    </div>
+
+    <footer>
+      <div class="love">With love</div>
+      <div class="stamp">Colin &amp; Lydia · 10.10.2026</div>
+    </footer>
+  </div>
+
+<script src="assets/wedding-config.js"></script>
+<script>
+(function () {
+  var ENDPOINT = (window.WEDDING_CONFIG && window.WEDDING_CONFIG.ENDPOINT) || '';
+  var params = new URLSearchParams(window.location.search);
+  var urlName = (params.get('name') || '').trim();
+  var urlEmail = (params.get('email') || '').trim();
+
+  var MAX_TRIPS = 8;
+
+  function emptyTrip() {
+    return { from: '', to: '', date: '', leaveTime: 'flexible', arriveTime: 'flexible' };
+  }
+
+  var state = {
+    partyName: urlName,
+    email: urlEmail,
+    partySize: 1,
+    carStatus: null,
+    seatsFree: 2,
+    trips: [emptyTrip(), emptyTrip()]
+  };
+
+  var currentStepId = 'party';
+  var root = document.getElementById('cardRoot');
+  var errorMsg = document.getElementById('errorMsg');
+  var progressFill = document.getElementById('progressFill');
+
+  var DATE_LABELS = {
+    '2026-10-08': 'Thu, Oct 8',
+    '2026-10-09': 'Fri, Oct 9',
+    '2026-10-10': 'Sat, Oct 10 (wedding day)',
+    '2026-10-11': 'Sun, Oct 11',
+    '2026-10-12': 'Mon, Oct 12'
+  };
+  var TIME_LABELS = {
+    flexible: "I'm flexible",
+    early: 'Early morning (before 9am)',
+    morning: 'Morning (9am to 12pm)',
+    afternoon: 'Afternoon (12 to 5pm)',
+    evening: 'Evening (5 to 9pm)',
+    late: 'Late night (after 9pm)'
+  };
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function getSteps() {
+    var steps = ['party', 'car'];
+    if (state.carStatus === 'own') steps.push('seats');
+    steps.push('trips', 'review');
+    return steps;
+  }
+
+  function stepLabel(id) {
+    var steps = getSteps();
+    if (id === 'seats') {
+      var carIdx = steps.filter(function (s) { return s !== 'seats'; }).indexOf('car');
+      return 'Step ' + (carIdx + 1) + 'b';
+    }
+    var idx = steps.filter(function (s) { return s !== 'seats'; }).indexOf(id);
+    return 'Step ' + (idx + 1);
+  }
+
+  function goTo(delta) {
+    var steps = getSteps();
+    var idx = steps.indexOf(currentStepId) + delta;
+    if (idx < 0) idx = 0;
+    if (idx > steps.length - 1) idx = steps.length - 1;
+    currentStepId = steps[idx];
+    render();
+  }
+
+  function dateOptions(val) {
+    var html = '<option value=""' + (!val ? ' selected' : '') + ' disabled>Select a date</option>';
+    Object.keys(DATE_LABELS).forEach(function (k) {
+      html += '<option value="' + k + '"' + (val === k ? ' selected' : '') + '>' + DATE_LABELS[k] + '</option>';
+    });
+    return html;
+  }
+
+  function timeOptions(val) {
+    var html = '';
+    Object.keys(TIME_LABELS).forEach(function (k) {
+      var selected = (val || 'flexible') === k ? ' selected' : '';
+      html += '<option value="' + k + '"' + selected + '>' + TIME_LABELS[k] + '</option>';
+    });
+    return html;
+  }
+
+  function tripSummary(t) {
+    if (!t.from && !t.to && !t.date) return '';
+    var when = DATE_LABELS[t.date] || t.date || 'date TBD';
+    var leave = TIME_LABELS[t.leaveTime] || TIME_LABELS.flexible;
+    return (t.from || '?') + ' \u2192 ' + (t.to || '?') + ' \u00b7 ' + when + ' \u00b7 leave ' + leave.toLowerCase();
+  }
+
+  function tripIsFilled(t) {
+    return !!(t && (t.date || t.from || t.to));
+  }
+
+  function filledTrips(list) {
+    return (list || []).filter(tripIsFilled);
+  }
+
+  function readTripsFromDom() {
+    var cards = root.querySelectorAll('.trip-card');
+    if (!cards.length) return state.trips.slice();
+    var trips = [];
+    Array.prototype.forEach.call(cards, function (card) {
+      trips.push({
+        from: ((card.querySelector('[data-field="from"]') || {}).value || '').trim(),
+        to: ((card.querySelector('[data-field="to"]') || {}).value || '').trim(),
+        date: (card.querySelector('[data-field="date"]') || {}).value || '',
+        leaveTime: (card.querySelector('[data-field="leaveTime"]') || {}).value || 'flexible',
+        arriveTime: (card.querySelector('[data-field="arriveTime"]') || {}).value || 'flexible'
+      });
+    });
+    return trips;
+  }
+
+  function tripCardHtml(t, i, total) {
+    var remove = total > 1
+      ? '<button type="button" class="trip-remove" data-remove-trip="' + i + '">Remove</button>'
+      : '';
+    return '' +
+      '<div class="trip-card">' +
+        '<div class="trip-card-head"><span class="trip-card-title">Trip ' + (i + 1) + '</span>' + remove + '</div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>From</label>' +
+          '<input type="text" data-field="from" placeholder="City or airport" value="' + escapeHtml(t.from) + '"></div>' +
+          '<div class="field"><label>To</label>' +
+          '<input type="text" data-field="to" placeholder="City or airport" value="' + escapeHtml(t.to) + '"></div>' +
+        '</div>' +
+        '<div class="field"><label>Date</label>' +
+        '<select data-field="date">' + dateOptions(t.date) + '</select></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>Preferred leaving time</label>' +
+          '<select data-field="leaveTime">' + timeOptions(t.leaveTime) + '</select></div>' +
+          '<div class="field"><label>Preferred arriving time</label>' +
+          '<select data-field="arriveTime">' + timeOptions(t.arriveTime) + '</select></div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  var templates = {
+    party: function () {
+      var emailField = urlEmail ? '' :
+        '<div class="field"><label for="email">Email</label>' +
+        '<input type="email" id="email" autocomplete="email" placeholder="you@example.com" value="' + escapeHtml(state.email) + '"></div>';
+      return '' +
+        '<p class="step-eyebrow">Step 1</p>' +
+        '<h2 class="step-title">Who&rsquo;s traveling?</h2>' +
+        '<p class="step-sub">Couples and families can answer together.</p>' +
+        '<div class="field"><label for="partyName">Party name</label>' +
+        '<input type="text" id="partyName" placeholder="e.g. Jordan &amp; Priya Patel" value="' + escapeHtml(state.partyName) + '"></div>' +
+        emailField +
+        '<div class="field"><label>How many people in your party?</label></div>' +
+        '<div class="stepper"><button type="button" id="decSize">\u2212</button>' +
+        '<div class="val" id="sizeVal">' + state.partySize + '</div>' +
+        '<button type="button" id="incSize">+</button></div>' +
+        '<div class="nav"><span></span><button type="button" class="btn-next" id="next">Continue</button></div>';
+    },
+    car: function () {
+      return '' +
+        '<p class="step-eyebrow">' + stepLabel('car') + '</p>' +
+        '<h2 class="step-title">Will you have a car, or need a ride?</h2>' +
+        '<p class="step-sub">This is what we use to group people, so be honest about it.</p>' +
+        '<label class="choice' + (state.carStatus === 'own' ? ' selected' : '') + '">' +
+          '<input type="radio" name="carStatus" value="own"' + (state.carStatus === 'own' ? ' checked' : '') + '>' +
+          '<span class="dot" aria-hidden="true"></span><strong>I&rsquo;ll have a car</strong><span>Driving your own, or renting one</span></label>' +
+        '<label class="choice' + (state.carStatus === 'need' ? ' selected' : '') + '">' +
+          '<input type="radio" name="carStatus" value="need"' + (state.carStatus === 'need' ? ' checked' : '') + '>' +
+          '<span class="dot" aria-hidden="true"></span><strong>I need a ride</strong><span>We&rsquo;ll place you in a carpool group</span></label>' +
+        '<div class="nav"><button type="button" class="btn-back" id="back">Back</button>' +
+        '<button type="button" class="btn-next" id="next"' + (!state.carStatus ? ' disabled' : '') + '>Continue</button></div>';
+    },
+    seats: function () {
+      return '' +
+        '<p class="step-eyebrow">' + stepLabel('seats') + '</p>' +
+        '<h2 class="step-title">How many passengers can you take?</h2>' +
+        '<p class="step-sub">Not counting your own party.</p>' +
+        '<div class="stepper"><button type="button" id="decSeats">\u2212</button>' +
+        '<div class="val" id="seatsVal">' + state.seatsFree + '</div>' +
+        '<button type="button" id="incSeats">+</button></div>' +
+        '<div class="nav"><button type="button" class="btn-back" id="back">Back</button>' +
+        '<button type="button" class="btn-next" id="next">Continue</button></div>';
+    },
+    trips: function () {
+      var cards = state.trips.map(function (t, i) {
+        return tripCardHtml(t, i, state.trips.length);
+      }).join('');
+      var add = state.trips.length < MAX_TRIPS
+        ? '<button type="button" class="btn-add" id="addTrip">Add another trip</button>'
+        : '';
+      return '' +
+        '<p class="step-eyebrow">' + stepLabel('trips') + '</p>' +
+        '<h2 class="step-title">List every trip you want to carpool</h2>' +
+        cards + add +
+        '<div class="nav"><button type="button" class="btn-back" id="back">Back</button>' +
+        '<button type="button" class="btn-next" id="next">Continue</button></div>';
+    },
+    review: function () {
+      var car = state.carStatus === 'own'
+        ? 'Has a car \u00b7 ' + state.seatsFree + ' free seat' + (state.seatsFree === 1 ? '' : 's')
+        : 'Needs a ride';
+      var trips = filledTrips(state.trips);
+      var tripLines = trips.length
+        ? trips.map(function (t, i) {
+            return '<div class="review-line"><span class="k">Trip ' + (i + 1) + '</span><span class="v">' + escapeHtml(tripSummary(t)) + '</span></div>';
+          }).join('')
+        : '<div class="review-line"><span class="k">Trips</span><span class="v">None filled in</span></div>';
+      return '' +
+        '<p class="step-eyebrow">Last step</p>' +
+        '<h2 class="step-title">Double check and send</h2>' +
+        '<div class="review">' +
+          '<div class="review-line"><span class="k">Party</span><span class="v">' + escapeHtml(state.partyName || '') + ' (' + state.partySize + ')</span></div>' +
+          '<div class="review-line"><span class="k">Car</span><span class="v">' + escapeHtml(car) + '</span></div>' +
+          tripLines +
+        '</div>' +
+        '<div class="nav"><button type="button" class="btn-back" id="back">Back</button>' +
+        '<button type="button" class="btn-next" id="submit">Submit</button></div>';
+    }
+  };
+
+  function bind() {
+    var back = document.getElementById('back');
+    var next = document.getElementById('next');
+    if (back) back.onclick = function () {
+      if (currentStepId === 'trips') state.trips = readTripsFromDom();
+      goTo(-1);
+    };
+
+    if (currentStepId === 'party') {
+      document.getElementById('decSize').onclick = function () {
+        state.partySize = Math.max(1, state.partySize - 1);
+        document.getElementById('sizeVal').textContent = String(state.partySize);
+      };
+      document.getElementById('incSize').onclick = function () {
+        state.partySize = Math.min(8, state.partySize + 1);
+        document.getElementById('sizeVal').textContent = String(state.partySize);
+      };
+      next.onclick = function () {
+        state.partyName = (document.getElementById('partyName').value || '').trim();
+        var emailEl = document.getElementById('email');
+        if (emailEl) state.email = (emailEl.value || '').trim();
+        if (!state.partyName) { errorMsg.textContent = 'Please enter a party name.'; return; }
+        if (!urlEmail) {
+          if (!/^\S+@\S+\.\S+$/.test(state.email)) {
+            errorMsg.textContent = 'Please enter a valid email.';
+            return;
+          }
+        }
+        errorMsg.textContent = '';
+        goTo(1);
+      };
+    }
+
+    if (currentStepId === 'car') {
+      function chooseCar(val) {
+        if (!val) return;
+        state.carStatus = val;
+        Array.prototype.forEach.call(document.querySelectorAll('.choice'), function (card) {
+          var on = card.querySelector('input') && card.querySelector('input').value === val;
+          if (on) card.classList.add('selected');
+          else card.classList.remove('selected');
+          var input = card.querySelector('input');
+          if (input) input.checked = on;
+        });
+        if (next) next.disabled = false;
+      }
+      Array.prototype.forEach.call(document.querySelectorAll('.choice'), function (el) {
+        var input = el.querySelector('input');
+        function pick() { chooseCar(input && input.value); }
+        el.onpointerdown = pick;
+        el.onclick = pick;
+        if (input) input.onchange = pick;
+      });
+      if (next) next.onclick = function () { if (state.carStatus) goTo(1); };
+    }
+
+    if (currentStepId === 'seats') {
+      document.getElementById('decSeats').onclick = function () {
+        state.seatsFree = Math.max(1, state.seatsFree - 1);
+        document.getElementById('seatsVal').textContent = String(state.seatsFree);
+      };
+      document.getElementById('incSeats').onclick = function () {
+        state.seatsFree = Math.min(6, state.seatsFree + 1);
+        document.getElementById('seatsVal').textContent = String(state.seatsFree);
+      };
+      next.onclick = function () { goTo(1); };
+    }
+
+    if (currentStepId === 'trips') {
+      var addTrip = document.getElementById('addTrip');
+      if (addTrip) addTrip.onclick = function () {
+        state.trips = readTripsFromDom();
+        if (state.trips.length >= MAX_TRIPS) return;
+        state.trips.push(emptyTrip());
+        render();
+        var froms = root.querySelectorAll('.trip-card [data-field="from"]');
+        if (froms.length) froms[froms.length - 1].focus();
+      };
+      Array.prototype.forEach.call(document.querySelectorAll('[data-remove-trip]'), function (btn) {
+        btn.onclick = function () {
+          var idx = Number(btn.getAttribute('data-remove-trip'));
+          state.trips = readTripsFromDom();
+          if (state.trips.length <= 1) return;
+          state.trips.splice(idx, 1);
+          render();
+        };
+      });
+      next.onclick = function () {
+        state.trips = readTripsFromDom();
+        var hasDate = state.trips.some(function (t) { return t.date; });
+        if (!hasDate) {
+          errorMsg.textContent = 'Add a date to at least one trip.';
+          return;
+        }
+        errorMsg.textContent = '';
+        goTo(1);
+      };
+    }
+
+    if (currentStepId === 'review') {
+      document.getElementById('submit').onclick = submit;
+    }
+  }
+
+  function submit() {
+    var btn = document.getElementById('submit');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending\u2026'; }
+    var trips = filledTrips(state.trips).map(function (t) {
+      return {
+        from: t.from,
+        to: t.to,
+        date: t.date,
+        dateLabel: DATE_LABELS[t.date] || t.date,
+        leaveTime: TIME_LABELS[t.leaveTime] || t.leaveTime,
+        arriveTime: TIME_LABELS[t.arriveTime] || t.arriveTime
+      };
+    });
+    var payload = {
+      type: 'carpool',
+      partyName: state.partyName,
+      email: state.email,
+      partySize: state.partySize,
+      carStatus: state.carStatus,
+      seatsFree: state.carStatus === 'own' ? state.seatsFree : '',
+      tripsText: trips.map(function (t, i) {
+        return (i + 1) + '. ' + (t.from || '?') + ' \u2192 ' + (t.to || '?') + ' \u00b7 ' + (t.dateLabel || t.date) + ' \u00b7 leave ' + (t.leaveTime || '').toLowerCase();
+      }).join('\n'),
+      tripsJson: JSON.stringify(trips),
+      submittedAt: new Date().toISOString()
+    };
+
+    function finish() {
+      document.getElementById('formArea').classList.add('hidden');
+      document.getElementById('confirm').classList.add('show');
+      window.scrollTo(0, 0);
+    }
+
+    if (ENDPOINT) {
+      fetch(ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      }).then(finish).catch(finish);
+    } else {
+      finish();
+    }
+  }
+
+  function render() {
+    errorMsg.textContent = '';
+    var steps = getSteps();
+    var idx = steps.indexOf(currentStepId);
+    var denom = steps.length;
+    progressFill.style.width = (denom ? Math.round(((idx + 1) / denom) * 100) : 0) + '%';
+    root.innerHTML = templates[currentStepId]();
+    bind();
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

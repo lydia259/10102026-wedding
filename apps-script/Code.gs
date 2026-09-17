@@ -24,7 +24,7 @@ function getAdminToken_() {
 const SHEETS = {
   rsvp: {
     name: 'RSVPs',
-    headers: ['Submitted At', 'Name', 'Email', 'Attending', 'Plus One', 'Transport', 'Song Title', 'Song Artist', 'Entree', 'Dietary', 'Address', 'Meal Submitted At']
+    headers: ['Submitted At', 'Name', 'Email', 'Attending', 'Plus One', 'Transport', 'Song Title', 'Song Artist', 'Entree', 'Dietary', 'Address', 'Meal Submitted At', 'Table', 'Seat']
   },
   gift: {
     name: 'Gifts',
@@ -33,6 +33,13 @@ const SHEETS = {
   vote: {
     name: 'Votes',
     headers: ['Submitted At', 'Voter ID', 'Song Key', 'Direction']
+  },
+  carpool: {
+    name: 'Carpools',
+    headers: [
+      'Submitted At', 'Party Name', 'Email', 'Party Size', 'Car Status', 'Seats Free',
+      'Trips', 'Trips JSON'
+    ]
   }
 };
 
@@ -69,6 +76,21 @@ function doPost(e) {
     if (type === 'meal') {
       const result = upsertMeal_(body, submittedAt);
       return jsonOut_({ ok: true, updated: !!result.updated });
+    }
+
+    // Optional carpool opt-in from carpool.html. One row per travel party.
+    if (type === 'carpool') {
+      appendRow_(SHEETS.carpool, [
+        submittedAt,
+        body.partyName || '',
+        body.email || '',
+        body.partySize || '',
+        body.carStatus === 'own' ? 'Has a car' : (body.carStatus === 'need' ? 'Needs a ride' : ''),
+        body.seatsFree == null ? '' : body.seatsFree,
+        body.tripsText || '',
+        body.tripsJson || ''
+      ]);
+      return jsonOut_({ ok: true });
     }
 
     if (type === 'gift') {
@@ -146,6 +168,23 @@ function doPost(e) {
         updates
       );
       return jsonOut_({ ok: !!updated, updated: !!updated });
+    }
+
+    // Silent bulk admin edit: updates many rows in one request. Used by the
+    // seating tab so a drag does not fire one write per guest.
+    if (type === 'admin-bulk-update') {
+      const expected = getAdminToken_();
+      if (!expected || String(body.token || '') !== expected) {
+        return jsonOut_({ ok: false, error: 'unauthorized' });
+      }
+      const sheetKey = String(body.sheet || '').toLowerCase();
+      const config = sheetKey === 'rsvp' ? SHEETS.rsvp
+                   : sheetKey === 'gift' ? SHEETS.gift
+                   : null;
+      if (!config) return jsonOut_({ ok: false, error: 'unknown sheet' });
+      const items = Array.isArray(body.rows) ? body.rows : [];
+      const result = bulkUpdateRowsBySubmittedAt_(config.name, config.headers, items);
+      return jsonOut_({ ok: true, updated: result.updated });
     }
 
     return jsonOut_({ ok: false, error: 'unknown type' });
@@ -519,6 +558,58 @@ function updateRowBySubmittedAt_(sheetName, headers, submittedAtIso, updates) {
     return true;
   }
   return false;
+}
+
+/**
+ * Applies many { submittedAt, updates } patches in one sheet read/write.
+ * "Submitted At" is never overwritten. Missing header names in `updates`
+ * are created first. Returns { updated: number of matching rows written }.
+ */
+function bulkUpdateRowsBySubmittedAt_(sheetName, headers, items) {
+  const out = { updated: 0 };
+  if (!items || !items.length) return out;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet || sheet.getLastRow() < 2) return out;
+
+  const extra = [];
+  items.forEach(function (item) {
+    if (item && item.updates && typeof item.updates === 'object') {
+      Object.keys(item.updates).forEach(function (h) { extra.push(h); });
+    }
+  });
+  ensureHeaders_(sheet, headers);
+  if (extra.length) ensureHeaders_(sheet, extra);
+
+  const lastRow = sheet.getLastRow();
+  const lastCol = sheet.getLastColumn();
+  const physical = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(h => String(h).trim());
+  const data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+
+  const byIso = {};
+  items.forEach(function (item) {
+    const iso = String((item && item.submittedAt) || '');
+    if (!iso || !item.updates || typeof item.updates !== 'object') return;
+    byIso[iso] = item.updates;
+  });
+
+  for (let i = 0; i < data.length; i++) {
+    const v = data[i][0];
+    const iso = v instanceof Date ? v.toISOString() : String(v);
+    const updates = byIso[iso];
+    if (!updates) continue;
+    physical.forEach(function (h, idx) {
+      if (idx === 0) return;
+      if (Object.prototype.hasOwnProperty.call(updates, h)) {
+        const val = updates[h];
+        data[i][idx] = val == null ? '' : val;
+      }
+    });
+    out.updated++;
+  }
+
+  if (out.updated) sheet.getRange(2, 1, lastRow - 1, lastCol).setValues(data);
+  return out;
 }
 
 function readSheet_(sheetName) {
@@ -932,6 +1023,19 @@ const DINNER = {
   defaultCol:      'Default Notice At'
 };
 
+const DRESS_CODE = {
+  subject:       'Dress code for Lydia & Colin\u2019s wedding',
+  testRecipient: 'Lydiahongp@gmail.com',
+  emailedCol:    'Dress Code Emailed At'
+};
+
+const HOTEL_REMINDER = {
+  subject:       'Hotel block closing soon \u00b7 Colin & Lydia',
+  testRecipient: 'Lydiahongp@gmail.com',
+  emailedCol:    'Hotel Reminder Emailed At',
+  mapsLink:      'https://www.google.com/maps/search/?api=1&query=Calamigos+Ranch+Malibu+CA'
+};
+
 /** Adds the "Wedding" menu to the spreadsheet UI. */
 function onOpen() {
   SpreadsheetApp.getUi()
@@ -950,6 +1054,18 @@ function onOpen() {
     .addSeparator()
     .addItem('Default notice: preview no-meal-yet', 'defaultNoticePreview')
     .addItem('Default notice: SEND to no-meal-yet', 'defaultNoticeSend')
+    .addSeparator()
+    .addItem('Dress code email: preview recipients', 'dressCodePreviewRecipients')
+    .addItem('Dress code email: send test to me', 'dressCodeSendTest')
+    .addItem('Dress code email: send test to an address\u2026', 'dressCodeSendTestTo')
+    .addSeparator()
+    .addItem('Dress code email: SEND to all unsent', 'dressCodeSendAll')
+    .addSeparator()
+    .addItem('Hotel reminder: preview recipients', 'hotelReminderPreviewRecipients')
+    .addItem('Hotel reminder: send test to me', 'hotelReminderSendTest')
+    .addItem('Hotel reminder: send test to an address\u2026', 'hotelReminderSendTestTo')
+    .addSeparator()
+    .addItem('Hotel reminder: SEND to all unsent', 'hotelReminderSendAll')
     .addToUi();
 }
 
@@ -1585,6 +1701,704 @@ function buildDinnerText_(firstName, surveyUrl, opts) {
     'Stay in the loop on Partiful: ' + DINNER.partifulLink,
     '',
     'Visit our wedding website: ' + DINNER.rsvpUrl,
+    '',
+    'With love, Colin & Lydia \u00b7 10.10.2026'
+  ].join('\n');
+}
+
+/* =============================================================
+   DRESS-CODE EMAIL BLAST
+   ============================================================= */
+
+function dressCodeRecipientInfo_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEETS.rsvp.name);
+  const out = { total: 0, valid: 0, alreadyEmailed: 0, pending: 0,
+                quota: MailApp.getRemainingDailyQuota(), sample: [] };
+  if (!sheet || sheet.getLastRow() < 2) return out;
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  const nameIdx = headers.indexOf('Name');
+  const emailIdx = headers.indexOf('Email');
+  const emailedIdx = headers.indexOf(DRESS_CODE.emailedCol);
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+
+  const seen = {};
+  data.forEach(row => {
+    out.total++;
+    const email = String(row[emailIdx] || '').trim();
+    const name = String(row[nameIdx] || '').trim();
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) return;
+    const key = email.toLowerCase();
+    if (seen[key]) return;
+    seen[key] = true;
+    out.valid++;
+    const already = emailedIdx !== -1 && String(row[emailedIdx] || '').trim();
+    if (already) { out.alreadyEmailed++; return; }
+    out.pending++;
+    if (out.sample.length < 8) out.sample.push('  \u2022 ' + (name || '(no name)') + ' <' + email + '>');
+  });
+  return out;
+}
+
+function sendOneDressCodeEmail_(email, fullName) {
+  const first = String(fullName || '').trim().split(/\s+/)[0] || 'there';
+  MailApp.sendEmail({
+    to: email,
+    subject: DRESS_CODE.subject,
+    htmlBody: buildDressCodeEmail_(first),
+    body: buildDressCodeText_(first),
+    name: FROM_NAME
+  });
+}
+
+function sendDressCodeEmails_(opts) {
+  opts = opts || {};
+  const onlyUnsent = opts.onlyUnsent !== false;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEETS.rsvp.name);
+  if (!sheet || sheet.getLastRow() < 2) {
+    return { sent: 0, skipped: 0, failed: [], remainingQuota: MailApp.getRemainingDailyQuota(), notes: ['No RSVP rows.'] };
+  }
+
+  let headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  if (headers.indexOf(DRESS_CODE.emailedCol) === -1) {
+    sheet.getRange(1, headers.length + 1).setValue(DRESS_CODE.emailedCol);
+    headers.push(DRESS_CODE.emailedCol);
+  }
+  const nameIdx = headers.indexOf('Name');
+  const emailIdx = headers.indexOf('Email');
+  const emailedIdx = headers.indexOf(DRESS_CODE.emailedCol);
+
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+  const quota = MailApp.getRemainingDailyQuota();
+  const seen = {};
+  let sent = 0, skipped = 0;
+  const failed = [], notes = [];
+
+  for (let i = 0; i < data.length; i++) {
+    const email = String(data[i][emailIdx] || '').trim();
+    const name = String(data[i][nameIdx] || '').trim();
+    const already = emailedIdx !== -1 && String(data[i][emailedIdx] || '').trim();
+
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) { skipped++; continue; }
+    const key = email.toLowerCase();
+    if (seen[key]) { skipped++; continue; }
+    if (onlyUnsent && already) { skipped++; continue; }
+    seen[key] = true;
+
+    if (sent >= quota) {
+      notes.push('Reached today\u2019s Gmail quota (' + quota + '). Run again tomorrow to send the rest.');
+      break;
+    }
+    try {
+      sendOneDressCodeEmail_(email, name);
+      sheet.getRange(i + 2, emailedIdx + 1).setValue(new Date());
+      sent++;
+    } catch (err) {
+      failed.push(email + ': ' + err);
+    }
+  }
+  return { sent: sent, skipped: skipped, failed: failed, remainingQuota: MailApp.getRemainingDailyQuota(), notes: notes };
+}
+
+function dressCodePreviewRecipients() {
+  const info = dressCodeRecipientInfo_();
+  const ui = SpreadsheetApp.getUi();
+  const lines = [
+    'RSVP rows: ' + info.total,
+    'With a valid email: ' + info.valid,
+    'Already emailed: ' + info.alreadyEmailed,
+    'Will receive now: ' + info.pending,
+    'Gmail quota left today: ' + info.quota,
+    '',
+    'Sample of who will receive now:'
+  ].concat(info.sample.length ? info.sample : ['  (none pending)']);
+  ui.alert('Dress code email \u2014 preview', lines.join('\n'), ui.ButtonSet.OK);
+}
+
+function dressCodeSendTest() {
+  const ui = SpreadsheetApp.getUi();
+  try {
+    sendOneDressCodeEmail_(DRESS_CODE.testRecipient, 'Lydia Test');
+    ui.alert('Test sent', 'A sample dress code email was sent to ' + DRESS_CODE.testRecipient + '.', ui.ButtonSet.OK);
+  } catch (err) {
+    ui.alert('Test failed', String(err), ui.ButtonSet.OK);
+  }
+}
+
+function dressCodeSendTestTo() {
+  const ui = SpreadsheetApp.getUi();
+  const resp = ui.prompt('Send a test dress code email',
+    'Enter the recipient. You can include a name:\n\n' +
+    '  John Culver <john@example.com>\n\n' +
+    'or just the email address.', ui.ButtonSet.OK_CANCEL);
+  if (resp.getSelectedButton() !== ui.Button.OK) return;
+
+  const raw = String(resp.getResponseText() || '').trim();
+  let name = '';
+  let to = raw;
+  const m = raw.match(/^(.*?)<\s*([^>]+?)\s*>\s*$/);
+  if (m) { name = m[1].trim(); to = m[2].trim(); }
+
+  if (!/^\S+@\S+\.\S+$/.test(to)) {
+    ui.alert('Invalid email', '\u201c' + to + '\u201d doesn\u2019t look like a valid email address.', ui.ButtonSet.OK);
+    return;
+  }
+  try {
+    sendOneDressCodeEmail_(to, name || 'there');
+    ui.alert('Test sent', 'A sample dress code email was sent to ' + (name ? name + ' <' + to + '>' : to) + '.', ui.ButtonSet.OK);
+  } catch (err) {
+    ui.alert('Test failed', String(err), ui.ButtonSet.OK);
+  }
+}
+
+function dressCodeSendAll() {
+  const ui = SpreadsheetApp.getUi();
+  const info = dressCodeRecipientInfo_();
+  if (info.pending === 0) {
+    ui.alert('Nothing to send', 'No guests are pending. Everyone with an email has already been sent.', ui.ButtonSet.OK);
+    return;
+  }
+  const resp = ui.alert(
+    'Send dress code emails',
+    'Send to ' + info.pending + ' guest(s) who have an email and haven\u2019t been sent yet?\n\n' +
+    'Gmail quota left today: ' + info.quota,
+    ui.ButtonSet.YES_NO
+  );
+  if (resp !== ui.Button.YES) return;
+
+  const r = sendDressCodeEmails_({ onlyUnsent: true });
+  const summary = [
+    'Sent: ' + r.sent,
+    'Skipped (no/dup email or already sent): ' + r.skipped,
+    'Failed: ' + r.failed.length,
+    'Gmail quota left: ' + r.remainingQuota
+  ];
+  if (r.failed.length) summary.push('', 'Failures:', ...r.failed.slice(0, 10));
+  if (r.notes.length) summary.push('', ...r.notes);
+  ui.alert('Dress code email \u2014 done', summary.join('\n'), ui.ButtonSet.OK);
+}
+
+function _dressLadiesSwatches_() {
+  const colors = ['#ff7f6b', '#9caf88', '#e8a0b4', '#eaa221', '#b8a4d4', '#3a9a9a', '#c66b4a'];
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0;"><tr>' +
+    colors.map(_dinnerDot_).join('') + '</tr></table>';
+}
+
+function _dressGentsSwatches_() {
+  return _dinnerSwatchRow_(['#1b2a4a', '#111418', '#36454f']);
+}
+
+function _dressAvoidSwatches_() {
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0;"><tr>' +
+    '<td width="18" height="18" style="width:18px;height:18px;padding:0;font-size:0;line-height:0;vertical-align:top;"><div style="display:block;width:18px;height:18px;background:#f7e7ce;border-radius:50%;"></div></td>' +
+    '<td width="6" style="width:6px;font-size:0;line-height:0;">&nbsp;</td>' +
+    '<td width="18" height="18" style="width:18px;height:18px;padding:0;font-size:0;line-height:0;vertical-align:top;"><div style="display:block;width:16px;height:16px;background:#fffff0;border-radius:50%;border:1px solid #ddd6c8;"></div></td>' +
+    '<td width="6" style="width:6px;font-size:0;line-height:0;">&nbsp;</td>' +
+    '<td width="18" height="18" style="width:18px;height:18px;padding:0;font-size:0;line-height:0;vertical-align:top;"><div style="display:block;width:16px;height:16px;background:#ffffff;border-radius:50%;border:1px solid #ddd6c8;"></div></td>' +
+    '<td width="6" style="width:6px;font-size:0;line-height:0;">&nbsp;</td>' +
+    '<td width="18" height="18" style="width:18px;height:18px;padding:0;font-size:0;line-height:0;vertical-align:top;"><div style="display:block;width:18px;height:18px;background:#d2b48c;border-radius:50%;"></div></td>' +
+    '</tr></table>';
+}
+
+function buildDressCodeEmail_(firstName) {
+  const BG = '#f8f4ec', BAND = '#efe8d9', CARD = '#faf7f0', BORDER = '#ddd6c8';
+  const INK = '#0f1a33', SECOND = '#5a6476', MUTED = '#8a8070', BLUE = '#1e3a8a';
+  const SERIF = "Georgia, 'Times New Roman', serif";
+  const SANS = "Arial, Helvetica, sans-serif";
+  const fn = escapeHtml_(firstName);
+  const siteHref = SITE_URL.replace(/&/g, '&amp;');
+  const ladiesSwatches = _dressLadiesSwatches_();
+  const avoidSwatches = _dressAvoidSwatches_();
+  const gentsSwatches = _dressGentsSwatches_();
+
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+  @media only screen and (max-width:600px) {
+    .email-container { width:100% !important; max-width:100% !important; }
+    .m-body { font-size:18px !important; line-height:1.6 !important; }
+    .m-px { padding-left:24px !important; padding-right:24px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:${BG};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BG};">
+<tr><td align="center" style="padding:32px 0;">
+<table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:${BG};">
+
+  <tr><td align="center" class="m-px" style="padding:32px 40px 0;">
+    <div style="font-family:${SANS};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${BLUE};">October 10, 2026 &middot; Calamigos Ranch, Malibu</div>
+    <div style="font-family:${SERIF};font-style:italic;font-size:44px;color:${INK};padding:16px 0 0;">Colin &amp; Lydia</div>
+    <div style="font-size:0;line-height:0;padding:22px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td width="48" style="width:48px;height:1px;background:${BLUE};opacity:0.3;font-size:0;line-height:0;">&nbsp;</td></tr></table></div>
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.5;text-align:left;">Hi ${fn},</div>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:22px 40px 0;">
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.7;">
+      We&rsquo;ve been getting a lot of questions about the dress code for our wedding, so we wanted to share a quick note on what to wear.
+    </div>
+  </td></tr>
+
+  <tr><td style="padding:28px 0 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BAND};">
+      <tr><td align="center" class="m-px" style="padding:34px 40px;">
+        <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Attire</div>
+        <div style="font-family:${SERIF};font-size:28px;line-height:1.3;color:${INK};font-style:italic;">Formal</div>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:36px 40px 0;">
+    <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:16px;">What to wear</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${BORDER};">
+      <tr><td valign="top" align="left" style="padding:30px 22px;">
+        <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;">Ladies</div>
+        <div style="font-family:${SERIF};font-size:15px;color:${SECOND};margin-bottom:20px;line-height:1.55;">Please wear a <strong style="color:${INK};">floor-length dress</strong> with vibrant summer colors.</div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;">
+          <tr><td style="padding:0 0 18px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;">
+              <tr><td style="padding:0 0 10px;">
+                <div style="font-family:${SANS};font-size:10px;letter-spacing:1px;text-transform:uppercase;color:${BLUE};">Recommended colors</div>
+              </td></tr>
+              <tr><td style="padding:0 0 12px;">${ladiesSwatches}</td></tr>
+            </table>
+          </td></tr>
+          <tr><td style="padding:0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;">
+              <tr><td style="padding:0 0 10px;">
+                <div style="font-family:${SANS};font-size:10px;letter-spacing:1px;text-transform:uppercase;color:${BLUE};">Please avoid</div>
+              </td></tr>
+              <tr><td style="padding:0 0 12px;">
+                <div style="font-family:${SERIF};font-size:13px;color:${MUTED};line-height:1.5;">Champagne, ivory, white, and tan</div>
+              </td></tr>
+              <tr><td style="padding:0;">${avoidSwatches}</td></tr>
+            </table>
+          </td></tr>
+        </table>
+      </td></tr>
+      <tr><td valign="top" align="left" style="padding:30px 22px;border-top:1px solid ${BORDER};">
+        <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;">Gentlemen</div>
+        <div style="font-family:${SERIF};font-size:15px;color:${SECOND};margin-bottom:18px;line-height:1.55;">Please wear a <strong style="color:${INK};">dark suit</strong>.</div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;">
+          <tr><td style="padding:0 0 10px;">
+            <div style="font-family:${SANS};font-size:10px;letter-spacing:1px;text-transform:uppercase;color:${BLUE};">Recommended colors</div>
+          </td></tr>
+          <tr><td style="padding:0 0 12px;">
+            <div style="font-family:${SERIF};font-size:13px;color:${MUTED};line-height:1.5;">Navy, black, and charcoal</div>
+          </td></tr>
+          <tr><td style="padding:0;">${gentsSwatches}</td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:28px 40px 0;">
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.7;">
+      If you&rsquo;re not sure what to wear or have any questions, feel free to reply to this email. We&rsquo;re happy to help.
+    </div>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:26px 40px 0;">
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.7;">
+      We can&rsquo;t wait to celebrate with you all!
+    </div>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:28px 40px 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${BORDER};background:${CARD};">
+      <tr><td style="padding:24px 22px;">
+        <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;">Dress inspo</div>
+        <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.7;">
+          A few places our guests have loved shopping for dresses:
+        </div>
+        <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.9;padding-top:10px;">
+          <a href="https://www.shein.com/" style="color:${BLUE};text-decoration:none;">Shein</a> &middot;
+          <a href="https://www.aritzia.com/" style="color:${BLUE};text-decoration:none;">Aritzia</a> &middot;
+          <a href="https://www.shopcider.com/" style="color:${BLUE};text-decoration:none;">Cider</a> &middot;
+          <a href="https://www.azazie.com/all/bridesmaid-dresses" style="color:${BLUE};text-decoration:none;">Azazie</a> &middot;
+          <a href="https://www.revolve.com/" style="color:${BLUE};text-decoration:none;">Revolve</a> &middot;
+          <a href="https://meshki.us/" style="color:${BLUE};text-decoration:none;">Meshki</a> &middot;
+          <a href="https://www.thereformation.com/" style="color:${BLUE};text-decoration:none;">Reformation</a> &middot;
+          <a href="https://www.saksfifthavenue.com/" style="color:${BLUE};text-decoration:none;">Saks</a> &middot;
+          <a href="https://houseofcb.com/" style="color:${BLUE};text-decoration:none;">House of CB</a> &middot;
+          <a href="https://www.shopdoen.com/" style="color:${BLUE};text-decoration:none;">Doen</a> &middot;
+          <a href="https://www.amelie.us/" style="color:${BLUE};text-decoration:none;">Amelie</a> &middot;
+          <a href="https://becandbridge.com/" style="color:${BLUE};text-decoration:none;">Bec &amp; Bridge</a> &middot;
+          <a href="https://www.forloveandlemons.com/" style="color:${BLUE};text-decoration:none;">For Love &amp; Lemons</a>
+        </div>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <tr><td style="padding:36px 0 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BAND};">
+      <tr><td align="center" class="m-px" style="padding:28px 40px;">
+        <div style="font-family:${SERIF};font-style:italic;font-size:18px;color:${INK};">With love,</div>
+        <div style="font-family:${SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${MUTED};margin-top:10px;">Colin &amp; Lydia &middot; 10.10.2026</div>
+        <div style="margin-top:16px;"><a href="${siteHref}" style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};text-decoration:none;">Visit our wedding website &rarr;</a></div>
+      </td></tr>
+    </table>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body></html>`;
+}
+
+function buildDressCodeText_(firstName) {
+  return [
+    'Colin & Lydia \u00b7 October 10, 2026 \u00b7 Calamigos Ranch, Malibu',
+    '',
+    'Hi ' + firstName + ',',
+    '',
+    'We\u2019ve been getting a lot of questions about the dress code for our wedding, so we wanted to share a quick note on what to wear.',
+    '',
+    'ATTIRE: Formal',
+    '',
+    'LADIES: Please wear a floor-length dress with vibrant summer colors.',
+    'Please avoid champagne, ivory, white, and tan.',
+    '',
+    'GENTLEMEN: Please wear a dark suit in navy, black, or charcoal.',
+    '',
+    'If you\u2019re not sure what to wear or have any questions, feel free to reply to this email.',
+    '',
+    'We can\u2019t wait to celebrate with you all!',
+    '',
+    'Dress inspo: Shein, Aritzia, Cider, Azazie, Revolve, Meshki, Reformation, Saks, House of CB, Doen, Amelie, Bec & Bridge, For Love & Lemons',
+    '',
+    SITE_URL,
+    '',
+    'With love, Colin & Lydia \u00b7 10.10.2026'
+  ].join('\n');
+}
+
+/* =============================================================
+   HOTEL-REMINDER EMAIL BLAST
+   ============================================================= */
+
+function hotelReminderRecipientInfo_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEETS.rsvp.name);
+  const out = { total: 0, valid: 0, alreadyEmailed: 0, pending: 0,
+                quota: MailApp.getRemainingDailyQuota(), sample: [] };
+  if (!sheet || sheet.getLastRow() < 2) return out;
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  const nameIdx = headers.indexOf('Name');
+  const emailIdx = headers.indexOf('Email');
+  const emailedIdx = headers.indexOf(HOTEL_REMINDER.emailedCol);
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+
+  const seen = {};
+  data.forEach(row => {
+    out.total++;
+    const email = String(row[emailIdx] || '').trim();
+    const name = String(row[nameIdx] || '').trim();
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) return;
+    const key = email.toLowerCase();
+    if (seen[key]) return;
+    seen[key] = true;
+    out.valid++;
+    const already = emailedIdx !== -1 && String(row[emailedIdx] || '').trim();
+    if (already) { out.alreadyEmailed++; return; }
+    out.pending++;
+    if (out.sample.length < 8) out.sample.push('  \u2022 ' + (name || '(no name)') + ' <' + email + '>');
+  });
+  return out;
+}
+
+function sendOneHotelReminderEmail_(email, fullName) {
+  const first = String(fullName || '').trim().split(/\s+/)[0] || 'there';
+  MailApp.sendEmail({
+    to: email,
+    subject: HOTEL_REMINDER.subject,
+    htmlBody: buildHotelReminderEmail_(first),
+    body: buildHotelReminderText_(first),
+    name: FROM_NAME
+  });
+}
+
+function sendHotelReminderEmails_(opts) {
+  opts = opts || {};
+  const onlyUnsent = opts.onlyUnsent !== false;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEETS.rsvp.name);
+  if (!sheet || sheet.getLastRow() < 2) {
+    return { sent: 0, skipped: 0, failed: [], remainingQuota: MailApp.getRemainingDailyQuota(), notes: ['No RSVP rows.'] };
+  }
+
+  let headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  if (headers.indexOf(HOTEL_REMINDER.emailedCol) === -1) {
+    sheet.getRange(1, headers.length + 1).setValue(HOTEL_REMINDER.emailedCol);
+    headers.push(HOTEL_REMINDER.emailedCol);
+  }
+  const nameIdx = headers.indexOf('Name');
+  const emailIdx = headers.indexOf('Email');
+  const emailedIdx = headers.indexOf(HOTEL_REMINDER.emailedCol);
+
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+  const quota = MailApp.getRemainingDailyQuota();
+  const seen = {};
+  let sent = 0, skipped = 0;
+  const failed = [], notes = [];
+
+  for (let i = 0; i < data.length; i++) {
+    const email = String(data[i][emailIdx] || '').trim();
+    const name = String(data[i][nameIdx] || '').trim();
+    const already = emailedIdx !== -1 && String(data[i][emailedIdx] || '').trim();
+
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) { skipped++; continue; }
+    const key = email.toLowerCase();
+    if (seen[key]) { skipped++; continue; }
+    if (onlyUnsent && already) { skipped++; continue; }
+    seen[key] = true;
+
+    if (sent >= quota) {
+      notes.push('Reached today\u2019s Gmail quota (' + quota + '). Run again tomorrow to send the rest.');
+      break;
+    }
+    try {
+      sendOneHotelReminderEmail_(email, name);
+      sheet.getRange(i + 2, emailedIdx + 1).setValue(new Date());
+      sent++;
+    } catch (err) {
+      failed.push(email + ': ' + err);
+    }
+  }
+  return { sent: sent, skipped: skipped, failed: failed, remainingQuota: MailApp.getRemainingDailyQuota(), notes: notes };
+}
+
+function hotelReminderPreviewRecipients() {
+  const info = hotelReminderRecipientInfo_();
+  const ui = SpreadsheetApp.getUi();
+  const lines = [
+    'RSVP rows: ' + info.total,
+    'With a valid email: ' + info.valid,
+    'Already emailed: ' + info.alreadyEmailed,
+    'Will receive now: ' + info.pending,
+    'Gmail quota left today: ' + info.quota,
+    '',
+    'Sample of who will receive now:'
+  ].concat(info.sample.length ? info.sample : ['  (none pending)']);
+  ui.alert('Hotel reminder \u2014 preview', lines.join('\n'), ui.ButtonSet.OK);
+}
+
+function hotelReminderSendTest() {
+  const ui = SpreadsheetApp.getUi();
+  try {
+    sendOneHotelReminderEmail_(HOTEL_REMINDER.testRecipient, 'Lydia Test');
+    ui.alert('Test sent', 'A sample hotel reminder was sent to ' + HOTEL_REMINDER.testRecipient + '.', ui.ButtonSet.OK);
+  } catch (err) {
+    ui.alert('Test failed', String(err), ui.ButtonSet.OK);
+  }
+}
+
+function hotelReminderSendTestTo() {
+  const ui = SpreadsheetApp.getUi();
+  const resp = ui.prompt('Send a test hotel reminder',
+    'Enter the recipient. You can include a name:\n\n' +
+    '  John Culver <john@example.com>\n\n' +
+    'or just the email address.', ui.ButtonSet.OK_CANCEL);
+  if (resp.getSelectedButton() !== ui.Button.OK) return;
+
+  const raw = String(resp.getResponseText() || '').trim();
+  let name = '';
+  let to = raw;
+  const m = raw.match(/^(.*?)<\s*([^>]+?)\s*>\s*$/);
+  if (m) { name = m[1].trim(); to = m[2].trim(); }
+
+  if (!/^\S+@\S+\.\S+$/.test(to)) {
+    ui.alert('Invalid email', '\u201c' + to + '\u201d doesn\u2019t look like a valid email address.', ui.ButtonSet.OK);
+    return;
+  }
+  try {
+    sendOneHotelReminderEmail_(to, name || 'there');
+    ui.alert('Test sent', 'A sample hotel reminder was sent to ' + (name ? name + ' <' + to + '>' : to) + '.', ui.ButtonSet.OK);
+  } catch (err) {
+    ui.alert('Test failed', String(err), ui.ButtonSet.OK);
+  }
+}
+
+function hotelReminderSendAll() {
+  const ui = SpreadsheetApp.getUi();
+  const info = hotelReminderRecipientInfo_();
+  if (info.pending === 0) {
+    ui.alert('Nothing to send', 'No guests are pending. Everyone with an email has already been sent.', ui.ButtonSet.OK);
+    return;
+  }
+  const resp = ui.alert(
+    'Send hotel reminder emails',
+    'Send to ' + info.pending + ' guest(s) who have an email and haven\u2019t been sent yet?\n\n' +
+    'Gmail quota left today: ' + info.quota,
+    ui.ButtonSet.YES_NO
+  );
+  if (resp !== ui.Button.YES) return;
+
+  const r = sendHotelReminderEmails_({ onlyUnsent: true });
+  const summary = [
+    'Sent: ' + r.sent,
+    'Skipped (no/dup email or already sent): ' + r.skipped,
+    'Failed: ' + r.failed.length,
+    'Gmail quota left: ' + r.remainingQuota
+  ];
+  if (r.failed.length) summary.push('', 'Failures:', ...r.failed.slice(0, 10));
+  if (r.notes.length) summary.push('', ...r.notes);
+  ui.alert('Hotel reminder \u2014 done', summary.join('\n'), ui.ButtonSet.OK);
+}
+
+function buildHotelReminderEmail_(firstName) {
+  const BG = '#f8f4ec', BAND = '#efe8d9', CARD = '#faf7f0', BORDER = '#ddd6c8';
+  const INK = '#0f1a33', SECOND = '#5a6476', MUTED = '#8a8070', BLUE = '#1e3a8a';
+  const SERIF = "Georgia, 'Times New Roman', serif";
+  const SANS = "Arial, Helvetica, sans-serif";
+  const fn = escapeHtml_(firstName);
+  const hotelHref = DINNER.hotelLink.replace(/&/g, '&amp;');
+  const partifulHref = DINNER.partifulLink.replace(/&/g, '&amp;');
+  const mapsHref = HOTEL_REMINDER.mapsLink.replace(/&/g, '&amp;');
+  const siteHref = SITE_URL.replace(/&/g, '&amp;');
+
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+  @media only screen and (max-width:600px) {
+    .email-container { width:100% !important; max-width:100% !important; }
+    .m-body { font-size:18px !important; line-height:1.6 !important; }
+    .m-px { padding-left:24px !important; padding-right:24px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:${BG};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BG};">
+<tr><td align="center" style="padding:32px 0;">
+<table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:${BG};">
+
+  <tr><td align="center" class="m-px" style="padding:32px 40px 0;">
+    <div style="font-family:${SANS};font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${BLUE};">October 10, 2026 &middot; Calamigos Ranch, Malibu</div>
+    <div style="font-family:${SERIF};font-style:italic;font-size:44px;color:${INK};padding:16px 0 0;">Colin &amp; Lydia</div>
+    <div style="font-size:0;line-height:0;padding:22px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td width="48" style="width:48px;height:1px;background:${BLUE};opacity:0.3;font-size:0;line-height:0;">&nbsp;</td></tr></table></div>
+  </td></tr>
+
+  <tr><td style="padding:6px 0 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BAND};">
+      <tr><td align="center" class="m-px" style="padding:34px 40px;">
+        <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Closing soon</div>
+        <div style="font-family:${SERIF};font-size:22px;line-height:1.35;color:${INK};margin-bottom:26px;">Hilton &middot; Calamigos wedding block <span style="white-space:nowrap;">(group code&nbsp;90B)</span></div>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
+          <td style="background:${BLUE};">
+            <a href="${hotelHref}" style="display:inline-block;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BG};text-decoration:none;padding:15px 34px;">Book your stay now</a>
+          </td>
+        </tr></table>
+        <div style="font-family:${SERIF};font-size:14px;color:${SECOND};line-height:1.55;margin-top:22px;">If you do not see any availability on the website for the date you want, feel free to reply to this email or call <strong style="color:${INK};">818.865.1000</strong> and mention code <strong style="color:${INK};">90B</strong> to book.</div>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:28px 40px 0;">
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.5;text-align:left;">Hi ${fn},</div>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:22px 40px 0;">
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.7;">
+      A quick note that our Hilton <strong style="color:${INK};">hotel block</strong> is <strong style="color:${INK};">closing soon</strong>. If you have <strong style="color:${INK};">not booked</strong> a room yet and would like to stay with the group, please reserve yours now. After it closes, the discounted group rate is no longer guaranteed, and rooms may be limited.
+    </div>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:28px 40px 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${BORDER};background:${CARD};">
+      <tr><td align="left" style="padding:28px 22px;">
+        <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:12px;">The venue</div>
+        <div style="font-family:${SERIF};font-size:22px;line-height:1.3;margin-bottom:6px;"><a href="${mapsHref}" style="color:${INK};text-decoration:none;">Calamigos Ranch</a></div>
+        <div style="font-family:${SERIF};font-size:15px;margin-bottom:16px;"><a href="${mapsHref}" style="color:${SECOND};text-decoration:none;">Malibu, California</a></div>
+        <a href="${mapsHref}" style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};text-decoration:none;">View on Google Maps &rarr;</a>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:28px 40px 0;">
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.7;">
+      The wedding is at <strong style="color:${INK};">Calamigos Ranch</strong> in Malibu, so the drive in and out is <strong style="color:${INK};">through the mountains</strong>. If you can, we really recommend <strong style="color:${INK};">staying nearby</strong> so you are not making that drive late at night. We want everyone to get home safely. <strong style="color:${INK};">Please do not drink and drive.</strong>
+    </div>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:32px 40px 4px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="height:1px;background:${BLUE};opacity:0.3;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:36px 40px 0;" align="center">
+    <div style="font-family:${SANS};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:14px;text-align:left;">Stay in the loop</div>
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:${SECOND};line-height:1.6;margin:0 0 22px;text-align:left;"><strong style="color:${INK};">Partiful</strong> is our home base for the wedding. If you are planning to drive, it is also the easiest place to coordinate a <strong style="color:${INK};">carpool</strong> with other guests heading to Malibu.</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${BORDER};margin-bottom:24px;"><tr>
+      <td width="33%" valign="top" align="left" style="padding:24px 14px;">
+        <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Ask Questions</div>
+        <div style="font-family:${SERIF};font-size:14px;color:${SECOND};line-height:1.5;">Anything about the day? We&rsquo;re happy to help.</div>
+      </td>
+      <td width="34%" valign="top" align="left" style="padding:24px 14px;border-left:1px solid ${BORDER};">
+        <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Find a Carpool</div>
+        <div style="font-family:${SERIF};font-size:14px;color:${SECOND};line-height:1.5;">Coordinate rides with other guests heading to Malibu.</div>
+      </td>
+      <td width="33%" valign="top" align="left" style="padding:24px 14px;border-left:1px solid ${BORDER};">
+        <div style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};margin-bottom:10px;">Day-of Updates</div>
+        <div style="font-family:${SERIF};font-size:14px;color:${SECOND};line-height:1.5;">Timing, weather, and any last-minute notes.</div>
+      </td>
+    </tr></table>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+      <td align="center" style="background:${BLUE};">
+        <a href="${partifulHref}" style="display:block;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BG};text-decoration:none;padding:15px 34px;text-align:center;">Coordinate a carpool</a>
+      </td>
+    </tr></table>
+  </td></tr>
+
+  <tr><td class="m-px" style="padding:32px 40px 0;">
+    <div class="m-body" style="font-family:${SERIF};font-size:15px;color:#2a3347;line-height:1.7;">
+      We can&rsquo;t wait to celebrate with you all!
+    </div>
+  </td></tr>
+
+  <tr><td style="padding:36px 0 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BAND};">
+      <tr><td align="center" class="m-px" style="padding:28px 40px;">
+        <div style="font-family:${SERIF};font-style:italic;font-size:18px;color:${INK};">With love,</div>
+        <div style="font-family:${SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${MUTED};margin-top:10px;">Colin &amp; Lydia &middot; 10.10.2026</div>
+        <div style="margin-top:16px;"><a href="${siteHref}" style="font-family:${SANS};font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${BLUE};text-decoration:none;">Visit our wedding website &rarr;</a></div>
+      </td></tr>
+    </table>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body></html>`;
+}
+
+function buildHotelReminderText_(firstName) {
+  return [
+    'Colin & Lydia \u00b7 October 10, 2026 \u00b7 Calamigos Ranch, Malibu',
+    '',
+    'Hi ' + firstName + ',',
+    '',
+    'A quick note that our Hilton hotel block is closing soon. If you have not booked a room yet and would like to stay with the group, please reserve yours now. After it closes, the discounted group rate is no longer guaranteed, and rooms may be limited.',
+    '',
+    'Book your stay: ' + DINNER.hotelLink,
+    'If you do not see any availability on the website for the date you want, feel free to reply to this email or call 818.865.1000 and mention code 90B to book.',
+    '',
+    'The venue: Calamigos Ranch, Malibu, California',
+    'Map: ' + HOTEL_REMINDER.mapsLink,
+    '',
+    'The wedding is at Calamigos Ranch in Malibu, so the drive in and out is through the mountains. If you can, we really recommend staying nearby so you are not making that drive late at night. We want everyone to get home safely. Please do not drink and drive.',
+    '',
+    'Partiful is our home base for the wedding. If you are planning to drive, it is also the easiest place to coordinate a carpool with other guests heading to Malibu.',
+    'Coordinate a carpool: ' + DINNER.partifulLink,
+    '',
+    'We can\u2019t wait to celebrate with you all!',
+    '',
+    SITE_URL,
     '',
     'With love, Colin & Lydia \u00b7 10.10.2026'
   ].join('\n');
