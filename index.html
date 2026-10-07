@@ -586,7 +586,15 @@
   .detail-card-link:hover .detail-maplink svg { transform: translate(2px, -2px); }
 
   /* Details day-of timeline */
-  .details-timeline { margin-top: 64px; }
+  .details-timeline { margin-top: 56px; }
+  .details-timeline .detail-cell-label { display: block; }
+  .details-timeline .timeline {
+    margin-top: 20px;
+    max-width: none;
+    border: 1px solid var(--line-soft);
+    background: #f8f4ec;
+    padding: 8px 32px;
+  }
   .details-timeline .timeline-time {
     font-size: 32px;
     white-space: nowrap;
@@ -2848,11 +2856,49 @@
       </div>
       <div class="detail-cell">
         <span class="detail-cell-label">The Place</span>
-        <span class="detail-cell-value">Calamigos Ranch</span>
+        <span class="detail-cell-value">Calamigos Ranch, Oak Room</span>
         <a class="detail-cell-sub detail-cell-map" href="https://www.google.com/maps/search/?api=1&amp;query=Calamigos+Ranch+Malibu+CA" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           Malibu, California
         </a>
+      </div>
+    </div>
+
+    <div class="details-timeline reveal in">
+      <span class="detail-cell-label">The day</span>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-time">5:00 PM</div>
+          <div class="timeline-content">
+            <h4>Arrival</h4>
+            <p>Please arrive and park before 5:00 PM.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">5:30 PM</div>
+          <div class="timeline-content">
+            <h4>Ceremony</h4>
+            <p>Please be seated a few minutes early.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">6:00 PM</div>
+          <div class="timeline-content">
+            <h4>Cocktail hour</h4>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">7:00 PM</div>
+          <div class="timeline-content">
+            <h4>Reception begins</h4>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">11:30 PM</div>
+          <div class="timeline-content">
+            <h4>Evening ends</h4>
+          </div>
+        </div>
       </div>
     </div>
 
