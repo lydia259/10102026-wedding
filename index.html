@@ -520,6 +520,24 @@
   }
   .detail-cell-map:hover { color: var(--accent); }
   .detail-cell-map svg { width: 13px; height: 13px; flex: 0 0 auto; }
+  .details-route-note {
+    margin-top: 24px;
+    padding: 22px 28px;
+    border: 1px solid var(--line-soft);
+    background: #f8f4ec;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--silver);
+  }
+  .details-route-note strong {
+    font-family: 'Bodoni Moda', serif;
+    font-style: normal;
+    font-weight: 500;
+    color: var(--porcelain);
+  }
   .detail-card {
     background: var(--ink-blue);
     padding: 60px 40px;
@@ -2810,7 +2828,7 @@
     <div class="tagline">
 </div>
     <div class="meta">
-      <span>Calamigos Ranch</span>
+      <span>Calamigos Ranch Events</span>
       <span class="dot"></span>
       <span>Malibu, California</span>
     </div>
@@ -2856,13 +2874,15 @@
       </div>
       <div class="detail-cell">
         <span class="detail-cell-label">The Place</span>
-        <span class="detail-cell-value">Calamigos Ranch, Oak Room</span>
-        <a class="detail-cell-sub detail-cell-map" href="https://www.google.com/maps/search/?api=1&amp;query=Calamigos+Ranch+Malibu+CA" target="_blank" rel="noopener">
+        <span class="detail-cell-value">Calamigos Ranch Events, Oak Room</span>
+        <a class="detail-cell-sub detail-cell-map" href="https://www.google.com/maps/search/?api=1&amp;query=Calamigos+Ranch+Events+Oak+Room+Malibu+CA" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           Malibu, California
         </a>
       </div>
     </div>
+
+    <p class="details-route-note reveal in">There is a Calamigos Ranch Hotel and a Calamigos Ranch Events. Please route to <strong>Calamigos Ranch Events</strong>.</p>
 
     <div class="details-timeline reveal in">
       <span class="detail-cell-label">The day</span>
